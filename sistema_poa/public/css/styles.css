@@ -1,0 +1,97 @@
+body {
+    margin: 0;
+    font-family: Calibri, Arial, sans-serif;
+    background: #f4f6f9;
+}
+
+header {
+    background: #003366;
+    color: white;
+    padding: 15px;
+}
+
+.container {
+    display: flex;
+}
+
+.sidebar {
+    width: 220px;
+    background: #1f2937;
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+.sidebar h3 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 10px 0;
+}
+
+.sidebar ul li a {
+    color: #d1d5db;
+    text-decoration: none;
+    padding: 10px 20px;
+    display: block;
+}
+
+.sidebar ul li a:hover {
+    background: #374151;
+    color: #fff;
+}
+
+.main {
+    flex: 1;
+    padding: 25px;
+}
+
+h2 {
+    margin-top: 0;
+    color: #111827;
+}
+
+.formulario {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.formulario input,
+.formulario select {
+    padding: 8px;
+    margin-right: 10px;
+}
+
+.formulario button {
+    padding: 8px 15px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.tabla {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+}
+
+.tabla th {
+    background: #e5e7eb;
+    padding: 10px;
+    text-align: left;
+}
+
+.tabla td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
