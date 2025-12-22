@@ -1,36 +1,31 @@
 <?php
-require_once 'models/Usuario.php';
+require_once __DIR__ . '/../models/Usuario.php';
 
 class LoginController {
 
     public function index() {
-        require 'views/login.php';
+        $error = $_SESSION['error'] ?? null;
+        unset($_SESSION['error']);
+        require_once __DIR__ . '/../views/auth/login.php';
     }
 
     public function autenticar() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $usuario = trim($_POST['usuario']);
+            $password = trim($_POST['password']);
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $user = Usuario::login($usuario, $password);
+
+            if ($user) {
+                $_SESSION['usuario'] = $user;
+                header("Location: index.php?action=dashboard");
+                exit;
+            }
+
+            $_SESSION['error'] = 'Usuario o contraseña incorrectos';
             header("Location: index.php?action=login");
             exit;
         }
-
-        $usuario  = trim($_POST['usuario']);
-        $password = trim($_POST['password']);
-
-        $user = Usuario::login($usuario, $password);
-
-        if ($user) {
-            $_SESSION['usuario'] = [
-                'id'     => $user['id_usuario'],
-                'nombre' => $user['nombres']
-            ];
-
-            header("Location: index.php?action=dashboard");
-            exit;
-        }
-
-        $error = "Usuario o contraseña incorrectos";
-        require 'views/login.php';
     }
 
     public function logout() {

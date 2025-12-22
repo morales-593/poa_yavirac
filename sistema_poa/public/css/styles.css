@@ -1,97 +1,79 @@
-body {
-    margin: 0;
+/* ======== LOGIN ======== */
+body.login-page {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
     font-family: Calibri, Arial, sans-serif;
-    background: #f4f6f9;
 }
 
-header {
-    background: #003366;
-    color: white;
-    padding: 15px;
+.login-container {
+    width: 360px;
+    margin: 120px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.15);
 }
 
-.container {
-    display: flex;
-}
-
-.sidebar {
-    width: 220px;
-    background: #1f2937;
-    min-height: 100vh;
-    padding: 20px 0;
-}
-
-.sidebar h3 {
-    color: #fff;
+.login-container h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    font-weight: 700;
+    color: #1e3a8a;
 }
 
-.sidebar ul {
-    list-style: none;
-    padding: 0;
+.login-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
 }
 
-.sidebar ul li {
-    margin: 10px 0;
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
 }
 
-.sidebar ul li a {
-    color: #d1d5db;
-    text-decoration: none;
-    padding: 10px 20px;
+.login-container button:hover {
+    background: #1e40af;
+}
+
+.error {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 8px;
+    border-radius: 4px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* ======== MENÚ ======== */
+.sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: #1e3a8a;
+}
+
+.sidebar a {
+    color: #e5e7eb;
+    padding: 12px 20px;
     display: block;
+    text-decoration: none;
 }
 
-.sidebar ul li a:hover {
-    background: #374151;
+.sidebar a:hover,
+.sidebar a.active {
+    background: #2563eb;
     color: #fff;
 }
 
-.main {
-    flex: 1;
-    padding: 25px;
-}
-
-h2 {
-    margin-top: 0;
-    color: #111827;
-}
-
-.formulario {
-    background: #fff;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-}
-
-.formulario input,
-.formulario select {
-    padding: 8px;
-    margin-right: 10px;
-}
-
-.formulario button {
-    padding: 8px 15px;
-    background: #2563eb;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.tabla {
-    width: 100%;
-    background: white;
-    border-collapse: collapse;
-}
-
-.tabla th {
-    background: #e5e7eb;
-    padding: 10px;
-    text-align: left;
-}
-
-.tabla td {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
+.sidebar .menu-title {
+    padding: 15px 20px;
+    font-size: 13px;
+    color: #c7d2fe;
+    text-transform: uppercase;
 }
