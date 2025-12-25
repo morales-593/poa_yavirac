@@ -30,8 +30,10 @@ switch ($action) {
 
     case 'dashboard':
         verificarSesion();
-        require_once 'views/dashboard/index.php';
+        require_once 'controllers/DashboardController.php';
+        (new DashboardController())->index();
         break;
+
 
     /* ===== USUARIOS ===== */
 
