@@ -58,7 +58,35 @@ switch ($action) {
         require_once __DIR__ . '/controllers/UsuarioController.php';
         (new UsuarioController())->eliminar();
         break;
+    /* ===== tema poa ===== */
+    case 'temas_poa':
+        verificarSesion();
+        require_once 'controllers/TemaPoaController.php';
+        (new TemaPoaController())->index();
+        break;
 
+    case 'guardarTema':
+        verificarSesion();
+        require_once 'controllers/TemaPoaController.php';
+        (new TemaPoaController())->guardar();
+        break;
+
+    case 'editarTema':
+        verificarSesion();
+        require_once 'controllers/TemaPoaController.php';
+        (new TemaPoaController())->editar();
+        break;
+
+    case 'eliminarTema':
+        verificarSesion();
+        require_once 'controllers/TemaPoaController.php';
+        (new TemaPoaController())->eliminar();
+        break;
+    case 'estadoTema':
+        verificarSesion();
+        require_once 'controllers/TemaPoaController.php';
+        (new TemaPoaController())->estado();
+        break;
 
     /* ===== EJES ===== */
 
@@ -73,6 +101,95 @@ switch ($action) {
         require_once 'controllers/EjeController.php';
         (new EjeController())->guardar();
         break;
+
+    case 'editarEje':
+        verificarSesion();
+        require_once 'controllers/EjeController.php';
+        (new EjeController())->editar();
+        break;
+
+    case 'eliminarEje':
+        verificarSesion();
+        require_once 'controllers/EjeController.php';
+        (new EjeController())->eliminar();
+        break;
+
+    /* ===== indicadores ===== */
+
+    case 'indicadores':
+        verificarSesion();
+        require_once 'controllers/IndicadorController.php';
+        (new IndicadorController())->index();
+        break;
+
+    case 'guardarIndicador':
+        verificarSesion();
+        require_once 'controllers/IndicadorController.php';
+        (new IndicadorController())->guardar();
+        break;
+
+    case 'eliminarIndicador':
+        verificarSesion();
+        require_once 'controllers/IndicadorController.php';
+        (new IndicadorController())->eliminar();
+        break;
+
+    /* ===== plazos ===== */
+
+    case 'plazos':
+        verificarSesion();
+        require_once 'controllers/PlazoController.php';
+        (new PlazoController())->index();
+        break;
+
+    case 'guardarPlazo':
+        verificarSesion();
+        require_once 'controllers/PlazoController.php';
+        (new PlazoController())->guardar();
+        break;
+
+    case 'actualizarPlazo':
+        verificarSesion();
+        require_once 'controllers/PlazoController.php';
+        (new PlazoController())->actualizar();
+        break;
+
+    case 'eliminarPlazo':
+        verificarSesion();
+        require_once 'controllers/PlazoController.php';
+        (new PlazoController())->eliminar();
+        break;
+    /* ===== responsables ===== */
+    case 'responsables':
+        verificarSesion();
+        require_once 'controllers/ResponsableController.php';
+        (new ResponsableController())->index();
+        break;
+
+    case 'guardarResponsable':
+        verificarSesion();
+        require_once 'controllers/ResponsableController.php';
+        (new ResponsableController())->guardar();
+        break;
+
+    case 'actualizarResponsable':
+        verificarSesion();
+        require_once 'controllers/ResponsableController.php';
+        (new ResponsableController())->actualizar();
+        break;
+
+    case 'toggleResponsable':
+        verificarSesion();
+        require_once 'controllers/ResponsableController.php';
+        (new ResponsableController())->toggle();
+        break;
+
+    case 'eliminarResponsable':
+        verificarSesion();
+        require_once 'controllers/ResponsableController.php';
+        (new ResponsableController())->eliminar();
+        break;
+
 
     default:
         header("Location: index.php?action=login");

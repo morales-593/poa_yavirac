@@ -2,7 +2,7 @@
 class Database {
     public static function connect() {
         return new PDO(
-            "mysql:host=localhost;dbname=poa_yavirac;charset=utf8mb4",
+            "mysql:host=localhost;dbname=nuevo_poa;charset=utf8mb4",
             "root",
             "",
             [
