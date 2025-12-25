@@ -76,12 +76,11 @@
             </li>
 
             <!-- Plan Operativo -->
-            <li class="nav-item mb-2">
-                <a class="nav-link text-white <?= ($_GET['action'] ?? '') === 'planes' ? 'active bg-primary rounded' : '' ?>"
-                    href="index.php?action=planes">
-                    <i class="fas fa-file-alt me-3"></i> Plan Operativo
-                </a>
-            </li>
+            <a class="nav-link text-white <?= ($_GET['action'] ?? '') == 'planes' ? 'bg-primary' : '' ?>"
+                href="index.php?action=planes">
+                <i class="fas fa-file-alt me-2"></i> Planes Operativos
+            </a>
+
 
         </ul>
 

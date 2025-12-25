@@ -15,12 +15,12 @@ class Dashboard
 
     public static function usuariosActivos()
     {
-        return self::db()->query("SELECT COUNT(*) FROM usuarios WHERE estado = 'ACTIVO'")->fetchColumn();
+        return self::db()->query("SELECT COUNT(*) FROM usuarios WHERE estado='ACTIVO'")->fetchColumn();
     }
 
     public static function planesCompletados()
     {
-        return self::db()->query("SELECT COUNT(*) FROM planes WHERE estado = 'COMPLETADO'")->fetchColumn();
+        return self::db()->query("SELECT COUNT(*) FROM planes WHERE estado='COMPLETADO'")->fetchColumn();
     }
 
     public static function totalEjes()

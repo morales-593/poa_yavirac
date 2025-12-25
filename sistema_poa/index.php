@@ -191,6 +191,26 @@ switch ($action) {
         require_once 'controllers/ResponsableController.php';
         (new ResponsableController())->eliminar();
         break;
+    /* ===== planes ===== */
+
+    case 'planes':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->index();
+        break;
+
+    case 'guardarPlan':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->guardar();
+        break;
+
+    case 'eliminarPlan':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->eliminar();
+        break;
+
 
 
     default:

@@ -15,6 +15,8 @@ class DashboardController
         $estadoPorEje      = Dashboard::estadoPorEje();
         $eficiencia        = Dashboard::eficienciaResponsables();
 
+        require_once 'views/layout/header.php';
         require_once 'views/dashboard/index.php';
+        require_once 'views/layout/footer.php';
     }
 }
