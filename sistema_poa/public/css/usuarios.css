@@ -1,0 +1,337 @@
+:root {
+  --primary-color: #2563eb;
+  --secondary-color: #2563eb;
+  --accent-color: #2563eb;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  --success-color: #4ade80;
+  --danger-color: #f43f5e;
+  --warning-color: #f59e0b;
+  --info-color: #0ea5e9;
+  --gray-light: #f1f5f9;
+  --gray-medium: #cbd5e1;
+  --border-radius: 15px;
+  --box-shadow: 0 10px 25px #4362eebb;
+  --box-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.301);
+  --transition: all 0.3s ease;
+}
+
+
+.container-fluid {
+  padding: 30px;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 30px;
+}
+
+/* Encabezado */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--gray-medium);
+}
+
+.page-header h2 {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  position: relative;
+  padding-left: 15px;
+  margin: 0;
+}
+
+.page-header h2:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 5px;
+  height: 80%;
+  width: 4px;
+  background-color: var(--accent-color);
+  border-radius: 4px;
+}
+
+/* Botones */
+.btn-modern {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 10px 20px;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+}
+
+.btn-outline-danger {
+  color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(244, 63, 94, 0.3);
+}
+
+.btn-secondary {
+  background-color: var(--gray-medium);
+  border-color: var(--gray-medium);
+  color: var(--dark-color);
+}
+
+.btn-secondary:hover {
+  background-color: #94a3b8;
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(100, 116, 139, 0.3);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.875rem;
+}
+
+/* Buscador */
+.search-container {
+  background-color: var(--gray-light);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  margin-bottom: 30px;
+  border: 1px solid var(--gray-medium);
+}
+
+.form-control,
+.form-select {
+  border-radius: 10px;
+  padding: 12px 15px;
+  border: 1px solid var(--gray-medium);
+  transition: var(--transition);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  outline: none;
+}
+
+/* Tarjetas de usuarios */
+.user-card {
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  transition: var(--transition);
+  height: 100%;
+}
+
+.user-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-body {
+  padding: 25px;
+}
+
+.user-name {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+}
+
+.user-info {
+  margin-bottom: 20px;
+}
+
+.user-info p {
+  margin-bottom: 8px;
+  color: var(--dark-color);
+}
+
+.user-info strong {
+  color: var(--primary-color);
+  min-width: 80px;
+  display: inline-block;
+}
+
+/* Badges */
+.status-badge {
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+}
+
+.status-active {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.status-inactive {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Modal */
+.modal-content {
+  border-radius: 15px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  padding: 20px 30px;
+  color: white;
+}
+
+.modal-header h5 {
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-body {
+  padding: 30px;
+}
+
+.modal-footer {
+  padding: 20px 30px;
+  background-color: var(--gray-light);
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--secondary-color);
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Estado vacío */
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: #64748b;
+  background-color: var(--gray-light);
+  border-radius: var(--border-radius);
+  border: 2px dashed var(--gray-medium);
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  color: var(--gray-medium);
+}
+
+.empty-state h5 {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-card {
+  animation: fadeIn 0.5s ease forwards;
+  animation-delay: calc(var(--i) * 0.05s);
+  opacity: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .container-fluid {
+    padding: 15px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .search-container {
+    padding: 15px;
+  }
+
+  .modal-dialog {
+    margin: 10px;
+  }
+
+  .user-card {
+    margin-bottom: 15px;
+  }
+}
+
+/* Grid layout */
+.row {
+  margin-left: -10px;
+  margin-right: -10px;
+}
+
+.col-md-4 {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* Iconos */
+.bi {
+  font-size: 1.1em;
+}

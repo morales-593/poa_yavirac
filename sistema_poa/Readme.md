@@ -22,8 +22,7 @@ VALUES (
   '$2y$10$2m0o2vC6UWjtHC6dTbW7bu56f1yZpM4XoV7kRIp/8aG2JRnsO85QC'
 );
 $2y$10$2m0o2vC6UWjtHC6dTbW7bu56f1yZpM4XoV7kRIp/8aG2JRnsO85QC
-
-
+$2y$10$FXOhAb.xnwdXiFsqWSXFye6mY5o3Xue4aSM8WkeQQQV9GLDGVLQuG
 
 
 -- Tabla de usuarios
@@ -40,14 +39,14 @@ CREATE TABLE usuarios (
 CREATE TABLE ejes (
     id_eje INT PRIMARY KEY AUTO_INCREMENT,
     nombre_eje VARCHAR(150) NOT NULL,
-    descripcion_objetivo TEXT NOT NULL,
+    descripcion_objetivo TEXT NOT NULL
 );
 
 -- Tabla de temas POA
 CREATE TABLE temas_poa (
     id_tema INT PRIMARY KEY AUTO_INCREMENT,
     descripcion TEXT NOT NULL,
-    estado ENUM('ACTIVO', 'INACTIVO') DEFAULT 'ACTIVO',
+    estado ENUM('ACTIVO', 'INACTIVO') DEFAULT 'ACTIVO'
 );
 
 -- Tabla de responsables de área

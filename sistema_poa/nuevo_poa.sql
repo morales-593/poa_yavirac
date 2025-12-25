@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-12-2025 a las 03:29:19
+-- Tiempo de generación: 26-12-2025 a las 00:24:58
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -62,6 +62,15 @@ CREATE TABLE `ejes` (
   `descripcion_objetivo` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `ejes`
+--
+
+INSERT INTO `ejes` (`id_eje`, `nombre_eje`, `descripcion_objetivo`) VALUES
+(1, 'DOCENCIA', 'Capacitar técnica y tecnológicamente a la sociedarl en el áren de turis*co, patrimonio cultural y cai“ieras afines, propiciar la inserción laboral y apoyar el desariollo de las matrices  productivas  y de servicios.'),
+(2, 'VINCULACIÓN', 'No cumple con el  elemento esencial 1 referente a la articulación de la planificación de la vinculación con el PEDI.\r\nNo cumple con el elemento esencial 3 referente a la participación de los actores relevantes de la sociedad para la elaboración de la planificación de la vinculación. '),
+(3, 'ORGANIZACION', 'El Instituto cumple con todos los elementos esenciales y complementarios de este indicador. Planifica y ejecuta sus relaciones interinstitucionales sobre la base de aprovechar las potencialidades de las mismas para elevar su calidad educativa, y su planificación es coherente con el PEDI y POA en lo que se refiere a la resolución de necesidades institucionales en el área de innovación, capacitación, infraestructura y equipamiento técnico. La planificación de cada acción cuenta con objetivos, procedimientos, participantes y cronograma de ejecución. Las acciones desarrolladas son coherentes con las necesidades institucionales, garantizando el cumplimiento de los objetivos propuestos. Los convenios firmados han sido subidos al aplicativo SIESS, su número cumple con los objetivos trazados en la planificación y sus resultados incluyen homologación de carreras, capacitación de docentes, equipamiento técnico y fortalecimiento de la imagen institucional a través de la red de Arte Culinario. Cuenta con una normativa interna aprobada y vigente, y en el marco de su competencia ha desarrollado acciones de movilidad con resultados tangibles. La Institución presenta convenios con instituciones extranjeras tanto para homologación como para capacitación, garantizando así el cumplimiento de los objetivos trazados en su planificación. ');
+
 -- --------------------------------------------------------
 
 --
@@ -74,6 +83,13 @@ CREATE TABLE `indicadores` (
   `descripcion` text NOT NULL,
   `id_eje` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `indicadores`
+--
+
+INSERT INTO `indicadores` (`id_indicador`, `codigo`, `descripcion`, `id_eje`) VALUES
+(1, '1.1.1', 'Planificación estratégica y operativa', 3);
 
 -- --------------------------------------------------------
 
@@ -130,8 +146,20 @@ CREATE TABLE `plan_detalle` (
 
 CREATE TABLE `plazos` (
   `id_plazo` int(11) NOT NULL,
-  `nombre_plazo` varchar(100) NOT NULL
+  `nombre_plazo` varchar(100) NOT NULL,
+  `fecha_inicio` date NOT NULL,
+  `fecha_fin` date NOT NULL,
+  `estado` enum('ACTIVO','INACTIVO') DEFAULT 'ACTIVO'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `plazos`
+--
+
+INSERT INTO `plazos` (`id_plazo`, `nombre_plazo`, `fecha_inicio`, `fecha_fin`, `estado`) VALUES
+(1, 'ANUAL', '0000-00-00', '0000-00-00', 'ACTIVO'),
+(2, 'SEMANAL', '0000-00-00', '0000-00-00', 'ACTIVO'),
+(3, 'MENSUAL', '0000-00-00', '0000-00-00', 'ACTIVO');
 
 -- --------------------------------------------------------
 
@@ -142,9 +170,15 @@ CREATE TABLE `plazos` (
 CREATE TABLE `responsables` (
   `id_responsable` int(11) NOT NULL,
   `nombre_responsable` varchar(150) NOT NULL,
-  `cargo` varchar(100) DEFAULT NULL,
   `estado` enum('ACTIVO','INACTIVO') DEFAULT 'ACTIVO'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `responsables`
+--
+
+INSERT INTO `responsables` (`id_responsable`, `nombre_responsable`, `estado`) VALUES
+(1, 'COORDINACION / SOFTWARE', 'ACTIVO');
 
 -- --------------------------------------------------------
 
@@ -173,6 +207,14 @@ CREATE TABLE `temas_poa` (
   `estado` enum('ACTIVO','INACTIVO') DEFAULT 'ACTIVO'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `temas_poa`
+--
+
+INSERT INTO `temas_poa` (`id_tema`, `descripcion`, `estado`) VALUES
+(1, 'ELABORACION POA 2024', 'ACTIVO'),
+(2, 'ELABORACION POA 2025', 'ACTIVO');
+
 -- --------------------------------------------------------
 
 --
@@ -193,7 +235,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `nombres`, `usuario`, `password`, `estado`, `fecha_creacion`) VALUES
-(1, 'Administrador POA', 'admin', '$2y$10$2m0o2vC6UWjtHC6dTbW7bu56f1yZpM4XoV7kRIp/8aG2JRnsO85QC', 'ACTIVO', '2025-12-25 02:27:53');
+(1, 'Administrador POA', 'admin', '$2y$10$2m0o2vC6UWjtHC6dTbW7bu56f1yZpM4XoV7kRIp/8aG2JRnsO85QC\n\n', 'ACTIVO', '2025-12-25 23:00:58'),
+(3, 'Administrador POA', 'wiliam', '$2y$10$2m0o2vC6UWjtHC6dTbW7bu56f1yZpM4XoV7kRIp/8aG2JRnsO85QC', 'ACTIVO', '2025-12-25 23:05:19'),
+(4, 'coordinador', 'wiliam23', '$2y$10$xWqNCnO0tmp1yWbffnQsGePndbRBac5Dca0TPdTRgme1fXE6Z8Wdq', 'ACTIVO', '2025-12-25 23:06:55');
 
 --
 -- Índices para tablas volcadas
@@ -303,13 +347,13 @@ ALTER TABLE `ejecucion`
 -- AUTO_INCREMENT de la tabla `ejes`
 --
 ALTER TABLE `ejes`
-  MODIFY `id_eje` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_eje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `indicadores`
 --
 ALTER TABLE `indicadores`
-  MODIFY `id_indicador` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_indicador` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `medios_verificacion`
@@ -333,13 +377,13 @@ ALTER TABLE `plan_detalle`
 -- AUTO_INCREMENT de la tabla `plazos`
 --
 ALTER TABLE `plazos`
-  MODIFY `id_plazo` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_plazo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `responsables`
 --
 ALTER TABLE `responsables`
-  MODIFY `id_responsable` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_responsable` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `seguimiento`
@@ -351,13 +395,13 @@ ALTER TABLE `seguimiento`
 -- AUTO_INCREMENT de la tabla `temas_poa`
 --
 ALTER TABLE `temas_poa`
-  MODIFY `id_tema` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_tema` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Restricciones para tablas volcadas
