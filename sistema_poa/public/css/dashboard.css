@@ -1,0 +1,321 @@
+/* Variables de color */
+:root {
+    --primary-gradient: linear-gradient(135deg, #4285f4 0%, #0d47a1 100%);
+    --success-gradient: linear-gradient(135deg, #0f9d58 0%, #0a8043 100%);
+    --warning-gradient: linear-gradient(135deg, #f4b400 0%, #f09300 100%);
+    --purple-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --info-gradient: linear-gradient(135deg, #00acc1 0%, #00838f 100%);
+    --table-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+}
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+/* Tarjetas de métricas con diferentes colores */
+.metric-card-1 {
+    background: white;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 25px rgba(66, 133, 244, 0.1);
+    border-left: 5px solid #4285f4;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.metric-card-2 {
+    background: white;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 25px rgba(15, 157, 88, 0.1);
+    border-left: 5px solid #0f9d58;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.metric-card-3 {
+    background: white;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 25px rgba(244, 180, 0, 0.1);
+    border-left: 5px solid #f4b400;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.metric-card-4 {
+    background: var(--purple-gradient);
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    border-left: 5px solid #764ba2;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Iconos en tarjetas */
+.card-icon {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+}
+
+.icon-wrapper:hover {
+    transform: rotate(15deg) scale(1.1);
+}
+
+.bg-primary-gradient {
+    background: var(--primary-gradient);
+}
+
+.bg-success-gradient {
+    background: var(--success-gradient);
+}
+
+.bg-warning-gradient {
+    background: var(--warning-gradient);
+}
+
+.bg-purple-gradient {
+    background: var(--purple-gradient);
+}
+
+/* Textos con gradiente */
+.gradient-text-1 {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.gradient-text-2 {
+    background: var(--success-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.gradient-text-3 {
+    background: var(--warning-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Badges animados */
+.animate-badge {
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 10px currentColor;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(66, 133, 244, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); }
+}
+
+/* Animaciones */
+.animate-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.animate-slide-left {
+    animation: slideInLeft 0.8s ease-out forwards;
+    opacity: 0;
+}
+
+.animate-slide-right {
+    animation: slideInRight 0.8s ease-out forwards;
+    opacity: 0;
+}
+
+.animate-fade-in {
+    animation: fadeIn 1s ease-out forwards;
+    opacity: 0;
+}
+
+.animate-table-row {
+    animation: fadeInRow 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInRow {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Tarjetas de gráficos */
+.card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
+
+.chart-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(66, 133, 244, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.table-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 172, 193, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+/* Tabla estilizada */
+.table-header-gradient {
+    background: var(--table-gradient) !important;
+    border-radius: 10px 10px 0 0;
+}
+
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table thead th {
+    border: none;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(66, 133, 244, 0.05) !important;
+    transform: scale(1.01);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.plan-count-badge {
+    background: linear-gradient(135deg, #4285f4 0%, #0d47a1 100%);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 10px rgba(66, 133, 244, 0.3);
+}
+
+/* Sombras mejoradas */
+.shadow-lg {
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .display-7 {
+        font-size: 1.75rem;
+    }
+    
+    .icon-wrapper {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+    
+    .card {
+        border-radius: 15px;
+    }
+    
+    .animate-slide-left,
+    .animate-slide-right {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+}
+
+/* Scroll personalizado */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #4285f4 0%, #0d47a1 100%);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #0d47a1 0%, #4285f4 100%);
+}

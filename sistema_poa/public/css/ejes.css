@@ -1,0 +1,323 @@
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #2563eb;
+            --accent-color: #2563eb;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4ade80;
+            --danger-color: #f43f5e;
+            --warning-color: #f59e0b;
+            --gray-light: #f1f5f9;
+            --gray-medium: #cbd5e1;
+            --border-radius: 15px;
+            --box-shadow: 0 10px 25px #4362eebb;
+            --box-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.425);
+            --transition: all 0.3s ease;
+        }
+
+        .container-fluid {
+            padding: 30px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+        
+        /* Encabezado */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-medium);
+        }
+        
+        .page-header h4 {
+            font-weight: 700;
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            position: relative;
+            padding-left: 15px;
+        }
+        
+        .page-header h4:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            height: 80%;
+            width: 4px;
+            background-color: var(--accent-color);
+            border-radius: 4px;
+        }
+        
+        /* Botones */
+        .btn-modern {
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 10px 20px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #e11d48;
+            border-color: #e11d48;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(244, 63, 94, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: var(--gray-medium);
+            border-color: var(--gray-medium);
+            color: var(--dark-color);
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.875rem;
+        }
+        
+        /* Tabla */
+        .table-container {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 30px;
+            padding: 15px;
+        }
+        
+        .table {
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 18px 15px;
+            border: none;
+            position: relative;
+        }
+        
+        .table thead th:not(:last-child):after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 20%;
+            height: 60%;
+            width: 1px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .table tbody tr {
+            transition: var(--transition);
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table tbody td {
+            padding: 16px 15px;
+            border-bottom: 1px solid var(--gray-light);
+            vertical-align: middle;
+        }
+        
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Modal */
+        .modal-content {
+            border-radius: 15px;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 20px 30px;
+        }
+        
+        .modal-header h5 {
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+        
+        .modal-body {
+            padding: 30px;
+        }
+        
+        .modal-footer {
+            padding: 20px 30px;
+            background-color: var(--gray-light);
+        }
+        
+        /* Formulario */
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid var(--gray-medium);
+            transition: var(--transition);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+        
+        /* Badge para ID */
+        .id-badge {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        
+        /* Estado de acciones */
+        .actions-cell {
+            min-width: 180px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 15px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .table-responsive {
+                border-radius: 10px;
+                border: 1px solid var(--gray-light);
+            }
+            
+            .table thead {
+                display: none;
+            }
+            
+            .table tbody tr {
+                display: block;
+                margin-bottom: 20px;
+                border: 1px solid var(--gray-light);
+                border-radius: 10px;
+                padding: 15px;
+            }
+            
+            .table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid var(--gray-light);
+            }
+            
+            .table tbody td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--secondary-color);
+                margin-right: 10px;
+            }
+            
+            .table tbody td:last-child {
+                border-bottom: none;
+            }
+            
+            .actions-cell {
+                justify-content: center !important;
+                gap: 10px;
+            }
+        }
+        
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .table tbody tr {
+            animation: fadeIn 0.5s ease forwards;
+            animation-delay: calc(var(--i) * 0.05s);
+            opacity: 0;
+        }
+        
+        /* Estilos específicos para celdas */
+        .eje-name {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .objetivo-desc {
+            color: #555;
+            line-height: 1.5;
+            max-height: 100px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        /* Scrollbar personalizado */
+        .objetivo-desc::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .objetivo-desc::-webkit-scrollbar-thumb {
+            background-color: var(--gray-medium);
+            border-radius: 10px;
+        }
+        
+        /* Mensaje de estado vacío */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--gray-medium);
+        }
+        
+        /* Estilos para el modal de edición dentro de la tabla */
+        .modal-editar {
+            z-index: 1055;
+        }
