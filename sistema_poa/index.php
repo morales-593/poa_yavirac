@@ -12,7 +12,7 @@ if (!isset($_SESSION['usuario']) && !in_array($action, ['login', 'autenticar']))
 }
 
 switch ($action) {
-
+    /* ===== login ===== */
     case 'login':
         require_once 'controllers/LoginController.php';
         (new LoginController())->index();

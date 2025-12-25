@@ -1,0 +1,187 @@
+/* public/css/styles.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body.login-page {
+    background: linear-gradient(135deg, #667eea 0%, #2563eb 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-container {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.login-container h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+    font-size: 28px;
+    background: linear-gradient(to right, #667eea, #2563eb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.login-container h2:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(to right, #667eea, #2563eb);
+    border-radius: 2px;
+}
+
+.login-container form h2 {
+    font-size: 16px;
+    color: #555;
+    margin: 20px 0 8px 0;
+    font-weight: 500;
+    text-align: left;
+    padding: 0;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    color: #555;
+}
+
+.login-container form h2:after {
+    display: none;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    border: 2px solid #e1e1e1;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+.login-container input:focus {
+    outline: none;
+    border-color: #667eea;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.login-container input::placeholder {
+    color: #aaa;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(to right, #667eea, #2563eb);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
+}
+
+.login-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(102, 126, 234, 0.2);
+}
+
+.login-container button:active {
+    transform: translateY(0);
+}
+
+.login-container .error {
+    background-color: #ffe6e6;
+    color: #d32f2f;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    text-align: center;
+    border-left: 5px solid #d32f2f;
+    font-weight: 500;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Efecto de carga en el botón */
+.login-container button.loading {
+    position: relative;
+    color: transparent;
+}
+
+.login-container button.loading:after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 500px) {
+    .login-container {
+        padding: 30px 25px;
+        margin: 10px;
+    }
+    
+    .login-container h2 {
+        font-size: 24px;
+    }
+}
+
+/* Efectos adicionales para mejor UX */
+.login-container input:not(:placeholder-shown) {
+    background-color: #fff;
+}
+
+.login-container form {
+    margin-top: 10px;
+}
