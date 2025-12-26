@@ -1,3 +1,13 @@
+<input type="checkbox" id="menu-checkbox">
+
+<!-- Botón hamburguesa más pequeño -->
+<label for="menu-checkbox" class="menu-toggle" title="Abrir/cerrar menú">
+    ☰
+</label>
+
+<!-- Overlay para cerrar menú -->
+<label for="menu-checkbox" class="sidebar-overlay"></label>
+
 <div class="sidebar bg-dark text-white vh-100" style="width: 250px;">
     <div class="p-3">
 
@@ -80,7 +90,6 @@
                 href="index.php?action=planes">
                 <i class="fas fa-file-alt me-2"></i> Planes Operativos
             </a>
-
 
         </ul>
 

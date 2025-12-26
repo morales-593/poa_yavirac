@@ -51,18 +51,78 @@ body.login-page {
     margin-bottom: 15px;
 }
 
-/* ======== MENÚ ======== */
-.sidebar {
-    width: 240px;
-    min-height: 100vh;
+/* Botón hamburguesa */
+.menu-toggle {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1100;
     background: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    text-decoration: none;
+    display: inline-block;
 }
 
+/* Checkbox invisible para controlar el menú */
+#menu-checkbox {
+    display: none;
+}
+
+/* Overlay para cerrar menú */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    cursor: pointer;
+}
+
+/* Sidebar - oculto por defecto */
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    background: #1e3a8a;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+}
+
+/* Contenido del sidebar */
+.sidebar .p-3 {
+    padding: 20px !important;
+}
+
+/* Logo/título */
+.sidebar .text-center {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Enlaces del menú */
 .sidebar a {
     color: #e5e7eb;
-    padding: 12px 20px;
-    display: block;
+    padding: 12px 15px !important;
+    display: flex;
+    align-items: center;
     text-decoration: none;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    transition: all 0.3s;
 }
 
 .sidebar a:hover,
@@ -71,9 +131,90 @@ body.login-page {
     color: #fff;
 }
 
-.sidebar .menu-title {
-    padding: 15px 20px;
-    font-size: 13px;
-    color: #c7d2fe;
-    text-transform: uppercase;
+/* Iconos */
+.sidebar a i {
+    width: 25px;
+    text-align: center;
+}
+
+/* Flecha de submenú */
+.sidebar a .fa-chevron-down {
+    margin-left: auto;
+    transition: transform 0.3s;
+}
+
+/* Cuando el submenú está abierto */
+.sidebar a[aria-expanded="true"] .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* Submenú */
+.sidebar .collapse .nav {
+    margin-left: 10px;
+    border-left: 2px solid rgba(255,255,255,0.1);
+    padding-left: 15px;
+}
+
+/* Footer del sidebar */
+.sidebar .mt-5 {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Contenido principal */
+.main-content {
+    padding: 20px;
+    padding-top: 70px; /* Espacio para el botón */
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+
+/* Cuando el checkbox está marcado, mostrar menú y overlay */
+#menu-checkbox:checked ~ .sidebar {
+    transform: translateX(0);
+}
+
+#menu-checkbox:checked ~ .sidebar-overlay {
+    display: block;
+}
+
+#menu-checkbox:checked ~ .main-content {
+    margin-left: 250px;
+}
+
+
+/* Para móviles y tablets */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 85%;
+        max-width: 300px;
+    }
+    
+    #menu-checkbox:checked ~ .main-content {
+        margin-left: 0; /* En móvil no desplazar contenido */
+    }
+    
+    .menu-toggle {
+        top: 10px;
+        left: 10px;
+    }
+}
+
+/* Scrollbar personalizada */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
 }
