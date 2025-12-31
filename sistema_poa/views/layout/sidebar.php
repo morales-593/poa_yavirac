@@ -1,5 +1,11 @@
 <!-- Sidebar con ID -->
 <div class="sidebar bg-dark text-white vh-100" id="sidebar" style="width: 250px;">
+
+ <!-- Botón de cerrar para móvil (solo visible en móvil) -->
+    <button class="sidebar-close-mobile d-lg-none" id="sidebarCloseMobile">
+        <i class="fas fa-times"></i>
+    </button>
+    
     <div class="p-3">
 
         <div class="text-center mb-4">

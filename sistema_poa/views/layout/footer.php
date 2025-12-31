@@ -2,12 +2,12 @@
         </div> <!-- Cierre del flex -->
     </div> <!-- Cierre container-fluid -->
 
-    <!-- Bootstrap JS Bundle 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    le quito de aqui y funciona en todas menos en dasboard y en planes
+    <!-- Bootstrap JS Bundle le quito de aqui y funciona en todas menos en dasboard y en planes
     
     -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    
 
 
     <!-- jQuery -->
@@ -60,19 +60,80 @@
 <!-- sidebar -->
 
     <script>
+// Función toggleSidebar mejorada
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const mainContent = document.querySelector('.main-content');
     
-    sidebar.classList.toggle('sidebar-hidden');
-    
-    // Ajustar margen del contenido
-    if (sidebar.classList.contains('sidebar-hidden')) {
-        mainContent.style.marginLeft = '0';
+    if (window.innerWidth <= 991.98) {
+        // MÓVIL
+        sidebar.classList.toggle('mobile-show');
+        
+        // Crear overlay si no existe
+        let overlay = document.getElementById('sidebarOverlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'sidebarOverlay';
+            overlay.className = 'sidebar-overlay';
+            overlay.onclick = toggleSidebar;
+            document.body.appendChild(overlay);
+        }
+        
+        if (sidebar.classList.contains('mobile-show')) {
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden'; // Bloquear scroll
+        } else {
+            overlay.classList.remove('show');
+            document.body.style.overflow = ''; // Restaurar scroll
+        }
     } else {
-        mainContent.style.marginLeft = '250px';
+        // ESCRITORIO
+        sidebar.classList.toggle('sidebar-hidden');
     }
 }
+
+// Botón de cerrar para móvil
+document.addEventListener('DOMContentLoaded', function() {
+    const closeBtn = document.getElementById('sidebarCloseMobile');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.remove('mobile-show');
+            
+            const overlay = document.getElementById('sidebarOverlay');
+            if (overlay) {
+                overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+    }
+    
+    // Cerrar al hacer clic en enlaces (solo móvil)
+    const sidebar = document.getElementById('sidebar');
+    const links = sidebar.querySelectorAll('a');
+    
+    links.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 991.98) {
+                toggleSidebar();
+            }
+        });
+    });
+    
+    // Redimensionar ventana
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 991.98) {
+            // Cambió a escritorio - limpiar móvil
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.remove('mobile-show');
+            if (overlay) {
+                overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+    });
+});
 </script>
 </body>
 </html>
