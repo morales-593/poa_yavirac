@@ -1,0 +1,140 @@
+-- Tabla ejes (ejes y objetivos)
+CREATE TABLE ejes (
+    id_eje INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_eje VARCHAR(150) NOT NULL,
+    descripcion_objetivo TEXT NOT NULL
+);
+
+-- Tabla temas_poa
+CREATE TABLE temas_poa (
+    id_tema INT PRIMARY KEY AUTO_INCREMENT,
+    descripcion TEXT NOT NULL,
+    estado ENUM('ACTIVO', 'INACTIVO') DEFAULT 'ACTIVO'
+);
+
+-- Tabla plazos
+CREATE TABLE plazos (
+    id_plazo INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_plazo VARCHAR(50) NOT NULL
+);
+
+-- Tabla responsables
+CREATE TABLE responsables (
+    id_responsable INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_responsable VARCHAR(50) NOT NULL,
+    estado ENUM('ACTIVO', 'INACTIVO') DEFAULT 'ACTIVO'
+);
+
+-- Tabla indicadores
+CREATE TABLE indicadores (
+    id_indicador INT PRIMARY KEY AUTO_INCREMENT,
+    codigo VARCHAR(20) NOT NULL,
+    descripcion TEXT NOT NULL,
+    id_eje INT NOT NULL,
+    FOREIGN KEY (id_eje) REFERENCES ejes(id_eje) ON DELETE CASCADE
+);
+
+-- Tabla de usuarios
+CREATE TABLE usuarios (
+    id_usuario INT PRIMARY KEY AUTO_INCREMENT,
+    nombres VARCHAR(100) NOT NULL,
+    usuario VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    estado ENUM('ACTIVO', 'INACTIVO') DEFAULT 'ACTIVO',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla planes
+CREATE TABLE planes (
+    id_plan INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_elaborado VARCHAR(50) NOT NULL,
+    nombre_responsable VARCHAR(50) NOT NULL,
+    id_usuario INT NOT NULL,
+    estado ENUM('ACTIVO', 'INACTIVO') DEFAULT 'ACTIVO',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
+);
+
+-- Tabla medios_verificacion
+CREATE TABLE medios_verificacion (
+    id_medio INT PRIMARY KEY AUTO_INCREMENT,
+    detalle TEXT NOT NULL,
+    id_plazo INT,
+    FOREIGN KEY (id_plazo) REFERENCES plazos(id_plazo) ON DELETE SET NULL
+);
+
+-- Tabla elaboracion (detalles del plan)
+CREATE TABLE elaboracion (
+    id_elaboracion INT PRIMARY KEY AUTO_INCREMENT,
+    id_tema INT NOT NULL,
+    id_plan INT NOT NULL,
+    id_indicador INT NOT NULL,
+    linea_base VARCHAR(255) NOT NULL,
+    politicas TEXT,
+    metas TEXT,
+    actividades TEXT NOT NULL,
+    indicador_resultado TEXT,
+    id_medio INT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_responsable INT NOT NULL,
+    FOREIGN KEY (id_tema) REFERENCES temas_poa(id_tema) ON DELETE CASCADE,
+    FOREIGN KEY (id_plan) REFERENCES planes(id_plan) ON DELETE CASCADE,
+    FOREIGN KEY (id_indicador) REFERENCES indicadores(id_indicador) ON DELETE CASCADE,
+    FOREIGN KEY (id_responsable) REFERENCES responsables(id_responsable) ON DELETE CASCADE,
+    FOREIGN KEY (id_medio) REFERENCES medios_verificacion(id_medio) ON DELETE SET NULL
+);
+
+-- Tabla de seguimiento (evalúa medios de verificación)
+CREATE TABLE seguimiento (
+    id_seguimiento INT PRIMARY KEY AUTO_INCREMENT,
+    id_elaboracion INT NOT NULL,
+    id_medio INT NOT NULL,
+    cumplimiento ENUM('CUMPLE', 'NO_CUMPLE', 'PARCIAL') DEFAULT 'NO_CUMPLE',
+    observaciones TEXT,
+    fecha_seguimiento DATE NOT NULL,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_elaboracion) REFERENCES elaboracion(id_elaboracion) ON DELETE CASCADE,
+    FOREIGN KEY (id_medio) REFERENCES medios_verificacion(id_medio) ON DELETE CASCADE
+);
+
+-- Tabla de ejecución (basada en el seguimiento)
+CREATE TABLE ejecucion (
+    id_ejecucion INT PRIMARY KEY AUTO_INCREMENT,
+    id_seguimiento INT NOT NULL,
+    nombre_ejecucion VARCHAR(100) NOT NULL,
+    resultado_final ENUM('APROBADO', 'RECHAZADO', 'PENDIENTE') DEFAULT 'PENDIENTE',
+    observaciones_ejecucion TEXT,
+    fecha_ejecucion DATE NOT NULL,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_seguimiento) REFERENCES seguimiento(id_seguimiento) ON DELETE CASCADE
+);
+
+-- Tabla de archivos PDF para seguimiento
+CREATE TABLE archivos_seguimiento (
+    id_archivo_seg INT PRIMARY KEY AUTO_INCREMENT,
+    id_seguimiento INT NOT NULL,
+    nombre_archivo VARCHAR(255) NOT NULL,
+    tipo_archivo ENUM('INFORME', 'EVIDENCIA', 'OTRO') NOT NULL,
+    ruta_archivo VARCHAR(500) NOT NULL,
+    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_seguimiento) REFERENCES seguimiento(id_seguimiento) ON DELETE CASCADE
+);
+
+-- Tabla de archivos PDF para ejecución (tres archivos como solicitaste)
+CREATE TABLE archivos_ejecucion (
+    id_archivo_ejec INT PRIMARY KEY AUTO_INCREMENT,
+    id_ejecucion INT NOT NULL,
+    nombre_archivo VARCHAR(255) NOT NULL,
+    tipo_archivo ENUM('ARCHIVO_1', 'ARCHIVO_2', 'ARCHIVO_3') NOT NULL,
+    descripcion_archivo VARCHAR(200),
+    ruta_archivo VARCHAR(500) NOT NULL,
+    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_ejecucion) REFERENCES ejecucion(id_ejecucion) ON DELETE CASCADE
+);
+
+-- Índices para mejorar rendimiento
+CREATE INDEX idx_seguimiento_elaboracion ON seguimiento(id_elaboracion);
+CREATE INDEX idx_seguimiento_medio ON seguimiento(id_medio);
+CREATE INDEX idx_ejecucion_seguimiento ON ejecucion(id_seguimiento);
+CREATE INDEX idx_archivos_seg_seguimiento ON archivos_seguimiento(id_seguimiento);
+CREATE INDEX idx_archivos_ejec_ejecucion ON archivos_ejecucion(id_ejecucion);

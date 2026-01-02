@@ -3,36 +3,41 @@ require_once 'models/Plan.php';
 
 class PlanController
 {
+
     public function index()
     {
         $planes = Plan::all();
-        require 'views/layout/header.php';
-        require 'views/planes/index.php';
-        require 'views/layout/footer.php';
+        require_once 'views/layout/header.php';
+        require_once 'views/planes/index.php';
+        require_once 'views/layout/footer.php';
+
     }
 
-    public function store()
+    public function guardar()
     {
-        Plan::create([
-            'nombre_elaborado' => $_POST['nombre_elaborado'],
-            'nombre_responsable' => $_POST['nombre_responsable'],
-            'id_usuario' => $_SESSION['usuario']['id_usuario']
-        ]);
-
-        header("Location: index.php?url=planes");
+        Plan::create($_POST);
+        header("Location:index.php?action=planes");
     }
 
-    public function delete()
+    public function eliminar()
     {
         Plan::delete($_GET['id']);
-        header("Location: index.php?url=planes");
+        header("Location:index.php?action=planes");
     }
 
-    public function ver()
+    public function modalElaboracion()
     {
-        $plan = Plan::find($_GET['id']);
-        require 'views/layout/header.php';
-        require 'views/planes/ver.php';
-        require 'views/layout/footer.php';
+        $id_plan = $_GET['id_plan'];
+        $elab = Plan::elaboracionPorPlan($id_plan);
+        $temas = Plan::temas();
+        $indicadores = Plan::indicadores();
+        $responsables = Plan::responsables();
+        require 'views/planes/modal_elaboracion.php';
+    }
+
+    public function guardarElaboracion()
+    {
+        Plan::guardarElaboracion($_POST);
+        header("Location:index.php?action=planes");
     }
 }
