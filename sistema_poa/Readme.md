@@ -24,7 +24,6 @@ VALUES (
 $2y$10$2m0o2vC6UWjtHC6dTbW7bu56f1yZpM4XoV7kRIp/8aG2JRnsO85QC
 $2y$10$FXOhAb.xnwdXiFsqWSXFye6mY5o3Xue4aSM8WkeQQQV9GLDGVLQuG
 
-
 -- Tabla de usuarios
 CREATE TABLE usuarios (
     id_usuario INT PRIMARY KEY AUTO_INCREMENT,
@@ -68,36 +67,35 @@ CREATE TABLE indicadores (
 -- Tabla de plazos
 CREATE TABLE plazos (
     id_plazo INT PRIMARY KEY AUTO_INCREMENT,
-    nombre_plazo VARCHAR(100) NOT NULL,
-    fecha_inicio DATE NOT NULL,
-    fecha_fin DATE NOT NULL,
-    estado ENUM('ACTIVO', 'INACTIVO') DEFAULT 'ACTIVO'
+    nombre_plazo VARCHAR(100) NOT NULL
 );
 
 -- Tabla de planes operativos
 CREATE TABLE planes (
     id_plan INT PRIMARY KEY AUTO_INCREMENT,
     nombre_elaborado VARCHAR(150) NOT NULL,
-    id_responsable INT NOT NULL,
+    nombre_responsable VARCHAR(150) NOT NULL,
     id_usuario INT NOT NULL,
     estado ENUM('PENDIENTE', 'EN_PROCESO', 'COMPLETADO', 'INCOMPLETO') DEFAULT 'PENDIENTE',
-    fecha_elaboracion DATE NOT NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_responsable) REFERENCES responsables(id_responsable) ON DELETE CASCADE,
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
 
 -- Tabla de detalles del plan
 CREATE TABLE plan_detalle (
     id_detalle INT PRIMARY KEY AUTO_INCREMENT,
-    id_plan INT NOT NULL,
     id_tema INT NOT NULL,
+    id_plan INT NOT NULL,
     id_indicador INT NOT NULL,
-    actividades TEXT NOT NULL,
+    id_responsable INT NOT NULL,
+    linea_base VARCHAR(150) NOT NULL,
     politicas TEXT,
-    linea_base DECIMAL(5,2) CHECK (linea_base BETWEEN 0 AND 100),
     metas TEXT,
+    actividades TEXT NOT NULL,
+    indicador_resultado TEXT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_plazo INT,
+    FOREIGN KEY (id_responsable) REFERENCES responsables(id_responsable) ON DELETE CASCADE,
     FOREIGN KEY (id_plan) REFERENCES planes(id_plan) ON DELETE CASCADE,
     FOREIGN KEY (id_tema) REFERENCES temas_poa(id_tema) ON DELETE CASCADE,
     FOREIGN KEY (id_indicador) REFERENCES indicadores(id_indicador) ON DELETE CASCADE,

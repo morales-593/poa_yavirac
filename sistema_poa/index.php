@@ -193,25 +193,29 @@ switch ($action) {
         break;
     /* ===== planes ===== */
 
-    case 'planes':
-        verificarSesion();
-        require_once 'controllers/PlanController.php';
-        (new PlanController())->index();
-        break;
+case 'planes':
+    verificarSesion();
+    require_once 'controllers/PlanController.php';
+    (new PlanController())->index();
+    break;
 
-    case 'guardarPlan':
-        verificarSesion();
-        require_once 'controllers/PlanController.php';
-        (new PlanController())->guardar();
-        break;
+case 'guardarPlan':
+    verificarSesion();
+    require_once 'controllers/PlanController.php';
+    (new PlanController())->guardar();
+    break;
 
-    case 'eliminarPlan':
-        verificarSesion();
-        require_once 'controllers/PlanController.php';
-        (new PlanController())->eliminar();
-        break;
+case 'eliminarPlan':
+    verificarSesion();
+    require_once 'controllers/PlanController.php';
+    (new PlanController())->eliminar();
+    break;
 
-
+case 'verPlan':
+    verificarSesion();
+    require_once 'controllers/PlanController.php';
+    (new PlanController())->ver();
+    break;
 
     default:
         header("Location: index.php?action=login");

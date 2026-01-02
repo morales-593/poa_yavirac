@@ -236,8 +236,8 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`id_usuario`, `nombres`, `usuario`, `password`, `estado`, `fecha_creacion`) VALUES
 (1, 'Administrador POA', 'admin', '$2y$10$2m0o2vC6UWjtHC6dTbW7bu56f1yZpM4XoV7kRIp/8aG2JRnsO85QC\n\n', 'ACTIVO', '2025-12-25 23:00:58'),
-(3, 'Administrador POA', 'wiliam', '$2y$10$2m0o2vC6UWjtHC6dTbW7bu56f1yZpM4XoV7kRIp/8aG2JRnsO85QC', 'ACTIVO', '2025-12-25 23:05:19'),
-(4, 'coordinador', 'wiliam23', '$2y$10$xWqNCnO0tmp1yWbffnQsGePndbRBac5Dca0TPdTRgme1fXE6Z8Wdq', 'ACTIVO', '2025-12-25 23:06:55');
+(2, 'Administrador POA', 'wiliam', '$2y$10$2m0o2vC6UWjtHC6dTbW7bu56f1yZpM4XoV7kRIp/8aG2JRnsO85QC', 'ACTIVO', '2025-12-25 23:05:19'),
+(3, 'coordinador', 'wiliam23', '$2y$10$xWqNCnO0tmp1yWbffnQsGePndbRBac5Dca0TPdTRgme1fXE6Z8Wdq', 'ACTIVO', '2025-12-25 23:06:55');
 
 --
 -- Índices para tablas volcadas
