@@ -1,3 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planes Operativo</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="public/css/planes.css">
+</head>
+
+<body>
+
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -122,18 +137,7 @@
     </div>
 </div>
 
-<!-- Estilos adicionales -->
-<style>
-    .btn-group .btn {
-        border-radius: 0.375rem;
-        margin-right: 2px;
-    }
+</body>
+</html>
 
-    .btn-group .btn:last-child {
-        margin-right: 0;
-    }
 
-    .table th {
-        font-weight: 600;
-    }
-</style>

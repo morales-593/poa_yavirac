@@ -1,0 +1,458 @@
+/* ===== COLORES SUTILES PARA TARJETAS ===== */
+
+/* Fondo del modal más neutral */
+.modal-body {
+    font-size: 0.9rem;
+    background: #f9fafb;
+    /* Color más neutral */
+}
+
+/* Tarjeta principal con color sutil */
+.card {
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+/* Tarjetas de formulario con colores sutiles diferentes */
+.card:nth-child(1) {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+    /* Azul muy claro */
+    border-left: 4px solid #3b82f6;
+    /* Línea azul sutil */
+}
+
+.card:nth-child(2) {
+    background: linear-gradient(135deg, #ffffff 0%, #fefce8 100%);
+    /* Amarillo muy claro */
+    border-left: 4px solid #eab308;
+    /* Línea amarilla sutil */
+}
+
+.card:nth-child(3) {
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    /* Verde muy claro */
+    border-left: 4px solid #22c55e;
+    /* Línea verde sutil */
+}
+
+.card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+/* Encabezados de tarjeta con colores sutiles */
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    /* Indigo más suave */
+    color: white;
+    padding: 12px 20px;
+    border-bottom: 2px solid #312e81;
+}
+
+/* ===== TARJETAS DE INDICADORES CON COLORES DIFERENCIADOS ===== */
+.indicador-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    margin-bottom: 12px;
+    position: relative;
+}
+
+/* Diferentes colores para tarjetas de indicadores (alternando) */
+.indicador-card:nth-child(odd) {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+    /* Azul claro */
+    border-left: 4px solid #93c5fd;
+    /* Azul pastel */
+}
+
+.indicador-card:nth-child(even) {
+    background: linear-gradient(135deg, #ffffff 0%, #fefce8 100%);
+    /* Amarillo claro */
+    border-left: 4px solid #fde047;
+    /* Amarillo pastel */
+}
+
+.indicador-card:nth-child(3n) {
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    /* Verde claro */
+    border-left: 4px solid #86efac;
+    /* Verde pastel */
+}
+
+.indicador-card:nth-child(4n) {
+    background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
+    /* Violeta claro */
+    border-left: 4px solid #d8b4fe;
+    /* Violeta pastel */
+}
+
+.indicador-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+    border-color: #c7d2fe;
+}
+
+.indicador-card.selected {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    border-left: 4px solid #3b82f6;
+    /* Línea azul fuerte cuando está seleccionado */
+}
+
+/* Encabezados de tarjetas de indicadores */
+.indicador-card-header {
+    background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+    color: white;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Encabezados con colores sutiles que coinciden con la tarjeta */
+.indicador-card:nth-child(odd) .indicador-card-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    /* Azul */
+}
+
+.indicador-card:nth-child(even) .indicador-card-header {
+    background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+    /* Amarillo */
+}
+
+.indicador-card:nth-child(3n) .indicador-card-header {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    /* Verde */
+}
+
+.indicador-card:nth-child(4n) .indicador-card-header {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    /* Violeta */
+}
+
+.indicador-card.selected .indicador-card-header {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    /* Azul más oscuro para seleccionado */
+}
+
+/* Cuerpo de tarjetas de indicadores */
+.indicador-card-body {
+    padding: 16px;
+    font-size: 0.9rem;
+}
+
+/* indicador */
+.indicador-codigo {
+    font-weight: 700;
+    color: #1f2937;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+/* Descripción de indicador */
+.indicador-descripcion {
+    color: #4b5563;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+/* Indicador seleccionado */
+.indicador-seleccionado {
+    display: none;
+    color: #3b82f6;
+    font-weight: 700;
+    font-size: 0.85rem;
+    background: rgba(59, 130, 246, 0.1);
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-align: center;
+    margin-top: 8px;
+    animation: fadeIn 0.3s ease;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.indicador-card.selected .indicador-seleccionado {
+    display: inline-block;
+}
+
+/* TABLA DE MEDIOS */
+#tablaMedios {
+    font-size: 0.85rem;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+#tablaMedios thead {
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    /* Indigo */
+    color: white;
+}
+
+#tablaMedios tbody tr:nth-child(odd) {
+    background: rgba(249, 250, 251, 0.5);
+    /* Gris muy claro */
+}
+
+#tablaMedios tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.8);
+    /* Blanco */
+}
+
+#tablaMedios tbody tr:hover {
+    background-color: rgba(59, 130, 246, 0.08);
+    /* Azul muy sutil */
+}
+
+/* FORMULARIOS */
+.form-control,
+.form-select {
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background: white;
+    outline: none;
+}
+
+/*  EFECTOS Y ANIMACIONES  */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.indicador-card.selected {
+    animation: pulse 0.5s ease;
+}
+
+/* SCROLLBAR */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #c7d2fe;
+    /* Azul pastel */
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #93c5fd;
+    /* Azul más fuerte */
+}
+
+
+
+/* Estilos al documento   */
+.formulario-container {
+    background: white;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.9rem;
+}
+
+.document-header {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+}
+
+.document-title {
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.document-subtitle {
+    color: #495057;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+.section-title {
+    background: #e9ecef;
+    border-left: 4px solid #3498db;
+    padding: 8px 15px;
+    margin: 25px 0 15px 0;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.form-label-custom {
+    font-weight: 600;
+    color: #34495e;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+}
+
+.form-control-custom {
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+}
+
+.form-control-custom:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.readonly-field {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.table-custom {
+    font-size: 0.85rem;
+    margin-bottom: 0;
+}
+
+.table-custom thead th {
+    background-color: #f1f8ff;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #2c3e50;
+    padding: 8px 10px;
+}
+
+.table-custom tbody td {
+    padding: 6px 10px;
+    vertical-align: middle;
+}
+
+.btn-custom-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+    color: white;
+    font-weight: 500;
+    padding: 6px 20px;
+    font-size: 0.85rem;
+}
+
+.btn-custom-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.btn-custom-secondary {
+    background-color: #95a5a6;
+    border-color: #95a5a6;
+    color: white;
+    font-weight: 500;
+    padding: 6px 20px;
+    font-size: 0.85rem;
+}
+
+.btn-custom-secondary:hover {
+    background-color: #7f8c8d;
+    border-color: #7f8c8d;
+}
+
+.btn-custom-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+    color: white;
+    font-weight: 500;
+    padding: 6px 20px;
+    font-size: 0.85rem;
+}
+
+.btn-custom-info:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+.btn-custom-sm {
+    padding: 3px 10px;
+    font-size: 0.8rem;
+}
+
+.indicador-card {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+
+.indicador-card:hover {
+    border-color: #3498db;
+    background-color: #f8fafc;
+}
+
+.indicador-card.selected {
+    border-color: #28a745;
+    background-color: #f0fff4;
+    box-shadow: 0 0 0 1px #28a745;
+}
+
+.field-group {
+    margin-bottom: 15px;
+}
+
+.form-section {
+    margin-bottom: 25px;
+}
+
+.required-asterisk {
+    color: #e74c3c;
+}
+
+.modal-body {
+    padding: 0;
+}

@@ -1,8 +1,26 @@
-<div class="modal-header bg-primary text-white">
-    <h5 class="modal-title"><i class="fas fa-clipboard-check me-2"></i>
-        Elaboración POA - <?= htmlspecialchars($plan['nombre_elaborado']) ?>
-    </h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planes Operativo</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="public/css/modal_elaboracion.css">
+   
+</head>
+
+<body>
+<div class="modal-header bg-primary text-white d-flex justify-content-between align-items-center">
+    <div>
+        <h5 class="modal-title mb-0"><i class="fas fa-clipboard-check me-2"></i>
+            Elaboración POA - <?= htmlspecialchars($plan['nombre_elaborado']) ?>
+        </h5>
+        <small class="text-white-50">Complete todos los campos requeridos (*)</small>
+    </div>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
 </div>
 
 <form method="POST" action="index.php?action=guardarElaboracion" id="formElaboracion">
@@ -12,484 +30,305 @@
         <input type="hidden" id="indicador_guardado" value="<?= $elab['id_indicador'] ?>">
     <?php endif ?>
 
-    <div class="modal-body">
-        <!-- SECCIÓN PRINCIPAL EN 2 COLUMNAS -->
-        <div class="row">
-            <!-- COLUMNA IZQUIERDA -->
-            <div class="col-lg-6">
-                <!-- CARD: EJE ESTRATÉGICO -->
-                <div class="card mb-3 border-primary shadow-sm">
-                    <div class="card-header bg-primary text-white py-2">
-                        <h6 class="mb-0">
-                            <i class="fas fa-bullseye me-1"></i>
-                            1. Eje Estratégico
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Seleccione el Eje:</label>
-                            <select id="eje_select" class="form-select form-select-sm" required>
-                                <option value="">-- Seleccione un Eje --</option>
-                                <?php foreach ($ejes as $e): ?>
-                                        <?php
-                                        $objetivo = $e['descripcion_objetivo'] ?? '';
-                                        $selected = (isset($eje_actual) && $eje_actual == $e['id_eje']) ? 'selected' : '';
-                                        ?>
-                                        <option value="<?= $e['id_eje'] ?>" 
-                                                data-objetivo="<?= htmlspecialchars($objetivo, ENT_QUOTES, 'UTF-8') ?>"
-                                                <?= $selected ?>>
-                                            <?= htmlspecialchars($e['nombre_eje']) ?>
-                                        </option>
-                                <?php endforeach ?>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-0">
-                            <label class="form-label fw-semibold small">Objetivo del Eje:</label>
-                            <textarea id="objetivo_display" class="form-control form-control-sm bg-light" 
-                                      readonly rows="3" style="font-size: 0.875rem;"></textarea>
-                        </div>
-                    </div>
+    <div class="modal-body formulario-container">
+        <!-- Encabezado del documento -->
+        <div class="document-header">
+            <h1 class="document-title">PLAN OPERATIVO ANUAL 2024</h1>
+            <div class="document-subtitle">
+                <strong>Formulario:</strong> Elaboración POA 2024
+            </div>
+        </div>
+        
+        <div class="container-fluid">
+            <!-- SECCIÓN 1: TEMA -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-file-alt me-2"></i>INFORMACIÓN GENERAL
                 </div>
-
-                <!-- CARD: INDICADORES (SE MOSTRARÁN COMO CARDS) -->
-                <div class="card mb-3 border-info shadow-sm">
-                    <div class="card-header bg-info text-white py-2">
-                        <h6 class="mb-0">
-                            <i class="fas fa-chart-line me-1"></i>
-                            2. Selección de Indicador
-                        </h6>
+                
+                <div class="row">
+                    <div class="col-md-6 field-group">
+                        <label class="form-label-custom">TEMA <span class="required-asterisk">*</span></label>
+                        <select name="id_tema" class="form-select form-control-custom" required>
+                            <option value="">-- Seleccione un Tema --</option>
+                            <?php foreach ($temas as $t): ?>
+                                    <option value="<?= $t['id_tema'] ?>" 
+                                            <?= (isset($elab['id_tema']) && $elab['id_tema'] == $t['id_tema']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($t['descripcion']) ?>
+                                    </option>
+                            <?php endforeach ?>
+                        </select>
+                        <small class="text-muted">Tema del plan operativo anual</small>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Indicador Seleccionado:</label>
-                            <select name="id_indicador" id="indicador_select" class="form-select form-select-sm" required>
-                                <option value="">-- Cargando indicadores... --</option>
-                            </select>
-                        </div>
-                        
-                        <!-- CONTENEDOR DE CARDS DE INDICADORES -->
-                        <div class="alert alert-warning alert-sm mb-0">
-                            <i class="fas fa-info-circle me-1"></i>
-                            <small>Los indicadores disponibles aparecerán automáticamente al seleccionar un eje.</small>
-                        </div>
-                    </div>
+                    
                 </div>
+            </div>
 
-                <!-- CARD: TEMA Y RESPONSABLE -->
-                <div class="card mb-3 border-success shadow-sm">
-                    <div class="card-header bg-success text-white py-2">
-                        <h6 class="mb-0">
-                            <i class="fas fa-tags me-1"></i>
-                            3. Configuración General
-                        </h6>
+            <!-- SECCIÓN 2: EJE ESTRATÉGICO E INDICADOR -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-bullseye me-2"></i>EJE ESTRATÉGICO E INDICADOR
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 field-group">
+                        <label class="form-label-custom">1. EJE ESTRATÉGICO <span class="required-asterisk">*</span></label>
+                        <select id="eje_select" class="form-select form-control-custom" required>
+                            <option value="">-- Seleccione un Eje --</option>
+                            <?php foreach ($ejes as $e): ?>
+                                    <?php
+                                    $objetivo = $e['descripcion_objetivo'] ?? '';
+                                    $selected = (isset($eje_actual) && $eje_actual == $e['id_eje']) ? 'selected' : '';
+                                    ?>
+                                    <option value="<?= $e['id_eje'] ?>" 
+                                            data-objetivo="<?= htmlspecialchars($objetivo, ENT_QUOTES, 'UTF-8') ?>"
+                                            <?= $selected ?>>
+                                        <?= htmlspecialchars($e['nombre_eje']) ?>
+                                    </option>
+                            <?php endforeach ?>
+                        </select>
+                        <small class="text-muted">Al seleccionar un objetivo, el eje se completará automáticamente</small>
+                        
+                        <div class="mt-3">
+                            <label class="form-label-custom">OBJETIVO DEL EJE</label>
+                            <textarea id="objetivo_display" class="form-control form-control-custom readonly-field" 
+                                      rows="3" readonly></textarea>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Tema:</label>
-                                    <select name="id_tema" class="form-select form-select-sm" required>
-                                        <option value="">-- Seleccione --</option>
-                                        <?php foreach ($temas as $t): ?>
-                                                <option value="<?= $t['id_tema'] ?>" 
-                                                        <?= (isset($elab['id_tema']) && $elab['id_tema'] == $t['id_tema']) ? 'selected' : '' ?>>
-                                                    <?= htmlspecialchars($t['descripcion']) ?>
-                                                </option>
-                                        <?php endforeach ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Responsable:</label>
-                                    <select name="id_responsable" class="form-select form-select-sm" required>
-                                        <option value="">-- Seleccione --</option>
-                                        <?php foreach ($responsables as $r): ?>
-                                                <option value="<?= $r['id_responsable'] ?>" 
-                                                        <?= (isset($elab['id_responsable']) && $elab['id_responsable'] == $r['id_responsable']) ? 'selected' : '' ?>>
-                                                    <?= htmlspecialchars($r['nombre_responsable']) ?>
-                                                </option>
-                                        <?php endforeach ?>
-                                    </select>
-                                </div>
+                    
+                    <div class="col-md-6 field-group">
+                        <label class="form-label-custom">2. INDICADOR <span class="required-asterisk">*</span></label>
+                        <select name="id_indicador" id="indicador_select" class="form-select form-control-custom" required>
+                            <option value="">-- Cargando indicadores... --</option>
+                        </select>
+                        
+                        <!-- Cards de indicadores (se mostrarán dinámicamente) -->
+                        <div class="mt-3" id="cards-indicadores-container" style="display: none;">
+                            <label class="form-label-custom">INDICADORES DISPONIBLES</label>
+                            <div class="row g-2" id="cards-indicadores">
+                                <!-- Las cards se generarán aquí dinámicamente -->
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- COLUMNA DERECHA -->
-            <div class="col-lg-6">
-                <!-- CARD: LÍNEA BASE Y POLÍTICAS -->
-                <div class="card mb-3 border-warning shadow-sm">
-                    <div class="card-header bg-warning text-white py-2">
-                        <h6 class="mb-0">
-                            <i class="fas fa-chart-bar me-1"></i>
-                            4. Información Base
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Línea Base:</label>
-                            <input type="text" name="linea_base" class="form-control form-control-sm" 
-                                   value="<?= $elab['linea_base'] ?? '' ?>" 
-                                   placeholder="Descripción de la línea base" required>
-                            <div class="form-text"><small>Punto de partida para la medición</small></div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Políticas:</label>
-                                    <textarea name="politicas" class="form-control form-control-sm" rows="2" 
-                                              placeholder="Políticas aplicables"><?= $elab['politicas'] ?? '' ?></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Metas:</label>
-                                    <textarea name="metas" class="form-control form-control-sm" rows="2" 
-                                              placeholder="Metas a alcanzar"><?= $elab['metas'] ?? '' ?></textarea>
-                                </div>
-                            </div>
-                        </div>
+            <!-- SECCIÓN 3: CONFIGURACIÓN GENERAL -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-cogs me-2"></i>CONFIGURACIÓN GENERAL
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 field-group">
+                        <label class="form-label-custom">RESPONSABLE <span class="required-asterisk">*</span></label>
+                        <select name="id_responsable" class="form-select form-control-custom" required>
+                            <option value="">-- Seleccione un Responsable --</option>
+                            <?php foreach ($responsables as $r): ?>
+                                    <option value="<?= $r['id_responsable'] ?>" 
+                                            <?= (isset($elab['id_responsable']) && $elab['id_responsable'] == $r['id_responsable']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($r['nombre_responsable']) ?>
+                                    </option>
+                            <?php endforeach ?>
+                        </select>
                     </div>
                 </div>
+            </div>
 
-                <!-- CARD: ACTIVIDADES E INDICADOR DE RESULTADO -->
-                <div class="card mb-3 border-danger shadow-sm">
-                    <div class="card-header bg-danger text-white py-2">
-                        <h6 class="mb-0">
-                            <i class="fas fa-tasks me-1"></i>
-                            5. Ejecución
-                        </h6>
+            <!-- SECCIÓN 4: INFORMACIÓN BASE -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-database me-2"></i>INFORMACIÓN BASE
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 field-group">
+                        <label class="form-label-custom">LÍNEA BASE <span class="required-asterisk">*</span></label>
+                        <input type="text" name="linea_base" class="form-control form-control-custom" 
+                               value="<?= $elab['linea_base'] ?? '' ?>" 
+                               placeholder="Descripción de la línea base" required>
+                        <small class="text-muted">Punto de partida para la medición</small>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Actividades:</label>
-                            <textarea name="actividades" class="form-control form-control-sm" rows="3" 
-                                      placeholder="Actividades a realizar" required><?= $elab['actividades'] ?? '' ?></textarea>
-                            <div class="form-text"><small>Describa las actividades principales</small></div>
-                        </div>
-                        
-                        <div class="mb-0">
-                            <label class="form-label fw-semibold small">Indicador de Resultado:</label>
-                            <textarea name="indicador_resultado" class="form-control form-control-sm" rows="2" 
-                                      placeholder="Indicador para medir resultados"><?= $elab['indicador_resultado'] ?? '' ?></textarea>
-                        </div>
+                    
+                    <div class="col-md-3 field-group">
+                        <label class="form-label-custom">POLÍTICAS</label>
+                        <textarea name="politicas" class="form-control form-control-custom" rows="2" 
+                                  placeholder="Políticas aplicables"><?= $elab['politicas'] ?? '' ?></textarea>
+                    </div>
+                    
+                    <div class="col-md-3 field-group">
+                        <label class="form-label-custom">METAS</label>
+                        <textarea name="metas" class="form-control form-control-custom" rows="2" 
+                                  placeholder="Metas a alcanzar"><?= $elab['metas'] ?? '' ?></textarea>
                     </div>
                 </div>
+            </div>
 
-                <!-- CARD: MEDIOS DE VERIFICACIÓN -->
-                <div class="card mb-3 border-secondary shadow-sm">
-                    <div class="card-header bg-secondary text-white py-2">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">
-                                <i class="fas fa-file-alt me-1"></i>
-                                6. Medios de Verificación
-                            </h6>
-                            <div>
-                                <button type="button" class="btn btn-sm btn-light" onclick="agregarMedio()">
-                                    <i class="fas fa-plus"></i> Agregar
-                                </button>
-                                <button type="button" class="btn btn-sm btn-light ms-1" onclick="limpiarMedios()">
-                                    <i class="fas fa-broom"></i> Limpiar
-                                </button>
-                            </div>
-                        </div>
+            <!-- SECCIÓN 5: EJECUCIÓN -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-play-circle me-2"></i>EJECUCIÓN
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 field-group">
+                        <label class="form-label-custom">ACTIVIDADES <span class="required-asterisk">*</span></label>
+                        <textarea name="actividades" class="form-control form-control-custom" rows="3" 
+                                  placeholder="Actividades a realizar" required><?= $elab['actividades'] ?? '' ?></textarea>
+                        <small class="text-muted">Describa las actividades principales</small>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-bordered mb-0" id="tablaMedios">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th width="5%" class="text-center">#</th>
-                                        <th width="60%">Descripción del Medio</th>
-                                        <th width="25%">Plazo</th>
-                                        <th width="10%" class="text-center">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="medios-container">
-                                    <?php
-                                    $contador = 1;
-                                    if (isset($elab['id_elaboracion'])):
-                                        $medios = Plan::obtenerMediosVerificacion($elab['id_elaboracion']);
-                                        if (!empty($medios)):
-                                            foreach ($medios as $medio): ?>
-                                                            <tr id="fila-<?= $contador ?>">
-                                                                <td class="text-center"><?= $contador ?></td>
-                                                                <td>
-                                                                    <input type="text" name="detalle[]" class="form-control form-control-sm border-0" 
-                                                                           value="<?= htmlspecialchars($medio['detalle']) ?>" 
-                                                                           placeholder="Descripción del medio" required>
-                                                                </td>
-                                                                <td>
-                                                                    <select name="id_plazo[]" class="form-select form-select-sm border-0" required>
-                                                                        <option value="">-- Seleccione --</option>
-                                                                        <?php foreach ($plazos as $pl): ?>
-                                                                                <option value="<?= $pl['id_plazo'] ?>" 
-                                                                                        <?= ($medio['id_plazo'] == $pl['id_plazo']) ? 'selected' : '' ?>>
-                                                                                    <?= htmlspecialchars($pl['nombre_plazo']) ?>
-                                                                                </option>
-                                                                        <?php endforeach ?>
-                                                                    </select>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1" 
-                                                                            onclick="eliminarFila(<?= $contador ?>)" title="Eliminar">
-                                                                        <i class="fas fa-times"></i>
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        <?php
-                                                        $contador++;
-                                            endforeach;
-                                        else: ?>
-                                                    <!-- Fila por defecto si no hay medios -->
-                                                    <tr id="fila-1">
-                                                        <td class="text-center">1</td>
+                    
+                    <div class="col-md-6 field-group">
+                        <label class="form-label-custom">INDICADOR DE RESULTADO</label>
+                        <textarea name="indicador_resultado" class="form-control form-control-custom" rows="3" 
+                                  placeholder="Indicador para medir resultados"><?= $elab['indicador_resultado'] ?? '' ?></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 6: MEDIOS DE VERIFICACIÓN -->
+            <div class="form-section">
+                <div class="section-title d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-file-check me-2"></i>MEDIOS DE VERIFICACIÓN
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-custom-primary" onclick="agregarMedio()">
+                            <i class="fas fa-plus me-1"></i> Agregar
+                        </button>
+                        <button type="button" class="btn btn-sm btn-custom-secondary ms-1" onclick="limpiarMedios()">
+                            <i class="fas fa-broom me-1"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-custom" id="tablaMedios">
+                        <thead>
+                            <tr>
+                                <th width="5%" class="text-center">#</th>
+                                <th width="60%">DESCRIPCIÓN DEL MEDIO <span class="required-asterisk">*</span></th>
+                                <th width="25%">PLAZO <span class="required-asterisk">*</span></th>
+                                <th width="10%" class="text-center">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medios-container">
+                            <?php
+                            $contador = 1;
+                            if (isset($elab['id_elaboracion'])):
+                                $medios = Plan::obtenerMediosVerificacion($elab['id_elaboracion']);
+                                if (!empty($medios)):
+                                    foreach ($medios as $medio): ?>
+                                                    <tr id="fila-<?= $contador ?>">
+                                                        <td class="text-center"><?= $contador ?></td>
                                                         <td>
-                                                            <input type="text" name="detalle[]" class="form-control form-control-sm border-0" 
+                                                            <input type="text" name="detalle[]" class="form-control form-control-custom border" 
+                                                                   value="<?= htmlspecialchars($medio['detalle']) ?>" 
                                                                    placeholder="Descripción del medio" required>
                                                         </td>
                                                         <td>
-                                                            <select name="id_plazo[]" class="form-select form-select-sm border-0" required>
+                                                            <select name="id_plazo[]" class="form-select form-control-custom" required>
                                                                 <option value="">-- Seleccione --</option>
                                                                 <?php foreach ($plazos as $pl): ?>
-                                                                        <option value="<?= $pl['id_plazo'] ?>"><?= htmlspecialchars($pl['nombre_plazo']) ?></option>
+                                                                        <option value="<?= $pl['id_plazo'] ?>" 
+                                                                                <?= ($medio['id_plazo'] == $pl['id_plazo']) ? 'selected' : '' ?>>
+                                                                            <?= htmlspecialchars($pl['nombre_plazo']) ?>
+                                                                        </option>
                                                                 <?php endforeach ?>
                                                             </select>
                                                         </td>
                                                         <td class="text-center">
-                                                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1" 
-                                                                    onclick="eliminarFila(1)" title="Eliminar">
-                                                                <i class="fas fa-times"></i>
+                                                            <button type="button" class="btn btn-sm btn-outline-danger btn-custom-sm" 
+                                                                    onclick="eliminarFila(<?= $contador ?>)" title="Eliminar">
+                                                                <i class="fas fa-trash-alt"></i>
                                                             </button>
                                                         </td>
                                                     </tr>
                                                 <?php
-                                                $contador = 2;
-                                        endif;
-                                    else: ?>
-                                            <!-- Para nuevo registro, mostrar 2 filas por defecto -->
-                                            <?php for ($i = 1; $i <= 2; $i++): ?>
-                                                    <tr id="fila-<?= $i ?>">
-                                                        <td class="text-center"><?= $i ?></td>
-                                                        <td>
-                                                            <input type="text" name="detalle[]" class="form-control form-control-sm border-0" 
-                                                                   placeholder="Descripción del medio" required>
-                                                        </td>
-                                                        <td>
-                                                            <select name="id_plazo[]" class="form-select form-select-sm border-0" required>
-                                                                <option value="">-- Seleccione --</option>
-                                                                <?php foreach ($plazos as $pl): ?>
-                                                                        <option value="<?= $pl['id_plazo'] ?>"><?= htmlspecialchars($pl['nombre_plazo']) ?></option>
-                                                                <?php endforeach ?>
-                                                            </select>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1" 
-                                                                    onclick="eliminarFila(<?= $i ?>)" title="Eliminar">
-                                                                <i class="fas fa-times"></i>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                            <?php endfor;
-                                            $contador = 3;
-                                    endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <div class="mt-2">
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Total de medios: <span id="total-medios" class="badge bg-info"><?= ($contador - 1) ?></span>
-                            </small>
-                        </div>
-                    </div>
+                                                $contador++;
+                                    endforeach;
+                                else: ?>
+                                        <!-- Fila por defecto si no hay medios -->
+                                        <tr id="fila-1">
+                                            <td class="text-center">1</td>
+                                            <td>
+                                                <input type="text" name="detalle[]" class="form-control form-control-custom border" 
+                                                       placeholder="Descripción del medio" required>
+                                            </td>
+                                            <td>
+                                                <select name="id_plazo[]" class="form-select form-control-custom" required>
+                                                    <option value="">-- Seleccione --</option>
+                                                    <?php foreach ($plazos as $pl): ?>
+                                                            <option value="<?= $pl['id_plazo'] ?>"><?= htmlspecialchars($pl['nombre_plazo']) ?></option>
+                                                    <?php endforeach ?>
+                                                </select>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-sm btn-outline-danger btn-custom-sm" 
+                                                        onclick="eliminarFila(1)" title="Eliminar">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php
+                                    $contador = 2;
+                                endif;
+                            else: ?>
+                                    <!-- Para nuevo registro, mostrar 2 filas por defecto -->
+                                    <?php for ($i = 1; $i <= 2; $i++): ?>
+                                            <tr id="fila-<?= $i ?>">
+                                                <td class="text-center"><?= $i ?></td>
+                                                <td>
+                                                    <input type="text" name="detalle[]" class="form-control form-control-custom border" 
+                                                           placeholder="Descripción del medio" required>
+                                                </td>
+                                                <td>
+                                                    <select name="id_plazo[]" class="form-select form-control-custom" required>
+                                                        <option value="">-- Seleccione --</option>
+                                                        <?php foreach ($plazos as $pl): ?>
+                                                                <option value="<?= $pl['id_plazo'] ?>"><?= htmlspecialchars($pl['nombre_plazo']) ?></option>
+                                                        <?php endforeach ?>
+                                                    </select>
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger btn-custom-sm" 
+                                                            onclick="eliminarFila(<?= $i ?>)" title="Eliminar">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                    <?php endfor;
+                                    $contador = 3;
+                            endif; ?>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN DE CARDS DE INDICADORES (SE GENERA DINÁMICAMENTE) -->
-        <div class="row mt-3" id="cards-indicadores-container" style="display: none;">
-            <div class="col-12">
-                <div class="card border-info">
-                    <div class="card-header bg-info text-white py-2">
-                        <h6 class="mb-0">
-                            <i class="fas fa-list-alt me-1"></i>
-                            Indicadores Disponibles
-                        </h6>
-                    </div>
-                    <div class="card-body p-2">
-                        <div class="row g-2" id="cards-indicadores">
-                            <!-- Las cards se generarán aquí dinámicamente -->
-                        </div>
-                    </div>
+                
+                <div class="mt-2 text-end">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Total de medios: <span id="total-medios" class="badge bg-primary"><?= ($contador - 1) ?></span>
+                    </small>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+        <button type="button" class="btn btn-custom-secondary" data-bs-dismiss="modal">
             <i class="fas fa-times me-1"></i> Cancelar
         </button>
-        <button type="submit" class="btn btn-primary btn-sm">
+        <button type="button" class="btn btn-custom-info" onclick="imprimirFormulario()">
+            <i class="fas fa-print me-1"></i> Imprimir
+        </button>
+        <button type="submit" class="btn btn-custom-primary">
             <i class="fas fa-save me-1"></i> Guardar Elaboración
         </button>
     </div>
 </form>
 
-<style>
-/* ESTILOS GENERALES PARA EL MODAL */
-.modal-body {
-    font-size: 0.875rem;
-}
-
-.card {
-    border-radius: 8px;
-    border-width: 2px;
-}
-
-.card-header {
-    border-radius: 6px 6px 0 0 !important;
-}
-
-.card-header h6 {
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-.form-label {
-    font-size: 0.8rem;
-    margin-bottom: 0.3rem;
-}
-
-.form-control-sm, .form-select-sm {
-    font-size: 0.8rem;
-    padding: 0.25rem 0.5rem;
-}
-
-.form-text {
-    font-size: 0.75rem;
-}
-
-/* ESTILOS PARA LA TABLA DE MEDIOS */
-#tablaMedios {
-    font-size: 0.8rem;
-}
-
-#tablaMedios th {
-    padding: 0.3rem 0.5rem;
-    font-weight: 600;
-}
-
-#tablaMedios td {
-    padding: 0.2rem 0.4rem;
-    vertical-align: middle;
-}
-
-#tablaMedios .form-control-sm,
-#tablaMedios .form-select-sm {
-    border: 1px solid #dee2e6 !important;
-    border-radius: 4px;
-}
-
-#tablaMedios .btn-sm {
-    padding: 0.1rem 0.3rem;
-    font-size: 0.7rem;
-}
-
-/* ESTILOS PARA LAS CARDS DE INDICADORES */
-.indicador-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: 2px solid #dee2e6;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.indicador-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.indicador-card.selected {
-    border-color: #0d6efd;
-    background-color: #e7f1ff;
-}
-
-.indicador-card-header {
-    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-    color: white;
-    padding: 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.indicador-card.selected .indicador-card-header {
-    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-}
-
-.indicador-card-body {
-    padding: 0.75rem;
-    font-size: 0.8rem;
-    background-color: white;
-}
-
-.indicador-codigo {
-    font-weight: 600;
-    color: #495057;
-    font-size: 0.85rem;
-    margin-bottom: 0.25rem;
-}
-
-.indicador-descripcion {
-    color: #6c757d;
-    font-size: 0.8rem;
-    line-height: 1.3;
-    margin-bottom: 0.5rem;
-}
-
-.indicador-seleccionado {
-    display: none;
-    color: #0d6efd;
-    font-weight: 600;
-    font-size: 0.75rem;
-}
-
-.indicador-card.selected .indicador-seleccionado {
-    display: block;
-}
-
-/* ESTILOS PARA VALIDACIÓN */
-.is-invalid {
-    border-color: #dc3545 !important;
-}
-
-.is-valid {
-    border-color: #198754 !important;
-}
-
-/* RESPONSIVE */
-@media (max-width: 992px) {
-    .col-lg-6 {
-        width: 100%;
-    }
-    
-    .modal-dialog {
-        max-width: 95%;
-    }
-}
-</style>
-
 <script>
-// ============================================
 // VARIABLES Y FUNCIONES PARA EL MODAL
-// ============================================
 
 // Variable global para el modal
 window.idIndicadorGuardadoModal = "<?= $elab['id_indicador'] ?? '' ?>";
@@ -626,19 +465,11 @@ function mostrarCardsIndicadores(indicadores) {
             <div class="indicador-card ${isSelected ? 'selected' : ''}" 
                  data-id="${ind.id_indicador}"
                  onclick="seleccionarIndicadorCard(${ind.id_indicador}, '${ind.codigo}', '${ind.descripcion.replace(/'/g, "\\'")}')">
-                <div class="indicador-card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span>${ind.codigo}</span>
-                        ${isSelected ? '<i class="fas fa-check-circle"></i>' : ''}
-                    </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold text-primary">${ind.codigo}</span>
+                    ${isSelected ? '<i class="fas fa-check-circle text-success"></i>' : ''}
                 </div>
-                <div class="indicador-card-body">
-                    <div class="indicador-codigo">${ind.codigo}</div>
-                    <div class="indicador-descripcion">${ind.descripcion.substring(0, 80)}${ind.descripcion.length > 80 ? '...' : ''}</div>
-                    <div class="indicador-seleccionado">
-                        <i class="fas fa-check me-1"></i> Seleccionado
-                    </div>
-                </div>
+                <div class="indicador-descripcion small">${ind.descripcion.substring(0, 80)}${ind.descripcion.length > 80 ? '...' : ''}</div>
             </div>
         `;
         
@@ -731,9 +562,7 @@ function mostrarMensajeModal(texto, tipo = 'info') {
     }, 3000);
 }
 
-// ============================================
 // FUNCIONES PARA MEDIOS DE VERIFICACIÓN
-// ============================================
 
 // Función para agregar medio
 function agregarMedio() {
@@ -753,18 +582,18 @@ function agregarMedio() {
     nuevaFila.innerHTML = `
         <td class="text-center">${contadorFilas}</td>
         <td>
-            <input type="text" name="detalle[]" class="form-control form-control-sm border-0" 
+            <input type="text" name="detalle[]" class="form-control form-control-custom border" 
                    placeholder="Descripción del medio" required>
         </td>
         <td>
-            <select name="id_plazo[]" class="form-select form-select-sm border-0" required>
+            <select name="id_plazo[]" class="form-select form-control-custom" required>
                 ${opcionesPlazos}
             </select>
         </td>
         <td class="text-center">
-            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1" 
+            <button type="button" class="btn btn-sm btn-outline-danger btn-custom-sm" 
                     onclick="eliminarFila(${contadorFilas})" title="Eliminar">
-                <i class="fas fa-times"></i>
+                <i class="fas fa-trash-alt"></i>
             </button>
         </td>
     `;
@@ -851,9 +680,107 @@ function limpiarMedios() {
     }
 }
 
-// ============================================
+// FUNCIÓN PARA IMPRIMIR
+
+function imprimirFormulario() {
+    console.log('🖨️ Imprimiendo formulario...');
+    
+    // Crear una copia del contenido del formulario para imprimir
+    const contenidoOriginal = document.querySelector('.formulario-container').innerHTML;
+    
+    // Crear una nueva ventana para la impresión
+    const ventanaImpresion = window.open('', '_blank');
+    
+    // Escribir el contenido en la nueva ventana
+    ventanaImpresion.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>POA 2024 - Imprimir</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 12px;
+                    margin: 20px;
+                }
+                h1 {
+                    color: #2c3e50;
+                    text-align: center;
+                }
+                .section-title {
+                    background-color: #e9ecef;
+                    padding: 8px 15px;
+                    margin: 15px 0;
+                    font-weight: bold;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 10px 0;
+                }
+                table th, table td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                }
+                table th {
+                    background-color: #f1f8ff;
+                }
+                @media print {
+                    body {
+                        margin: 0;
+                    }
+                    .no-print {
+                        display: none;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>PLAN OPERATIVO ANUAL 2024</h1>
+            <p><strong>Formulario:</strong> Elaboración POA 2024</p>
+            <p><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
+            
+            ${contenidoOriginal}
+            
+            <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #000;">
+                <div style="float: left; width: 45%;">
+                    <div style="border-top: 1px solid #000; width: 80%; padding-top: 5px;">
+                        Firma del Responsable
+                    </div>
+                </div>
+                <div style="float: right; width: 45%;">
+                    <div style="border-top: 1px solid #000; width: 80%; padding-top: 5px;">
+                        Firma de Revisión
+                    </div>
+                </div>
+                <div style="clear: both;"></div>
+            </div>
+            
+            <div class="no-print" style="margin-top: 30px; text-align: center;">
+                <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer;">
+                    Imprimir
+                </button>
+                <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; cursor: pointer; margin-left: 10px;">
+                    Cerrar
+                </button>
+            </div>
+            
+            <script>
+                // Auto-print después de 1 segundo
+                setTimeout(function() {
+                    window.print();
+                }, 1000);
+            <\/script>
+        </body>
+        </html>
+    `);
+    
+    ventanaImpresion.document.close();
+    
+    mostrarMensajeModal('Abriendo ventana de impresión...', 'info');
+}
+
 // VALIDACIÓN DEL FORMULARIO
-// ============================================
 
 document.getElementById('formElaboracion').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -929,9 +856,7 @@ document.getElementById('formElaboracion').addEventListener('submit', function(e
     }, 500);
 });
 
-// ============================================
 // INICIALIZACIÓN
-// ============================================
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
@@ -950,3 +875,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+</body>
+</html>
