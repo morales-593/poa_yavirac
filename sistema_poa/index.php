@@ -6,13 +6,14 @@ require_once 'helpers/session.php';
 
 $action = $_GET['action'] ?? 'login';
 
+// Validación de sesión
 if (!isset($_SESSION['usuario']) && !in_array($action, ['login', 'autenticar'])) {
     header("Location: index.php?action=login");
     exit;
 }
 
 switch ($action) {
-    /* ===== login ===== */
+    /* ===== LOGIN ===== */
     case 'login':
         require_once 'controllers/LoginController.php';
         (new LoginController())->index();
@@ -34,9 +35,7 @@ switch ($action) {
         (new DashboardController())->index();
         break;
 
-
     /* ===== USUARIOS ===== */
-
     case 'usuarios':
         verificarSesion();
         require_once __DIR__ . '/controllers/UsuarioController.php';
@@ -60,7 +59,8 @@ switch ($action) {
         require_once __DIR__ . '/controllers/UsuarioController.php';
         (new UsuarioController())->eliminar();
         break;
-    /* ===== tema poa ===== */
+
+    /* ===== TEMA POA ===== */
     case 'temas_poa':
         verificarSesion();
         require_once 'controllers/TemaPoaController.php';
@@ -84,6 +84,7 @@ switch ($action) {
         require_once 'controllers/TemaPoaController.php';
         (new TemaPoaController())->eliminar();
         break;
+
     case 'estadoTema':
         verificarSesion();
         require_once 'controllers/TemaPoaController.php';
@@ -91,7 +92,6 @@ switch ($action) {
         break;
 
     /* ===== EJES ===== */
-
     case 'ejes':
         verificarSesion();
         require_once 'controllers/EjeController.php';
@@ -116,8 +116,7 @@ switch ($action) {
         (new EjeController())->eliminar();
         break;
 
-    /* ===== indicadores ===== */
-
+    /* ===== INDICADORES ===== */
     case 'indicadores':
         verificarSesion();
         require_once 'controllers/IndicadorController.php';
@@ -136,8 +135,7 @@ switch ($action) {
         (new IndicadorController())->eliminar();
         break;
 
-    /* ===== plazos ===== */
-
+    /* ===== PLAZOS ===== */
     case 'plazos':
         verificarSesion();
         require_once 'controllers/PlazoController.php';
@@ -161,7 +159,8 @@ switch ($action) {
         require_once 'controllers/PlazoController.php';
         (new PlazoController())->eliminar();
         break;
-    /* ===== responsables ===== */
+
+    /* ===== RESPONSABLES ===== */
     case 'responsables':
         verificarSesion();
         require_once 'controllers/ResponsableController.php';
@@ -191,8 +190,8 @@ switch ($action) {
         require_once 'controllers/ResponsableController.php';
         (new ResponsableController())->eliminar();
         break;
-    /* ===== planes ===== */
 
+    /* ===== PLANES ===== */
     case 'planes':
         verificarSesion();
         require_once 'controllers/PlanController.php';
@@ -200,25 +199,35 @@ switch ($action) {
         break;
 
     case 'guardarPlan':
+        verificarSesion(); // Agregado por seguridad
         require_once 'controllers/PlanController.php';
         (new PlanController())->guardar();
         break;
 
     case 'eliminarPlan':
+        verificarSesion(); // Agregado por seguridad
         require_once 'controllers/PlanController.php';
         (new PlanController())->eliminar();
         break;
 
     case 'modalElaboracion':
+        verificarSesion(); // Agregado por seguridad
         require_once 'controllers/PlanController.php';
         (new PlanController())->modalElaboracion();
         break;
 
     case 'guardarElaboracion':
+        verificarSesion(); // Agregado por seguridad
         require_once 'controllers/PlanController.php';
         (new PlanController())->guardarElaboracion();
         break;
 
+    
+case 'indicadoresPorEje':
+    verificarSesion();
+    require_once 'controllers/PlanController.php';
+    (new PlanController())->indicadoresPorEje();
+    break;
 
     default:
         header("Location: index.php?action=login");

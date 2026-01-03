@@ -40,7 +40,7 @@
                             </td>
                             <td data-label="Eje" class="eje-name"><?= $e['nombre_eje'] ?></td>
                             <td data-label="Objetivo">
-                                <div class="objetivo-desc"><?= $e['descripcion_objetivo'] ?></div>
+                                <div class="objetivo-desc"><?= $e['objetivo'] ?></div>
                             </td>
 
                             <td data-label="Acciones" class="actions-cell text-center">
@@ -78,8 +78,8 @@
 
                                             <div class="mb-3">
                                                 <label class="form-label">Descripción del Objetivo</label>
-                                                <textarea name="descripcion_objetivo" class="form-control" rows="5"
-                                                    required><?= htmlspecialchars($e['descripcion_objetivo']) ?></textarea>
+                                                <textarea name="objetivo" class="form-control" rows="5"
+                                                    required><?= htmlspecialchars($e['objetivo']) ?></textarea>
                                                 <div class="form-text">Describa el objetivo asociado a este eje.</div>
                                             </div>
                                         </div>
@@ -141,7 +141,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Descripción del Objetivo</label>
-                            <textarea name="descripcion_objetivo" class="form-control" rows="5" required placeholder="Describa el objetivo a alcanzar..."></textarea>
+                            <textarea name="objetivo" class="form-control" rows="5" required placeholder="Describa el objetivo a alcanzar..."></textarea>
                             <div class="form-text">Describa el objetivo asociado a este eje de manera clara y medible.</div>
                         </div>
                     </div>

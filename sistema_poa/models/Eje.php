@@ -11,13 +11,13 @@ class Eje {
 
     public static function create($nombre, $objetivo) {
         $db = Database::connect();
-        $stmt = $db->prepare("INSERT INTO ejes (nombre_eje, descripcion_objetivo) VALUES (?, ?)");
+        $stmt = $db->prepare("INSERT INTO ejes (nombre_eje, objetivo) VALUES (?, ?)");
         return $stmt->execute([$nombre, $objetivo]);
     }
 
     public static function update($id, $nombre, $objetivo) {
         $db = Database::connect();
-        $stmt = $db->prepare("UPDATE ejes SET nombre_eje=?, descripcion_objetivo=? WHERE id_eje=?");
+        $stmt = $db->prepare("UPDATE ejes SET nombre_eje=?, objetivo=? WHERE id_eje=?");
         return $stmt->execute([$nombre, $objetivo, $id]);
     }
 

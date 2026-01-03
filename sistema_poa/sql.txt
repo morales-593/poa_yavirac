@@ -132,9 +132,6 @@ CREATE TABLE archivos_ejecucion (
     FOREIGN KEY (id_ejecucion) REFERENCES ejecucion(id_ejecucion) ON DELETE CASCADE
 );
 
--- Índices para mejorar rendimiento
-CREATE INDEX idx_seguimiento_elaboracion ON seguimiento(id_elaboracion);
-CREATE INDEX idx_seguimiento_medio ON seguimiento(id_medio);
-CREATE INDEX idx_ejecucion_seguimiento ON ejecucion(id_seguimiento);
-CREATE INDEX idx_archivos_seg_seguimiento ON archivos_seguimiento(id_seguimiento);
-CREATE INDEX idx_archivos_ejec_ejecucion ON archivos_ejecucion(id_ejecucion);
+
+
+SELECT i.id_indicador, i.codigo, i.id_eje, e.nombre_eje, e.objetivo FROM indicadores i LEFT JOIN ejes e ON i.id_eje = e.id_eje ORDER BY i.id_eje, i.codigo;

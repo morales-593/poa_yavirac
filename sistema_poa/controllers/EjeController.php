@@ -12,13 +12,13 @@ class EjeController {
     }
 
     public function guardar() {
-        Eje::create($_POST['nombre_eje'], $_POST['descripcion_objetivo']);
+        Eje::create($_POST['nombre_eje'], $_POST['objetivo']);
         header("Location: index.php?action=ejes");
         exit;
     }
 
     public function editar() {
-        Eje::update($_GET['id'], $_POST['nombre_eje'], $_POST['descripcion_objetivo']);
+        Eje::update($_GET['id'], $_POST['nombre_eje'], $_POST['objetivo']);
         header("Location: index.php?action=ejes");
         exit;
     }
