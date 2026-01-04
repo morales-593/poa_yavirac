@@ -110,18 +110,17 @@ class Plan
             $db->beginTransaction();
 
             if (!empty($d['id_elaboracion'])) {
-                // MODO EDICIÓN
+                // MODO EDICIÓN - SIN fecha_actualizacion
                 $sql = "UPDATE elaboracion SET 
-                        id_tema = ?, 
-                        id_indicador = ?, 
-                        linea_base = ?, 
-                        politicas = ?, 
-                        metas = ?, 
-                        actividades = ?, 
-                        indicador_resultado = ?, 
-                        id_responsable = ?,
-                        fecha_actualizacion = NOW()
-                        WHERE id_elaboracion = ?";
+                    id_tema = ?, 
+                    id_indicador = ?, 
+                    linea_base = ?, 
+                    politicas = ?, 
+                    metas = ?, 
+                    actividades = ?, 
+                    indicador_resultado = ?, 
+                    id_responsable = ?
+                    WHERE id_elaboracion = ?";
 
                 $stmt = $db->prepare($sql);
                 $stmt->execute([
@@ -140,9 +139,9 @@ class Plan
             } else {
                 // MODO NUEVO
                 $sql = "INSERT INTO elaboracion (
-                        id_tema, id_plan, id_indicador, linea_base, 
-                        politicas, metas, actividades, indicador_resultado, id_responsable
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    id_tema, id_plan, id_indicador, linea_base, 
+                    politicas, metas, actividades, indicador_resultado, id_responsable
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
                 $stmt = $db->prepare($sql);
                 $stmt->execute([
@@ -160,6 +159,12 @@ class Plan
                 $id_elab = $db->lastInsertId();
             }
 
+            // Obtener el id_medio actual si existe (pero no lo estamos usando)
+            $stmt = $db->prepare("SELECT id_medio FROM medios_verificacion WHERE id_elaboracion = ? LIMIT 1");
+            $stmt->execute([$id_elab]);
+            $medio_existente = $stmt->fetch();
+            $id_medio_existente = $medio_existente ? $medio_existente['id_medio'] : null;
+
             // ELIMINAR MEDIOS DE VERIFICACIÓN EXISTENTES
             $db->prepare("DELETE FROM medios_verificacion WHERE id_elaboracion = ?")->execute([$id_elab]);
 
@@ -167,8 +172,17 @@ class Plan
             if (!empty($d['detalle']) && is_array($d['detalle'])) {
                 foreach ($d['detalle'] as $i => $det) {
                     if (trim($det) != '' && !empty($d['id_plazo'][$i])) {
-                        $db->prepare("INSERT INTO medios_verificacion (detalle, id_plazo, id_elaboracion) VALUES (?, ?, ?)")
-                            ->execute([trim($det), $d['id_plazo'][$i], $id_elab]);
+                        $stmt = $db->prepare("INSERT INTO medios_verificacion (detalle, id_plazo, id_elaboracion) VALUES (?, ?, ?)");
+                        $stmt->execute([trim($det), $d['id_plazo'][$i], $id_elab]);
+
+                        // Obtener el id_medio recién insertado
+                        $id_medio_nuevo = $db->lastInsertId();
+
+                        // Actualizar la elaboración con el primer id_medio si no tiene
+                        if ($i == 0 && !$id_medio_existente) {
+                            $db->prepare("UPDATE elaboracion SET id_medio = ? WHERE id_elaboracion = ?")
+                                ->execute([$id_medio_nuevo, $id_elab]);
+                        }
                     }
                 }
             }
@@ -182,7 +196,6 @@ class Plan
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
-
     // GUARDAR UN NUEVO PLAN
     public static function guardar($nombre_elaborado, $nombre_responsable, $id_usuario)
     {

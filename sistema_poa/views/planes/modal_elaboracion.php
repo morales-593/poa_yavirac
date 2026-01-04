@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planes Operativo</title>
-    <!-- Bootstrap 5 CSS -->
+    <title>Elaboración POA</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="public/css/modal_elaboracion.css">
-   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
@@ -18,7 +14,6 @@
         <h5 class="modal-title mb-0"><i class="fas fa-clipboard-check me-2"></i>
             Elaboración POA - <?= htmlspecialchars($plan['nombre_elaborado']) ?>
         </h5>
-        <small class="text-white-50">Complete todos los campos requeridos (*)</small>
     </div>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
 </div>
@@ -27,544 +22,328 @@
     <input type="hidden" name="id_plan" value="<?= $id_plan ?>">
     <?php if (isset($elab['id_elaboracion'])): ?>
         <input type="hidden" name="id_elaboracion" value="<?= $elab['id_elaboracion'] ?>">
-        <input type="hidden" id="indicador_guardado" value="<?= $elab['id_indicador'] ?>">
     <?php endif ?>
 
-    <div class="modal-body formulario-container">
-        <!-- Encabezado del documento -->
-        <div class="document-header">
-            <h1 class="document-title">PLAN OPERATIVO ANUAL 2024</h1>
-            <div class="document-subtitle">
-                <strong>Formulario:</strong> Elaboración POA 2024
+    <div class="modal-body">
+        <!-- SECCIÓN 1: TEMA -->
+        <div class="mb-4">
+            <h6 class="text-primary mb-3"><i class="fas fa-file-alt me-2"></i>TEMA</h6>
+            <select name="id_tema" class="form-select" required>
+                <option value="">-- Seleccione un Tema --</option>
+                <?php foreach ($temas as $t): ?>
+                    <option value="<?= $t['id_tema'] ?>" 
+                            <?= (isset($elab['id_tema']) && $elab['id_tema'] == $t['id_tema']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($t['descripcion']) ?>
+                    </option>
+                <?php endforeach ?>
+            </select>
+        </div>
+
+        <!-- SECCIÓN 2: EJE E INDICADOR -->
+        <div class="mb-4">
+            <h6 class="text-primary mb-3"><i class="fas fa-bullseye me-2"></i>EJE ESTRATÉGICO E INDICADOR</h6>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">EJE ESTRATÉGICO *</label>
+                    <select id="eje_select" class="form-select" required>
+                        <option value="">-- Seleccione un Eje --</option>
+                        <?php foreach ($ejes as $e): ?>
+                            <?php
+                            $selected = (isset($eje_actual) && $eje_actual == $e['id_eje']) ? 'selected' : '';
+                            ?>
+                            <option value="<?= $e['id_eje'] ?>" 
+                                    data-objetivo="<?= htmlspecialchars($e['descripcion_objetivo'] ?? '', ENT_QUOTES) ?>"
+                                    <?= $selected ?>>
+                                <?= htmlspecialchars($e['nombre_eje']) ?>
+                            </option>
+                        <?php endforeach ?>
+                    </select>
+                    
+                    <div class="mt-3">
+                        <label class="form-label">OBJETIVO DEL EJE</label>
+                        <textarea id="objetivo_display" class="form-control" rows="3" readonly 
+                                  style="background-color: #f8f9fa;"></textarea>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">INDICADOR *</label>
+                    <select name="id_indicador" id="indicador_select" class="form-select" required>
+                        <option value="">-- Primero seleccione un eje --</option>
+                    </select>
+                </div>
             </div>
         </div>
-        
-        <div class="container-fluid">
-            <!-- SECCIÓN 1: TEMA -->
-            <div class="form-section">
-                <div class="section-title">
-                    <i class="fas fa-file-alt me-2"></i>INFORMACIÓN GENERAL
+
+        <!-- SECCIÓN 3: RESPONSABLE -->
+        <div class="mb-4">
+            <h6 class="text-primary mb-3"><i class="fas fa-user me-2"></i>RESPONSABLE</h6>
+            <select name="id_responsable" class="form-select" required>
+                <option value="">-- Seleccione un Responsable --</option>
+                <?php foreach ($responsables as $r): ?>
+                    <option value="<?= $r['id_responsable'] ?>" 
+                            <?= (isset($elab['id_responsable']) && $elab['id_responsable'] == $r['id_responsable']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($r['nombre_responsable']) ?>
+                    </option>
+                <?php endforeach ?>
+            </select>
+        </div>
+
+        <!-- SECCIÓN 4: INFORMACIÓN BASE -->
+        <div class="mb-4">
+            <h6 class="text-primary mb-3"><i class="fas fa-database me-2"></i>INFORMACIÓN BASE</h6>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">LÍNEA BASE *</label>
+                    <input type="text" name="linea_base" class="form-control" 
+                           value="<?= $elab['linea_base'] ?? '' ?>" required>
                 </div>
                 
-                <div class="row">
-                    <div class="col-md-6 field-group">
-                        <label class="form-label-custom">TEMA <span class="required-asterisk">*</span></label>
-                        <select name="id_tema" class="form-select form-control-custom" required>
-                            <option value="">-- Seleccione un Tema --</option>
-                            <?php foreach ($temas as $t): ?>
-                                    <option value="<?= $t['id_tema'] ?>" 
-                                            <?= (isset($elab['id_tema']) && $elab['id_tema'] == $t['id_tema']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($t['descripcion']) ?>
-                                    </option>
-                            <?php endforeach ?>
-                        </select>
-                        <small class="text-muted">Tema del plan operativo anual</small>
-                    </div>
-                    
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">POLÍTICAS</label>
+                    <textarea name="politicas" class="form-control" rows="2"><?= $elab['politicas'] ?? '' ?></textarea>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">METAS</label>
+                    <textarea name="metas" class="form-control" rows="2"><?= $elab['metas'] ?? '' ?></textarea>
                 </div>
             </div>
+        </div>
 
-            <!-- SECCIÓN 2: EJE ESTRATÉGICO E INDICADOR -->
-            <div class="form-section">
-                <div class="section-title">
-                    <i class="fas fa-bullseye me-2"></i>EJE ESTRATÉGICO E INDICADOR
+        <!-- SECCIÓN 5: EJECUCIÓN -->
+        <div class="mb-4">
+            <h6 class="text-primary mb-3"><i class="fas fa-play-circle me-2"></i>EJECUCIÓN</h6>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">ACTIVIDADES *</label>
+                    <textarea name="actividades" class="form-control" rows="3" required><?= $elab['actividades'] ?? '' ?></textarea>
                 </div>
                 
-                <div class="row">
-                    <div class="col-md-6 field-group">
-                        <label class="form-label-custom">1. EJE ESTRATÉGICO <span class="required-asterisk">*</span></label>
-                        <select id="eje_select" class="form-select form-control-custom" required>
-                            <option value="">-- Seleccione un Eje --</option>
-                            <?php foreach ($ejes as $e): ?>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">INDICADOR DE RESULTADO</label>
+                    <textarea name="indicador_resultado" class="form-control" rows="3"><?= $elab['indicador_resultado'] ?? '' ?></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 6: MEDIOS DE VERIFICACIÓN -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-primary mb-0"><i class="fas fa-file-check me-2"></i>MEDIOS DE VERIFICACIÓN</h6>
+                <div>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="agregarMedio()">
+                        <i class="fas fa-plus me-1"></i> Agregar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="5%" class="text-center">#</th>
+                            <th width="65%">DESCRIPCIÓN DEL MEDIO *</th>
+                            <th width="20%">PLAZO *</th>
+                            <th width="10%" class="text-center">ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="medios-container">
+                        <?php
+                        $contador = 1;
+                        if (isset($elab['id_elaboracion'])):
+                            $medios = Plan::obtenerMediosVerificacion($elab['id_elaboracion']);
+                            if (!empty($medios)):
+                                foreach ($medios as $medio): ?>
+                                    <tr id="fila-<?= $contador ?>">
+                                        <td class="text-center"><?= $contador ?></td>
+                                        <td>
+                                            <input type="text" name="detalle[]" class="form-control" 
+                                                   value="<?= htmlspecialchars($medio['detalle']) ?>" required>
+                                        </td>
+                                        <td>
+                                            <select name="id_plazo[]" class="form-select" required>
+                                                <option value="">-- Seleccione --</option>
+                                                <?php foreach ($plazos as $pl): ?>
+                                                    <option value="<?= $pl['id_plazo'] ?>" 
+                                                            <?= ($medio['id_plazo'] == $pl['id_plazo']) ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($pl['nombre_plazo']) ?>
+                                                    </option>
+                                                <?php endforeach ?>
+                                            </select>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    onclick="eliminarFila(<?= $contador ?>)" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
                                     <?php
-                                    $objetivo = $e['descripcion_objetivo'] ?? '';
-                                    $selected = (isset($eje_actual) && $eje_actual == $e['id_eje']) ? 'selected' : '';
-                                    ?>
-                                    <option value="<?= $e['id_eje'] ?>" 
-                                            data-objetivo="<?= htmlspecialchars($objetivo, ENT_QUOTES, 'UTF-8') ?>"
-                                            <?= $selected ?>>
-                                        <?= htmlspecialchars($e['nombre_eje']) ?>
-                                    </option>
-                            <?php endforeach ?>
-                        </select>
-                        <small class="text-muted">Al seleccionar un objetivo, el eje se completará automáticamente</small>
-                        
-                        <div class="mt-3">
-                            <label class="form-label-custom">OBJETIVO DEL EJE</label>
-                            <textarea id="objetivo_display" class="form-control form-control-custom readonly-field" 
-                                      rows="3" readonly></textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 field-group">
-                        <label class="form-label-custom">2. INDICADOR <span class="required-asterisk">*</span></label>
-                        <select name="id_indicador" id="indicador_select" class="form-select form-control-custom" required>
-                            <option value="">-- Cargando indicadores... --</option>
-                        </select>
-                        
-                        <!-- Cards de indicadores (se mostrarán dinámicamente) -->
-                        <div class="mt-3" id="cards-indicadores-container" style="display: none;">
-                            <label class="form-label-custom">INDICADORES DISPONIBLES</label>
-                            <div class="row g-2" id="cards-indicadores">
-                                <!-- Las cards se generarán aquí dinámicamente -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 3: CONFIGURACIÓN GENERAL -->
-            <div class="form-section">
-                <div class="section-title">
-                    <i class="fas fa-cogs me-2"></i>CONFIGURACIÓN GENERAL
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6 field-group">
-                        <label class="form-label-custom">RESPONSABLE <span class="required-asterisk">*</span></label>
-                        <select name="id_responsable" class="form-select form-control-custom" required>
-                            <option value="">-- Seleccione un Responsable --</option>
-                            <?php foreach ($responsables as $r): ?>
-                                    <option value="<?= $r['id_responsable'] ?>" 
-                                            <?= (isset($elab['id_responsable']) && $elab['id_responsable'] == $r['id_responsable']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($r['nombre_responsable']) ?>
-                                    </option>
-                            <?php endforeach ?>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 4: INFORMACIÓN BASE -->
-            <div class="form-section">
-                <div class="section-title">
-                    <i class="fas fa-database me-2"></i>INFORMACIÓN BASE
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6 field-group">
-                        <label class="form-label-custom">LÍNEA BASE <span class="required-asterisk">*</span></label>
-                        <input type="text" name="linea_base" class="form-control form-control-custom" 
-                               value="<?= $elab['linea_base'] ?? '' ?>" 
-                               placeholder="Descripción de la línea base" required>
-                        <small class="text-muted">Punto de partida para la medición</small>
-                    </div>
-                    
-                    <div class="col-md-3 field-group">
-                        <label class="form-label-custom">POLÍTICAS</label>
-                        <textarea name="politicas" class="form-control form-control-custom" rows="2" 
-                                  placeholder="Políticas aplicables"><?= $elab['politicas'] ?? '' ?></textarea>
-                    </div>
-                    
-                    <div class="col-md-3 field-group">
-                        <label class="form-label-custom">METAS</label>
-                        <textarea name="metas" class="form-control form-control-custom" rows="2" 
-                                  placeholder="Metas a alcanzar"><?= $elab['metas'] ?? '' ?></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 5: EJECUCIÓN -->
-            <div class="form-section">
-                <div class="section-title">
-                    <i class="fas fa-play-circle me-2"></i>EJECUCIÓN
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6 field-group">
-                        <label class="form-label-custom">ACTIVIDADES <span class="required-asterisk">*</span></label>
-                        <textarea name="actividades" class="form-control form-control-custom" rows="3" 
-                                  placeholder="Actividades a realizar" required><?= $elab['actividades'] ?? '' ?></textarea>
-                        <small class="text-muted">Describa las actividades principales</small>
-                    </div>
-                    
-                    <div class="col-md-6 field-group">
-                        <label class="form-label-custom">INDICADOR DE RESULTADO</label>
-                        <textarea name="indicador_resultado" class="form-control form-control-custom" rows="3" 
-                                  placeholder="Indicador para medir resultados"><?= $elab['indicador_resultado'] ?? '' ?></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 6: MEDIOS DE VERIFICACIÓN -->
-            <div class="form-section">
-                <div class="section-title d-flex justify-content-between align-items-center">
-                    <div>
-                        <i class="fas fa-file-check me-2"></i>MEDIOS DE VERIFICACIÓN
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-sm btn-custom-primary" onclick="agregarMedio()">
-                            <i class="fas fa-plus me-1"></i> Agregar
-                        </button>
-                        <button type="button" class="btn btn-sm btn-custom-secondary ms-1" onclick="limpiarMedios()">
-                            <i class="fas fa-broom me-1"></i> Limpiar
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-custom" id="tablaMedios">
-                        <thead>
-                            <tr>
-                                <th width="5%" class="text-center">#</th>
-                                <th width="60%">DESCRIPCIÓN DEL MEDIO <span class="required-asterisk">*</span></th>
-                                <th width="25%">PLAZO <span class="required-asterisk">*</span></th>
-                                <th width="10%" class="text-center">ACCIONES</th>
-                            </tr>
-                        </thead>
-                        <tbody id="medios-container">
-                            <?php
-                            $contador = 1;
-                            if (isset($elab['id_elaboracion'])):
-                                $medios = Plan::obtenerMediosVerificacion($elab['id_elaboracion']);
-                                if (!empty($medios)):
-                                    foreach ($medios as $medio): ?>
-                                                    <tr id="fila-<?= $contador ?>">
-                                                        <td class="text-center"><?= $contador ?></td>
-                                                        <td>
-                                                            <input type="text" name="detalle[]" class="form-control form-control-custom border" 
-                                                                   value="<?= htmlspecialchars($medio['detalle']) ?>" 
-                                                                   placeholder="Descripción del medio" required>
-                                                        </td>
-                                                        <td>
-                                                            <select name="id_plazo[]" class="form-select form-control-custom" required>
-                                                                <option value="">-- Seleccione --</option>
-                                                                <?php foreach ($plazos as $pl): ?>
-                                                                        <option value="<?= $pl['id_plazo'] ?>" 
-                                                                                <?= ($medio['id_plazo'] == $pl['id_plazo']) ? 'selected' : '' ?>>
-                                                                            <?= htmlspecialchars($pl['nombre_plazo']) ?>
-                                                                        </option>
-                                                                <?php endforeach ?>
-                                                            </select>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <button type="button" class="btn btn-sm btn-outline-danger btn-custom-sm" 
-                                                                    onclick="eliminarFila(<?= $contador ?>)" title="Eliminar">
-                                                                <i class="fas fa-trash-alt"></i>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                <?php
-                                                $contador++;
-                                    endforeach;
-                                else: ?>
-                                        <!-- Fila por defecto si no hay medios -->
-                                        <tr id="fila-1">
-                                            <td class="text-center">1</td>
-                                            <td>
-                                                <input type="text" name="detalle[]" class="form-control form-control-custom border" 
-                                                       placeholder="Descripción del medio" required>
-                                            </td>
-                                            <td>
-                                                <select name="id_plazo[]" class="form-select form-control-custom" required>
-                                                    <option value="">-- Seleccione --</option>
-                                                    <?php foreach ($plazos as $pl): ?>
-                                                            <option value="<?= $pl['id_plazo'] ?>"><?= htmlspecialchars($pl['nombre_plazo']) ?></option>
-                                                    <?php endforeach ?>
-                                                </select>
-                                            </td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-sm btn-outline-danger btn-custom-sm" 
-                                                        onclick="eliminarFila(1)" title="Eliminar">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php
-                                    $contador = 2;
-                                endif;
+                                    $contador++;
+                                endforeach;
                             else: ?>
-                                    <!-- Para nuevo registro, mostrar 2 filas por defecto -->
-                                    <?php for ($i = 1; $i <= 2; $i++): ?>
-                                            <tr id="fila-<?= $i ?>">
-                                                <td class="text-center"><?= $i ?></td>
-                                                <td>
-                                                    <input type="text" name="detalle[]" class="form-control form-control-custom border" 
-                                                           placeholder="Descripción del medio" required>
-                                                </td>
-                                                <td>
-                                                    <select name="id_plazo[]" class="form-select form-control-custom" required>
-                                                        <option value="">-- Seleccione --</option>
-                                                        <?php foreach ($plazos as $pl): ?>
-                                                                <option value="<?= $pl['id_plazo'] ?>"><?= htmlspecialchars($pl['nombre_plazo']) ?></option>
-                                                        <?php endforeach ?>
-                                                    </select>
-                                                </td>
-                                                <td class="text-center">
-                                                    <button type="button" class="btn btn-sm btn-outline-danger btn-custom-sm" 
-                                                            onclick="eliminarFila(<?= $i ?>)" title="Eliminar">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                    <?php endfor;
-                                    $contador = 3;
-                            endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="mt-2 text-end">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Total de medios: <span id="total-medios" class="badge bg-primary"><?= ($contador - 1) ?></span>
-                    </small>
-                </div>
+                                <tr id="fila-1">
+                                    <td class="text-center">1</td>
+                                    <td>
+                                        <input type="text" name="detalle[]" class="form-control" required>
+                                    </td>
+                                    <td>
+                                        <select name="id_plazo[]" class="form-select" required>
+                                            <option value="">-- Seleccione --</option>
+                                            <?php foreach ($plazos as $pl): ?>
+                                                <option value="<?= $pl['id_plazo'] ?>"><?= htmlspecialchars($pl['nombre_plazo']) ?></option>
+                                            <?php endforeach ?>
+                                        </select>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-danger" 
+                                                onclick="eliminarFila(1)" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <?php
+                                $contador = 2;
+                            endif;
+                        else: ?>
+                            <tr id="fila-1">
+                                <td class="text-center">1</td>
+                                <td>
+                                    <input type="text" name="detalle[]" class="form-control" required>
+                                </td>
+                                <td>
+                                    <select name="id_plazo[]" class="form-select" required>
+                                        <option value="">-- Seleccione --</option>
+                                        <?php foreach ($plazos as $pl): ?>
+                                            <option value="<?= $pl['id_plazo'] ?>"><?= htmlspecialchars($pl['nombre_plazo']) ?></option>
+                                        <?php endforeach ?>
+                                    </select>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-danger" 
+                                            onclick="eliminarFila(1)" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr id="fila-2">
+                                <td class="text-center">2</td>
+                                <td>
+                                    <input type="text" name="detalle[]" class="form-control" required>
+                                </td>
+                                <td>
+                                    <select name="id_plazo[]" class="form-select" required>
+                                        <option value="">-- Seleccione --</option>
+                                        <?php foreach ($plazos as $pl): ?>
+                                            <option value="<?= $pl['id_plazo'] ?>"><?= htmlspecialchars($pl['nombre_plazo']) ?></option>
+                                        <?php endforeach ?>
+                                    </select>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-danger" 
+                                            onclick="eliminarFila(2)" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php
+                            $contador = 3;
+                        endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <div class="modal-footer">
-        <button type="button" class="btn btn-custom-secondary" data-bs-dismiss="modal">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             <i class="fas fa-times me-1"></i> Cancelar
         </button>
-        <button type="button" class="btn btn-custom-info" onclick="imprimirFormulario()">
-            <i class="fas fa-print me-1"></i> Imprimir
+        <button type="button" class="btn btn-info" onclick="exportarPDF()">
+            <i class="fas fa-file-pdf me-1"></i> Exportar PDF
         </button>
-        <button type="submit" class="btn btn-custom-primary">
-            <i class="fas fa-save me-1"></i> Guardar Elaboración
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i> Guardar
         </button>
     </div>
 </form>
 
-<script>
-// VARIABLES Y FUNCIONES PARA EL MODAL
+<!-- Incluir jsPDF desde CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-// Variable global para el modal
-window.idIndicadorGuardadoModal = "<?= $elab['id_indicador'] ?? '' ?>";
+<script>
+// Variables globales
 let contadorFilas = <?= $contador ?? 3 ?>;
 
-// Función para inicializar el modal
-function inicializarModal() {
-    console.log('🔧 Inicializando modal mejorado...');
-    
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
     const selectorEje = document.getElementById('eje_select');
     const txtObjetivo = document.getElementById('objetivo_display');
     
-    if (!selectorEje) return;
-    
-    // Mostrar objetivo si ya hay eje seleccionado
-    if (selectorEje.value && selectorEje.value !== "") {
-        const opcion = selectorEje.options[selectorEje.selectedIndex];
-        const objetivo = opcion.getAttribute('data-objetivo');
-        if (objetivo && txtObjetivo) {
-            txtObjetivo.value = objetivo;
-        }
-        
-        // Cargar indicadores iniciales
-        setTimeout(() => {
-            cargarIndicadoresYMostrarCards(selectorEje.value);
-        }, 300);
-    }
-    
-    // Configurar evento change del eje
-    selectorEje.addEventListener('change', function() {
-        const opcion = this.options[this.selectedIndex];
-        const objetivo = opcion.getAttribute('data-objetivo');
-        if (txtObjetivo) {
-            if (objetivo && objetivo.trim() !== "") {
+    if (selectorEje) {
+        // Mostrar objetivo si ya hay eje seleccionado
+        if (selectorEje.value) {
+            const opcion = selectorEje.options[selectorEje.selectedIndex];
+            const objetivo = opcion.getAttribute('data-objetivo');
+            if (objetivo && txtObjetivo) {
                 txtObjetivo.value = objetivo;
-            } else {
-                txtObjetivo.value = "No hay objetivo registrado para este eje.";
             }
+            
+            // Cargar indicadores si hay eje seleccionado
+            cargarIndicadores(selectorEje.value);
         }
         
-        // Cargar y mostrar cards de indicadores
-        cargarIndicadoresYMostrarCards(this.value);
-    });
-    
-    // Configurar evento change del select tradicional (por si acaso)
-    const selectIndicador = document.getElementById('indicador_select');
-    if (selectIndicador) {
-        selectIndicador.addEventListener('change', function() {
-            actualizarCardsSeleccionadas(this.value);
+        // Configurar evento change
+        selectorEje.addEventListener('change', function() {
+            const opcion = this.options[this.selectedIndex];
+            const objetivo = opcion.getAttribute('data-objetivo');
+            if (txtObjetivo) {
+                txtObjetivo.value = objetivo || "No hay objetivo registrado para este eje.";
+            }
+            
+            cargarIndicadores(this.value);
         });
     }
-}
+});
 
-// Función para cargar indicadores y mostrar cards
-function cargarIndicadoresYMostrarCards(id_eje) {
-    if (!id_eje || id_eje === "") {
-        ocultarCardsIndicadores();
-        return;
-    }
-    
-    console.log('📊 Cargando indicadores para mostrar en cards...');
+// Función para cargar indicadores
+function cargarIndicadores(id_eje) {
+    if (!id_eje) return;
     
     const selectIndicador = document.getElementById('indicador_select');
+    if (!selectIndicador) return;
+    
     selectIndicador.innerHTML = '<option value="">Cargando indicadores...</option>';
     selectIndicador.disabled = true;
     
     fetch('index.php?action=indicadoresPorEje&id_eje=' + id_eje)
         .then(response => response.json())
         .then(data => {
-            console.log('✅ Indicadores recibidos:', data);
+            let opciones = '<option value="">-- Seleccione un Indicador --</option>';
             
-            // Actualizar select tradicional
-            actualizarSelectIndicadores(data);
-            
-            // Mostrar cards si hay datos
             if (data && Array.isArray(data) && data.length > 0) {
-                mostrarCardsIndicadores(data);
+                data.forEach(ind => {
+                    opciones += `<option value="${ind.id_indicador}">${ind.codigo} - ${ind.descripcion}</option>`;
+                });
             } else {
-                ocultarCardsIndicadores();
-                mostrarMensajeModal('No hay indicadores disponibles para este eje', 'warning');
+                opciones = '<option value="">No hay indicadores para este eje</option>';
             }
             
+            selectIndicador.innerHTML = opciones;
             selectIndicador.disabled = false;
         })
         .catch(error => {
-            console.error('❌ Error:', error);
-            ocultarCardsIndicadores();
+            console.error('Error:', error);
             selectIndicador.innerHTML = '<option value="">Error al cargar</option>';
             selectIndicador.disabled = false;
         });
 }
 
-// Función para actualizar el select tradicional
-function actualizarSelectIndicadores(data) {
-    const selectIndicador = document.getElementById('indicador_select');
-    let opciones = '<option value="">-- Seleccione un Indicador --</option>';
-    
-    if (data && data.length > 0) {
-        const idIndicadorGuardado = window.idIndicadorGuardadoModal || '';
-        
-        data.forEach(ind => {
-            const selected = (idIndicadorGuardado == ind.id_indicador) ? 'selected' : '';
-            opciones += `<option value="${ind.id_indicador}" ${selected}>${ind.codigo} - ${ind.descripcion}</option>`;
-        });
-    } else {
-        opciones = '<option value="">No hay indicadores</option>';
-    }
-    
-    selectIndicador.innerHTML = opciones;
-}
-
-// Función para mostrar cards de indicadores
-function mostrarCardsIndicadores(indicadores) {
-    const container = document.getElementById('cards-indicadores-container');
-    const cardsContainer = document.getElementById('cards-indicadores');
-    
-    if (!container || !cardsContainer) return;
-    
-    // Limpiar container
-    cardsContainer.innerHTML = '';
-    
-    // Determinar indicador seleccionado
-    const idIndicadorGuardado = window.idIndicadorGuardadoModal || '';
-    const selectIndicador = document.getElementById('indicador_select');
-    const idSelectSeleccionado = selectIndicador ? selectIndicador.value : '';
-    
-    // Crear cards para cada indicador
-    indicadores.forEach(ind => {
-        const isSelected = (idIndicadorGuardado == ind.id_indicador) || (idSelectSeleccionado == ind.id_indicador);
-        
-        const card = document.createElement('div');
-        card.className = `col-md-6 col-lg-4 mb-2`;
-        card.innerHTML = `
-            <div class="indicador-card ${isSelected ? 'selected' : ''}" 
-                 data-id="${ind.id_indicador}"
-                 onclick="seleccionarIndicadorCard(${ind.id_indicador}, '${ind.codigo}', '${ind.descripcion.replace(/'/g, "\\'")}')">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-bold text-primary">${ind.codigo}</span>
-                    ${isSelected ? '<i class="fas fa-check-circle text-success"></i>' : ''}
-                </div>
-                <div class="indicador-descripcion small">${ind.descripcion.substring(0, 80)}${ind.descripcion.length > 80 ? '...' : ''}</div>
-            </div>
-        `;
-        
-        cardsContainer.appendChild(card);
-    });
-    
-    // Mostrar el contenedor
-    container.style.display = 'block';
-}
-
-// Función para ocultar cards
-function ocultarCardsIndicadores() {
-    const container = document.getElementById('cards-indicadores-container');
-    if (container) {
-        container.style.display = 'none';
-    }
-}
-
-// Función para seleccionar indicador desde card
-function seleccionarIndicadorCard(id, codigo, descripcion) {
-    console.log('🎯 Seleccionando indicador desde card:', id, codigo);
-    
-    // Actualizar select tradicional
-    const selectIndicador = document.getElementById('indicador_select');
-    if (selectIndicador) {
-        selectIndicador.value = id;
-        
-        // Disparar evento change
-        selectIndicador.dispatchEvent(new Event('change'));
-    }
-    
-    // Actualizar cards seleccionadas
-    actualizarCardsSeleccionadas(id);
-    
-    // Mostrar mensaje
-    mostrarMensajeModal(`Indicador seleccionado: <strong>${codigo}</strong>`, 'success');
-}
-
-// Función para actualizar cards seleccionadas
-function actualizarCardsSeleccionadas(idSeleccionado) {
-    // Quitar selección de todas las cards
-    document.querySelectorAll('.indicador-card').forEach(card => {
-        card.classList.remove('selected');
-    });
-    
-    // Agregar selección a la card correspondiente
-    const cardSeleccionada = document.querySelector(`.indicador-card[data-id="${idSeleccionado}"]`);
-    if (cardSeleccionada) {
-        cardSeleccionada.classList.add('selected');
-    }
-}
-
-// Función para mostrar mensajes en el modal
-function mostrarMensajeModal(texto, tipo = 'info') {
-    // Crear o actualizar mensaje
-    let mensaje = document.getElementById('mensaje-modal-temporal');
-    if (!mensaje) {
-        mensaje = document.createElement('div');
-        mensaje.id = 'mensaje-modal-temporal';
-        mensaje.style.position = 'fixed';
-        mensaje.style.top = '70px';
-        mensaje.style.right = '20px';
-        mensaje.style.zIndex = '9999';
-        mensaje.style.minWidth = '300px';
-        document.body.appendChild(mensaje);
-    }
-    
-    // Determinar clase según tipo
-    let clase = 'alert-info';
-    switch(tipo) {
-        case 'success': clase = 'alert-success'; break;
-        case 'warning': clase = 'alert-warning'; break;
-        case 'danger': clase = 'alert-danger'; break;
-    }
-    
-    mensaje.className = `alert ${clase} alert-dismissible fade show shadow`;
-    mensaje.innerHTML = `
-        <div class="d-flex align-items-center">
-            <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
-            <div class="flex-grow-1">${texto}</div>
-            <button type="button" class="btn-close" onclick="this.parentElement.parentElement.remove()"></button>
-        </div>
-    `;
-    
-    // Auto-eliminar después de 3 segundos
-    setTimeout(() => {
-        if (mensaje.parentElement) {
-            mensaje.remove();
-        }
-    }, 3000);
-}
-
-// FUNCIONES PARA MEDIOS DE VERIFICACIÓN
-
-// Función para agregar medio
+// Funciones para medios de verificación
 function agregarMedio() {
     const tbody = document.getElementById('medios-container');
     if (!tbody) return;
@@ -572,7 +351,6 @@ function agregarMedio() {
     const nuevaFila = document.createElement('tr');
     nuevaFila.id = 'fila-' + contadorFilas;
     
-    // Obtener opciones de plazos
     let opcionesPlazos = '<option value="">-- Seleccione --</option>';
     const primerSelect = tbody.querySelector('select[name="id_plazo[]"]');
     if (primerSelect) {
@@ -582,37 +360,25 @@ function agregarMedio() {
     nuevaFila.innerHTML = `
         <td class="text-center">${contadorFilas}</td>
         <td>
-            <input type="text" name="detalle[]" class="form-control form-control-custom border" 
-                   placeholder="Descripción del medio" required>
+            <input type="text" name="detalle[]" class="form-control" required>
         </td>
         <td>
-            <select name="id_plazo[]" class="form-select form-control-custom" required>
+            <select name="id_plazo[]" class="form-select" required>
                 ${opcionesPlazos}
             </select>
         </td>
         <td class="text-center">
-            <button type="button" class="btn btn-sm btn-outline-danger btn-custom-sm" 
+            <button type="button" class="btn btn-sm btn-danger" 
                     onclick="eliminarFila(${contadorFilas})" title="Eliminar">
-                <i class="fas fa-trash-alt"></i>
+                <i class="fas fa-trash"></i>
             </button>
         </td>
     `;
     
     tbody.appendChild(nuevaFila);
     contadorFilas++;
-    actualizarContador();
-    
-    // Animación
-    nuevaFila.style.opacity = '0';
-    setTimeout(() => {
-        nuevaFila.style.transition = 'opacity 0.3s';
-        nuevaFila.style.opacity = '1';
-    }, 10);
-    
-    mostrarMensajeModal('Nuevo medio agregado', 'success');
 }
 
-// Función para eliminar fila
 function eliminarFila(numeroFila) {
     const fila = document.getElementById('fila-' + numeroFila);
     if (!fila) return;
@@ -620,24 +386,19 @@ function eliminarFila(numeroFila) {
     if (confirm('¿Eliminar este medio de verificación?')) {
         fila.remove();
         renumerarFilas();
-        actualizarContador();
-        mostrarMensajeModal('Medio eliminado', 'warning');
     }
 }
 
-// Función para renumerar filas
 function renumerarFilas() {
     const filas = document.querySelectorAll('#medios-container tr');
     let nuevoContador = 1;
     
-    filas.forEach((fila, index) => {
-        // Actualizar número
+    filas.forEach((fila) => {
         const tdNumero = fila.querySelector('td:first-child');
         if (tdNumero) {
             tdNumero.textContent = nuevoContador;
         }
         
-        // Actualizar ID y onclick
         fila.id = 'fila-' + nuevoContador;
         const btnEliminar = fila.querySelector('button');
         if (btnEliminar) {
@@ -650,146 +411,285 @@ function renumerarFilas() {
     contadorFilas = nuevoContador;
 }
 
-// Función para actualizar contador
-function actualizarContador() {
-    const total = document.querySelectorAll('#medios-container tr').length;
-    const contadorElement = document.getElementById('total-medios');
-    if (contadorElement) {
-        contadorElement.textContent = total;
-    }
-}
-
-// Función para limpiar medios
-function limpiarMedios() {
-    const total = document.querySelectorAll('#medios-container tr').length;
-    if (total === 0) {
-        mostrarMensajeModal('No hay medios para limpiar', 'info');
+// Función principal para exportar PDF
+function exportarPDF() {
+    // Validar formulario primero
+    if (!validarFormularioParaPDF()) {
+        alert('Por favor complete todos los campos requeridos (*) antes de exportar el PDF.');
         return;
     }
     
-    if (confirm(`¿Limpiar todos los medios de verificación? (${total} medios)`)) {
-        document.querySelectorAll('#medios-container tr').forEach(fila => {
-            fila.remove();
-        });
+    // Obtener datos del formulario
+    const datos = obtenerDatosFormulario();
+    
+    // Crear PDF
+    crearPDF(datos);
+}
+
+// Función para validar el formulario para PDF
+function validarFormularioParaPDF() {
+    // Campos requeridos
+    const camposRequeridos = [
+        { id: 'eje_select', nombre: 'Eje Estratégico' },
+        { name: 'id_tema', nombre: 'Tema' },
+        { id: 'indicador_select', nombre: 'Indicador' },
+        { name: 'id_responsable', nombre: 'Responsable' },
+        { name: 'linea_base', nombre: 'Línea Base' },
+        { name: 'actividades', nombre: 'Actividades' }
+    ];
+    
+    for (let campo of camposRequeridos) {
+        let elemento;
+        if (campo.id) {
+            elemento = document.getElementById(campo.id);
+        } else if (campo.name) {
+            elemento = document.querySelector(`[name="${campo.name}"]`);
+        }
         
-        // Agregar una fila vacía
-        contadorFilas = 1;
-        agregarMedio();
+        if (elemento && (!elemento.value || elemento.value.includes('-- Seleccione'))) {
+            elemento.classList.add('is-invalid');
+            return false;
+        } else if (elemento) {
+            elemento.classList.remove('is-invalid');
+        }
+    }
+    
+    // Validar medios de verificación
+    const medios = document.querySelectorAll('#medios-container tr');
+    if (medios.length === 0) {
+        alert('Debe agregar al menos un medio de verificación.');
+        return false;
+    }
+    
+    return true;
+}
+
+// Función para obtener datos del formulario
+function obtenerDatosFormulario() {
+    // Obtener el objetivo del eje
+    const selectorEje = document.getElementById('eje_select');
+    const opcionEje = selectorEje.options[selectorEje.selectedIndex];
+    const objetivoEje = opcionEje ? opcionEje.getAttribute('data-objetivo') : '';
+    
+    // Obtener datos de medios de verificación
+    const medios = [];
+    document.querySelectorAll('#medios-container tr').forEach((fila, index) => {
+        const detalle = fila.querySelector('input[name="detalle[]"]').value;
+        const plazoSelect = fila.querySelector('select[name="id_plazo[]"]');
+        const plazo = plazoSelect ? plazoSelect.options[plazoSelect.selectedIndex].textContent : '';
         
-        mostrarMensajeModal('Medios limpiados', 'info');
+        if (detalle && plazo) {
+            medios.push({ detalle, plazo });
+        }
+    });
+    
+    return {
+        // Información general
+        tema: document.querySelector('select[name="id_tema"] option:selected').textContent,
+        eje: document.querySelector('#eje_select option:selected').textContent,
+        objetivo: objetivoEje,
+        indicador: document.querySelector('#indicador_select option:selected').textContent,
+        responsable: document.querySelector('select[name="id_responsable"] option:selected').textContent,
+        
+        // Información base
+        linea_base: document.querySelector('input[name="linea_base"]').value,
+        politicas: document.querySelector('textarea[name="politicas"]').value,
+        metas: document.querySelector('textarea[name="metas"]').value,
+        
+        // Ejecución
+        actividades: document.querySelector('textarea[name="actividades"]').value,
+        indicador_resultado: document.querySelector('textarea[name="indicador_resultado"]').value,
+        
+        // Medios de verificación
+        medios: medios,
+        
+        // Información adicional
+        elaborado_por: "<?= htmlspecialchars($plan['nombre_elaborado']) ?>"
+    };
+}
+
+// Función para crear el PDF
+function crearPDF(datos) {
+    try {
+        // Verificar si jsPDF está disponible
+        if (typeof window.jspdf === 'undefined') {
+            alert('Error: La librería jsPDF no está cargada. Por favor recargue la página.');
+            return;
+        }
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        
+        // Configurar fuente
+        doc.setFont('helvetica');
+        
+        // Título
+        doc.setFontSize(18);
+        doc.setTextColor(0, 0, 128);
+        doc.text('PLAN OPERATIVO ANUAL 2024', 105, 20, { align: 'center' });
+        
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text('Formulario: Elaboración POA 2024', 105, 28, { align: 'center' });
+        doc.text('ISTTP "YAVIRAC"', 105, 32, { align: 'center' });
+        
+        // Línea separadora
+        doc.setLineWidth(0.5);
+        doc.line(20, 38, 190, 38);
+        
+        let yPos = 45;
+        
+        // Tabla 1: Información General
+        doc.setFontSize(14);
+        doc.setTextColor(0, 0, 128);
+        doc.text('INFORMACIÓN GENERAL', 20, yPos);
+        yPos += 10;
+        
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        
+        // Tema
+        doc.text('TEMA:', 20, yPos);
+        doc.text(datos.tema, 50, yPos);
+        yPos += 8;
+        
+        // Eje
+        doc.text('EJE ESTRATÉGICO:', 20, yPos);
+        doc.text(datos.eje, 60, yPos);
+        yPos += 8;
+        
+        // Objetivo
+        doc.text('OBJETIVO:', 20, yPos);
+        const objetivoLines = doc.splitTextToSize(datos.objetivo || 'No especificado', 160);
+        doc.text(objetivoLines, 50, yPos);
+        yPos += (objetivoLines.length * 5) + 5;
+        
+        // Indicador
+        doc.text('INDICADOR:', 20, yPos);
+        doc.text(datos.indicador, 50, yPos);
+        yPos += 8;
+        
+        // Responsable
+        doc.text('RESPONSABLE:', 20, yPos);
+        doc.text(datos.responsable, 50, yPos);
+        yPos += 15;
+        
+        // Tabla 2: Información Base
+        doc.setFontSize(14);
+        doc.setTextColor(0, 0, 128);
+        doc.text('INFORMACIÓN BASE', 20, yPos);
+        yPos += 10;
+        
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        
+        // Línea Base
+        doc.text('LÍNEA BASE:', 20, yPos);
+        const lineaBaseLines = doc.splitTextToSize(datos.linea_base || 'No especificado', 160);
+        doc.text(lineaBaseLines, 50, yPos);
+        yPos += (lineaBaseLines.length * 5) + 5;
+        
+        // Políticas
+        doc.text('POLÍTICAS:', 20, yPos);
+        const politicasLines = doc.splitTextToSize(datos.politicas || 'No especificado', 160);
+        doc.text(politicasLines, 50, yPos);
+        yPos += (politicasLines.length * 5) + 5;
+        
+        // Metas
+        doc.text('METAS:', 20, yPos);
+        const metasLines = doc.splitTextToSize(datos.metas || 'No especificado', 160);
+        doc.text(metasLines, 50, yPos);
+        yPos += (metasLines.length * 5) + 15;
+        
+        // Tabla 3: Ejecución
+        doc.setFontSize(14);
+        doc.setTextColor(0, 0, 128);
+        doc.text('EJECUCIÓN', 20, yPos);
+        yPos += 10;
+        
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        
+        // Actividades
+        doc.text('ACTIVIDADES:', 20, yPos);
+        const actividadesLines = doc.splitTextToSize(datos.actividades || 'No especificado', 160);
+        doc.text(actividadesLines, 50, yPos);
+        yPos += (actividadesLines.length * 5) + 5;
+        
+        // Indicador de Resultado
+        doc.text('INDICADOR DE RESULTADO:', 20, yPos);
+        const indicadorResultadoLines = doc.splitTextToSize(datos.indicador_resultado || 'No especificado', 160);
+        doc.text(indicadorResultadoLines, 70, yPos);
+        yPos += (indicadorResultadoLines.length * 5) + 15;
+        
+        // Tabla 4: Medios de Verificación
+        doc.setFontSize(14);
+        doc.setTextColor(0, 0, 128);
+        doc.text('MEDIOS DE VERIFICACIÓN', 20, yPos);
+        yPos += 10;
+        
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        
+        if (datos.medios.length > 0) {
+            datos.medios.forEach((medio, index) => {
+                doc.text(`${index + 1}. ${medio.detalle}`, 20, yPos);
+                doc.text(`Plazo: ${medio.plazo}`, 160, yPos, { align: 'right' });
+                yPos += 8;
+                
+                // Verificar si necesitamos una nueva página
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+            });
+        } else {
+            doc.text('No se han definido medios de verificación', 20, yPos);
+            yPos += 8;
+        }
+        
+        yPos += 10;
+        
+        // Firma
+        doc.setFontSize(12);
+        doc.text('ELABORADO POR:', 20, yPos);
+        doc.text('REVISADO POR:', 120, yPos);
+        yPos += 20;
+        
+        // Líneas para firma
+        doc.line(20, yPos, 80, yPos);
+        doc.line(120, yPos, 180, yPos);
+        yPos += 5;
+        
+        doc.setFontSize(10);
+        doc.text(datos.elaborado_por, 20, yPos);
+        doc.text('_________________________', 120, yPos);
+        
+        // Pie de página
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text('Documento generado el: ' + new Date().toLocaleDateString('es-ES'), 105, 290, { align: 'center' });
+        
+        // Descargar el PDF
+        const nombreArchivo = `POA_${datos.elaborado_por.replace(/[^a-z0-9]/gi, '_')}_${new Date().getTime()}.pdf`;
+        doc.save(nombreArchivo);
+        
+        // Mostrar mensaje de éxito
+        alert('PDF generado exitosamente. Se ha descargado el documento.');
+        
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
+        alert('Error al generar el PDF: ' + error.message);
     }
 }
 
-// FUNCIÓN PARA IMPRIMIR
-
-function imprimirFormulario() {
-    console.log('🖨️ Imprimiendo formulario...');
-    
-    // Crear una copia del contenido del formulario para imprimir
-    const contenidoOriginal = document.querySelector('.formulario-container').innerHTML;
-    
-    // Crear una nueva ventana para la impresión
-    const ventanaImpresion = window.open('', '_blank');
-    
-    // Escribir el contenido en la nueva ventana
-    ventanaImpresion.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>POA 2024 - Imprimir</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    font-size: 12px;
-                    margin: 20px;
-                }
-                h1 {
-                    color: #2c3e50;
-                    text-align: center;
-                }
-                .section-title {
-                    background-color: #e9ecef;
-                    padding: 8px 15px;
-                    margin: 15px 0;
-                    font-weight: bold;
-                }
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin: 10px 0;
-                }
-                table th, table td {
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                }
-                table th {
-                    background-color: #f1f8ff;
-                }
-                @media print {
-                    body {
-                        margin: 0;
-                    }
-                    .no-print {
-                        display: none;
-                    }
-                }
-            </style>
-        </head>
-        <body>
-            <h1>PLAN OPERATIVO ANUAL 2024</h1>
-            <p><strong>Formulario:</strong> Elaboración POA 2024</p>
-            <p><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
-            
-            ${contenidoOriginal}
-            
-            <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #000;">
-                <div style="float: left; width: 45%;">
-                    <div style="border-top: 1px solid #000; width: 80%; padding-top: 5px;">
-                        Firma del Responsable
-                    </div>
-                </div>
-                <div style="float: right; width: 45%;">
-                    <div style="border-top: 1px solid #000; width: 80%; padding-top: 5px;">
-                        Firma de Revisión
-                    </div>
-                </div>
-                <div style="clear: both;"></div>
-            </div>
-            
-            <div class="no-print" style="margin-top: 30px; text-align: center;">
-                <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer;">
-                    Imprimir
-                </button>
-                <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; cursor: pointer; margin-left: 10px;">
-                    Cerrar
-                </button>
-            </div>
-            
-            <script>
-                // Auto-print después de 1 segundo
-                setTimeout(function() {
-                    window.print();
-                }, 1000);
-            <\/script>
-        </body>
-        </html>
-    `);
-    
-    ventanaImpresion.document.close();
-    
-    mostrarMensajeModal('Abriendo ventana de impresión...', 'info');
-}
-
-// VALIDACIÓN DEL FORMULARIO
-
+// Validación del formulario al enviar
 document.getElementById('formElaboracion').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Validar campos básicos
+    // Validación básica
     const camposRequeridos = [
-        { id: 'eje_select', nombre: 'Eje Estratégico' },
-        { id: 'indicador_select', nombre: 'Indicador' },
         { name: 'id_tema', nombre: 'Tema' },
+        { id: 'eje_select', nombre: 'Eje' },
+        { id: 'indicador_select', nombre: 'Indicador' },
         { name: 'id_responsable', nombre: 'Responsable' },
         { name: 'linea_base', nombre: 'Línea Base' },
         { name: 'actividades', nombre: 'Actividades' }
@@ -805,7 +705,7 @@ document.getElementById('formElaboracion').addEventListener('submit', function(e
             elemento = document.querySelector(`[name="${campo.name}"]`);
         }
         
-        if (elemento && !elemento.value.trim()) {
+        if (elemento && (!elemento.value || elemento.value.includes('-- Seleccione'))) {
             elemento.classList.add('is-invalid');
             errores.push(campo.nombre);
         } else if (elemento) {
@@ -815,64 +715,28 @@ document.getElementById('formElaboracion').addEventListener('submit', function(e
     
     // Validar medios de verificación
     const medios = document.querySelectorAll('input[name="detalle[]"]');
-    if (medios.length === 0) {
-        errores.push('Medios de Verificación');
-    } else {
-        medios.forEach((input, index) => {
-            if (!input.value.trim()) {
-                input.classList.add('is-invalid');
-                errores.push(`Medio ${index + 1}`);
-            } else {
-                input.classList.remove('is-invalid');
-            }
-        });
-        
-        document.querySelectorAll('select[name="id_plazo[]"]').forEach((select, index) => {
-            if (!select.value) {
-                select.classList.add('is-invalid');
-                if (!errores.includes(`Medio ${index + 1}`)) {
-                    errores.push(`Medio ${index + 1}`);
-                }
-            } else {
-                select.classList.remove('is-invalid');
-            }
-        });
-    }
+    let mediosValidos = true;
+    
+    medios.forEach((input, index) => {
+        if (!input.value.trim()) {
+            input.classList.add('is-invalid');
+            errores.push(`Medio de verificación ${index + 1}`);
+            mediosValidos = false;
+        } else {
+            input.classList.remove('is-invalid');
+        }
+    });
     
     if (errores.length > 0) {
-        mostrarMensajeModal(`Complete los campos requeridos: ${errores.join(', ')}`, 'danger');
+        e.preventDefault();
+        alert('Por favor complete los siguientes campos: ' + errores.join(', '));
         return false;
     }
     
-    // Deshabilitar botón de enviar
+    // Mostrar mensaje de guardando
     const btnSubmit = this.querySelector('button[type="submit"]');
-    const originalHTML = btnSubmit.innerHTML;
     btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Guardando...';
     btnSubmit.disabled = true;
-    
-    // Enviar formulario
-    setTimeout(() => {
-        this.submit();
-    }, 500);
-});
-
-// INICIALIZACIÓN
-
-// Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('📋 Modal de elaboración cargado');
-    console.log('🎯 ID Indicador guardado:', window.idIndicadorGuardadoModal);
-    
-    // Inicializar después de un breve delay
-    setTimeout(inicializarModal, 200);
-    
-    // También inicializar cuando el modal se muestre completamente
-    const modalEl = document.getElementById('modalElab');
-    if (modalEl) {
-        modalEl.addEventListener('shown.bs.modal', function() {
-            setTimeout(inicializarModal, 300);
-        });
-    }
 });
 </script>
 

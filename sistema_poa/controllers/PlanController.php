@@ -36,17 +36,18 @@ class PlanController
     public function indicadoresPorEje()
     {
         // Limpiar buffer de salida
-        while (ob_get_level()) ob_end_clean();
-        
+        while (ob_get_level())
+            ob_end_clean();
+
         header('Content-Type: application/json');
-        
+
         $id_eje = $_GET['id_eje'] ?? 0;
-        
+
         if (!is_numeric($id_eje) || $id_eje <= 0) {
             echo json_encode([]);
             exit;
         }
-        
+
         $indicadores = Plan::indicadoresPorEje($id_eje);
         echo json_encode($indicadores);
         exit;
@@ -59,13 +60,13 @@ class PlanController
             // Validar datos requeridos
             $datosRequeridos = ['id_plan', 'id_indicador', 'id_tema', 'id_responsable', 'linea_base', 'actividades'];
             $errores = [];
-            
+
             foreach ($datosRequeridos as $campo) {
                 if (empty($_POST[$campo])) {
                     $errores[] = "El campo <strong>$campo</strong> es requerido";
                 }
             }
-            
+
             // Validar medios de verificación
             if (empty($_POST['detalle']) || !is_array($_POST['detalle'])) {
                 $errores[] = "Debe agregar al menos un medio de verificación";
@@ -80,17 +81,17 @@ class PlanController
                     }
                 }
             }
-            
+
             if (!empty($errores)) {
                 $_SESSION['mensaje'] = '<div class="text-start"><strong>Errores de validación:</strong><br>' . implode('<br>', $errores) . '</div>';
                 $_SESSION['tipo_mensaje'] = 'error';
                 header("Location: index.php?action=planes");
                 exit;
             }
-            
+
             // Guardar en la base de datos
             $resultado = Plan::guardarElaboracion($_POST);
-            
+
             if ($resultado['success']) {
                 $_SESSION['mensaje'] = '<div class="text-center"><i class="fas fa-check-circle fa-2x text-success mb-2"></i><br><strong>¡Éxito!</strong><br>Elaboración guardada correctamente</div>';
                 $_SESSION['tipo_mensaje'] = 'success';
@@ -98,7 +99,7 @@ class PlanController
                 $_SESSION['mensaje'] = '<div class="text-center"><i class="fas fa-times-circle fa-2x text-danger mb-2"></i><br><strong>Error:</strong><br>' . ($resultado['error'] ?? 'No se pudo guardar la elaboración') . '</div>';
                 $_SESSION['tipo_mensaje'] = 'error';
             }
-            
+
             header("Location: index.php?action=planes");
             exit;
         }
@@ -115,13 +116,13 @@ class PlanController
                 header("Location: index.php?action=planes");
                 exit;
             }
-            
+
             $resultado = Plan::guardar(
                 $_POST['nombre_elaborado'],
                 $_POST['nombre_responsable'],
                 $_SESSION['usuario']['id_usuario'] ?? 1
             );
-            
+
             if ($resultado) {
                 $_SESSION['mensaje'] = '<div class="text-center"><i class="fas fa-check-circle fa-2x text-success mb-2"></i><br><strong>¡Éxito!</strong><br>Plan creado correctamente</div>';
                 $_SESSION['tipo_mensaje'] = 'success';
@@ -129,19 +130,19 @@ class PlanController
                 $_SESSION['mensaje'] = '<div class="text-center"><i class="fas fa-times-circle fa-2x text-danger mb-2"></i><br><strong>Error:</strong><br>No se pudo crear el plan</div>';
                 $_SESSION['tipo_mensaje'] = 'error';
             }
-            
+
             header("Location: index.php?action=planes");
             exit;
         }
     }
-    
+
     // ELIMINAR PLAN
     public function eliminar()
     {
         $id = $_GET['id'] ?? 0;
         if ($id > 0) {
             $resultado = Plan::eliminar($id);
-            
+
             if ($resultado) {
                 $_SESSION['mensaje'] = '<div class="text-center"><i class="fas fa-check-circle fa-2x text-success mb-2"></i><br><strong>¡Éxito!</strong><br>Plan eliminado correctamente</div>';
                 $_SESSION['tipo_mensaje'] = 'success';
@@ -150,11 +151,11 @@ class PlanController
                 $_SESSION['tipo_mensaje'] = 'error';
             }
         }
-        
+
         header("Location: index.php?action=planes");
         exit;
     }
-    
+
     // MOSTRAR DETALLE DE PLAN
     public function detalle()
     {
@@ -163,25 +164,25 @@ class PlanController
             header("Location: index.php?action=planes");
             exit;
         }
-        
+
         $plan = Plan::find($id_plan);
         $elab = Plan::elaboracionPorPlan($id_plan);
-        
+
         if (!$plan) {
             header("Location: index.php?action=planes");
             exit;
         }
-        
+
         require 'views/layout/header.php';
         require 'views/planes/detalle.php';
         require 'views/layout/footer.php';
     }
-    
+
     // MÉTODO PARA PROBAR DATOS
     public function testDatos()
     {
         echo "<h2>Test de Datos del Sistema</h2>";
-        
+
         // Test 1: Ver ejes
         $ejes = Plan::ejes();
         echo "<h3>Ejes disponibles (" . count($ejes) . "):</h3>";
@@ -195,7 +196,7 @@ class PlanController
             echo "</tr>";
         }
         echo "</table>";
-        
+
         // Test 2: Ver indicadores para cada eje
         echo "<h3>Indicadores por Eje:</h3>";
         foreach ($ejes as $eje) {
@@ -211,7 +212,7 @@ class PlanController
                 echo "<p>No hay indicadores</p>";
             }
         }
-        
+
         // Test 3: Ver planes
         $planes = Plan::all();
         echo "<h3>Planes disponibles (" . count($planes) . "):</h3>";
@@ -227,7 +228,7 @@ class PlanController
             echo "</tr>";
         }
         echo "</table>";
-        
+
         exit;
     }
 }
