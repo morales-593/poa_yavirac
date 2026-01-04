@@ -4,6 +4,7 @@
 
 <!-- jQuery PRIMERO -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <!-- Bootstrap JS Bundle DESPUÉS de jQuery -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -12,7 +13,8 @@
 <!-- DataTables -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
+<!-- Agregar esto después de jsPDF -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -629,362 +631,362 @@
 
     // ============================================
     // FUNCIONES PARA EXPORTAR PDF
-// ============================================
+    // ============================================
 
-// Función para exportar PDF desde el modal de elaboración
-window.exportarPDF = function() {
-    console.log('📄 Iniciando exportación de PDF...');
-    
-    // Obtener datos del formulario
-    const datos = obtenerDatosPDF();
-    
-    if (!datos) {
-        mostrarMensajeCRUD('❌ Complete todos los campos requeridos antes de exportar', 'danger');
-        return;
-    }
-    
-    // Crear PDF
-    crearPDFconDatos(datos);
-}
+    // Función para exportar PDF desde el modal de elaboración
+    window.exportarPDF = function () {
+        console.log('📄 Iniciando exportación de PDF...');
 
-// Función para obtener datos del formulario para PDF
-function obtenerDatosPDF() {
-    // Validar campos requeridos
-    const camposRequeridos = [
-        { selector: 'select[name="id_tema"]', nombre: 'Tema' },
-        { selector: '#eje_select', nombre: 'Eje Estratégico' },
-        { selector: '#indicador_select', nombre: 'Indicador' },
-        { selector: 'select[name="id_responsable"]', nombre: 'Responsable' },
-        { selector: 'input[name="linea_base"]', nombre: 'Línea Base' },
-        { selector: 'textarea[name="actividades"]', nombre: 'Actividades' }
-    ];
-    
-    let datos = {};
-    let errores = [];
-    
-    // Validar y obtener datos
-    camposRequeridos.forEach(campo => {
-        const elemento = document.querySelector(campo.selector);
-        if (!elemento) {
-            errores.push(`${campo.nombre} (elemento no encontrado)`);
+        // Obtener datos del formulario
+        const datos = obtenerDatosPDF();
+
+        if (!datos) {
+            mostrarMensajeCRUD('❌ Complete todos los campos requeridos antes de exportar', 'danger');
             return;
         }
-        
-        const valor = elemento.value ? elemento.options ? elemento.options[elemento.selectedIndex].text : elemento.value : '';
-        
-        if (!valor || valor.includes('-- Seleccione')) {
-            elemento.classList.add('is-invalid');
-            errores.push(campo.nombre);
-        } else {
-            elemento.classList.remove('is-invalid');
-            
-            // Guardar datos
-            if (campo.selector === 'select[name="id_tema"]') {
-                datos.tema = valor;
-            } else if (campo.selector === '#eje_select') {
-                datos.eje = valor;
-                // Obtener objetivo del eje
-                const opcionEje = elemento.options[elemento.selectedIndex];
-                datos.objetivo = opcionEje ? opcionEje.getAttribute('data-objetivo') || '' : '';
-            } else if (campo.selector === '#indicador_select') {
-                datos.indicador = valor;
-            } else if (campo.selector === 'select[name="id_responsable"]') {
-                datos.responsable = valor;
-            } else if (campo.selector === 'input[name="linea_base"]') {
-                datos.linea_base = valor;
-            } else if (campo.selector === 'textarea[name="actividades"]') {
-                datos.actividades = valor;
+
+        // Crear PDF
+        crearPDFconDatos(datos);
+    }
+
+    // Función para obtener datos del formulario para PDF
+    function obtenerDatosPDF() {
+        // Validar campos requeridos
+        const camposRequeridos = [
+            { selector: 'select[name="id_tema"]', nombre: 'Tema' },
+            { selector: '#eje_select', nombre: 'Eje Estratégico' },
+            { selector: '#indicador_select', nombre: 'Indicador' },
+            { selector: 'select[name="id_responsable"]', nombre: 'Responsable' },
+            { selector: 'input[name="linea_base"]', nombre: 'Línea Base' },
+            { selector: 'textarea[name="actividades"]', nombre: 'Actividades' }
+        ];
+
+        let datos = {};
+        let errores = [];
+
+        // Validar y obtener datos
+        camposRequeridos.forEach(campo => {
+            const elemento = document.querySelector(campo.selector);
+            if (!elemento) {
+                errores.push(`${campo.nombre} (elemento no encontrado)`);
+                return;
             }
-        }
-    });
-    
-    // Validar medios de verificación
-    const medios = [];
-    const filasMedios = document.querySelectorAll('#medios-container tr');
-    
-    if (filasMedios.length === 0) {
-        errores.push('Medios de verificación (debe agregar al menos uno)');
-    } else {
-        filasMedios.forEach((fila, index) => {
-            const inputDetalle = fila.querySelector('input[name="detalle[]"]');
-            const selectPlazo = fila.querySelector('select[name="id_plazo[]"]');
-            
-            const detalle = inputDetalle ? inputDetalle.value.trim() : '';
-            const plazo = selectPlazo && selectPlazo.value ? 
-                selectPlazo.options[selectPlazo.selectedIndex].text : '';
-            
-            if (!detalle) {
-                if (inputDetalle) inputDetalle.classList.add('is-invalid');
-                errores.push(`Descripción del medio ${index + 1}`);
+
+            const valor = elemento.value ? elemento.options ? elemento.options[elemento.selectedIndex].text : elemento.value : '';
+
+            if (!valor || valor.includes('-- Seleccione')) {
+                elemento.classList.add('is-invalid');
+                errores.push(campo.nombre);
             } else {
-                if (inputDetalle) inputDetalle.classList.remove('is-invalid');
-            }
-            
-            if (!plazo || plazo.includes('-- Seleccione')) {
-                if (selectPlazo) selectPlazo.classList.add('is-invalid');
-                errores.push(`Plazo del medio ${index + 1}`);
-            } else {
-                if (selectPlazo) selectPlazo.classList.remove('is-invalid');
-            }
-            
-            if (detalle && plazo && !plazo.includes('-- Seleccione')) {
-                medios.push({ detalle, plazo });
+                elemento.classList.remove('is-invalid');
+
+                // Guardar datos
+                if (campo.selector === 'select[name="id_tema"]') {
+                    datos.tema = valor;
+                } else if (campo.selector === '#eje_select') {
+                    datos.eje = valor;
+                    // Obtener objetivo del eje
+                    const opcionEje = elemento.options[elemento.selectedIndex];
+                    datos.objetivo = opcionEje ? opcionEje.getAttribute('data-objetivo') || '' : '';
+                } else if (campo.selector === '#indicador_select') {
+                    datos.indicador = valor;
+                } else if (campo.selector === 'select[name="id_responsable"]') {
+                    datos.responsable = valor;
+                } else if (campo.selector === 'input[name="linea_base"]') {
+                    datos.linea_base = valor;
+                } else if (campo.selector === 'textarea[name="actividades"]') {
+                    datos.actividades = valor;
+                }
             }
         });
-    }
-    
-    // Si hay errores, mostrar mensaje
-    if (errores.length > 0) {
-        mostrarMensajeCRUD(`❌ Complete los campos requeridos:<br>• ${errores.join('<br>• ')}`, 'danger');
-        return null;
-    }
-    
-    // Obtener otros datos opcionales
-    datos.politicas = document.querySelector('textarea[name="politicas"]')?.value || '';
-    datos.metas = document.querySelector('textarea[name="metas"]')?.value || '';
-    datos.indicador_resultado = document.querySelector('textarea[name="indicador_resultado"]')?.value || '';
-    datos.medios = medios;
-    datos.elaborado_por = document.querySelector('input[name="id_plan"]') ? 
-        '<?= htmlspecialchars($plan["nombre_elaborado"] ?? "Usuario") ?>' : 'Usuario';
-    
-    return datos;
-}
 
-// Función para crear PDF con los datos
-function crearPDFconDatos(datos) {
-    try {
-        console.log('🖨️ Creando PDF con datos:', datos);
-        
-        // Verificar si jsPDF está disponible
-        if (typeof window.jspdf === 'undefined') {
-            mostrarMensajeCRUD('❌ Error: La librería jsPDF no está cargada', 'danger');
-            return;
-        }
-        
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        
-        // Configurar fuente
-        doc.setFont('helvetica');
-        
-        // Título principal
-        doc.setFontSize(22);
-        doc.setTextColor(26, 35, 126); // Azul oscuro
-        doc.text('PLAN OPERATIVO ANUAL 2024', 105, 20, { align: 'center' });
-        
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0);
-        doc.text('Formulario: Elaboración POA 2024', 105, 28, { align: 'center' });
-        doc.text('ISTTP "YAVIRAC"', 105, 33, { align: 'center' });
-        
-        // Línea separadora
-        doc.setLineWidth(0.5);
-        doc.line(15, 40, 195, 40);
-        
-        let yPos = 50;
-        
-        // Sección 1: Información General
-        doc.setFontSize(14);
-        doc.setTextColor(0, 0, 128);
-        doc.text('1. INFORMACIÓN GENERAL', 15, yPos);
-        yPos += 10;
-        
-        doc.setFontSize(11);
-        doc.setTextColor(0, 0, 0);
-        
-        // Tema
-        doc.text('TEMA:', 15, yPos);
-        doc.text(datos.tema, 40, yPos);
-        yPos += 7;
-        
-        // Eje Estratégico
-        doc.text('EJE ESTRATÉGICO:', 15, yPos);
-        doc.text(datos.eje, 50, yPos);
-        yPos += 7;
-        
-        // Objetivo del Eje
-        doc.text('OBJETIVO DEL EJE:', 15, yPos);
-        const objetivoLines = doc.splitTextToSize(datos.objetivo || 'No especificado', 160);
-        doc.text(objetivoLines, 50, yPos);
-        yPos += (objetivoLines.length * 5) + 5;
-        
-        // Indicador
-        doc.text('INDICADOR:', 15, yPos);
-        const indicadorLines = doc.splitTextToSize(datos.indicador || 'No especificado', 160);
-        doc.text(indicadorLines, 40, yPos);
-        yPos += (indicadorLines.length * 5) + 5;
-        
-        // Responsable
-        doc.text('RESPONSABLE:', 15, yPos);
-        doc.text(datos.responsable, 45, yPos);
-        yPos += 10;
-        
-        // Sección 2: Información Base
-        doc.setFontSize(14);
-        doc.setTextColor(0, 0, 128);
-        doc.text('2. INFORMACIÓN BASE', 15, yPos);
-        yPos += 10;
-        
-        doc.setFontSize(11);
-        doc.setTextColor(0, 0, 0);
-        
-        // Línea Base
-        doc.text('LÍNEA BASE:', 15, yPos);
-        const lineaBaseLines = doc.splitTextToSize(datos.linea_base || 'No especificado', 160);
-        doc.text(lineaBaseLines, 45, yPos);
-        yPos += (lineaBaseLines.length * 5) + 5;
-        
-        // Políticas
-        if (datos.politicas) {
-            doc.text('POLÍTICAS:', 15, yPos);
-            const politicasLines = doc.splitTextToSize(datos.politicas, 160);
-            doc.text(politicasLines, 45, yPos);
-            yPos += (politicasLines.length * 5) + 5;
-        }
-        
-        // Metas
-        if (datos.metas) {
-            doc.text('METAS:', 15, yPos);
-            const metasLines = doc.splitTextToSize(datos.metas, 160);
-            doc.text(metasLines, 35, yPos);
-            yPos += (metasLines.length * 5) + 5;
-        }
-        
-        // Verificar si necesitamos nueva página
-        if (yPos > 250) {
-            doc.addPage();
-            yPos = 20;
-        }
-        
-        // Sección 3: Ejecución
-        doc.setFontSize(14);
-        doc.setTextColor(0, 0, 128);
-        doc.text('3. EJECUCIÓN', 15, yPos);
-        yPos += 10;
-        
-        doc.setFontSize(11);
-        doc.setTextColor(0, 0, 0);
-        
-        // Actividades
-        doc.text('ACTIVIDADES:', 15, yPos);
-        const actividadesLines = doc.splitTextToSize(datos.actividades || 'No especificado', 160);
-        doc.text(actividadesLines, 45, yPos);
-        yPos += (actividadesLines.length * 5) + 5;
-        
-        // Indicador de Resultado
-        if (datos.indicador_resultado) {
-            doc.text('INDICADOR DE RESULTADO:', 15, yPos);
-            const indicadorResultadoLines = doc.splitTextToSize(datos.indicador_resultado, 160);
-            doc.text(indicadorResultadoLines, 65, yPos);
-            yPos += (indicadorResultadoLines.length * 5) + 5;
-        }
-        
-        // Verificar si necesitamos nueva página
-        if (yPos > 250) {
-            doc.addPage();
-            yPos = 20;
-        }
-        
-        // Sección 4: Medios de Verificación
-        doc.setFontSize(14);
-        doc.setTextColor(0, 0, 128);
-        doc.text('4. MEDIOS DE VERIFICACIÓN', 15, yPos);
-        yPos += 10;
-        
-        doc.setFontSize(11);
-        doc.setTextColor(0, 0, 0);
-        
-        if (datos.medios.length > 0) {
-            datos.medios.forEach((medio, index) => {
-                doc.text(`${index + 1}. ${medio.detalle}`, 20, yPos);
-                doc.text(`Plazo: ${medio.plazo}`, 160, yPos, { align: 'right' });
-                yPos += 8;
-                
-                // Verificar si necesitamos nueva página
-                if (yPos > 270) {
-                    doc.addPage();
-                    yPos = 20;
+        // Validar medios de verificación
+        const medios = [];
+        const filasMedios = document.querySelectorAll('#medios-container tr');
+
+        if (filasMedios.length === 0) {
+            errores.push('Medios de verificación (debe agregar al menos uno)');
+        } else {
+            filasMedios.forEach((fila, index) => {
+                const inputDetalle = fila.querySelector('input[name="detalle[]"]');
+                const selectPlazo = fila.querySelector('select[name="id_plazo[]"]');
+
+                const detalle = inputDetalle ? inputDetalle.value.trim() : '';
+                const plazo = selectPlazo && selectPlazo.value ?
+                    selectPlazo.options[selectPlazo.selectedIndex].text : '';
+
+                if (!detalle) {
+                    if (inputDetalle) inputDetalle.classList.add('is-invalid');
+                    errores.push(`Descripción del medio ${index + 1}`);
+                } else {
+                    if (inputDetalle) inputDetalle.classList.remove('is-invalid');
+                }
+
+                if (!plazo || plazo.includes('-- Seleccione')) {
+                    if (selectPlazo) selectPlazo.classList.add('is-invalid');
+                    errores.push(`Plazo del medio ${index + 1}`);
+                } else {
+                    if (selectPlazo) selectPlazo.classList.remove('is-invalid');
+                }
+
+                if (detalle && plazo && !plazo.includes('-- Seleccione')) {
+                    medios.push({ detalle, plazo });
                 }
             });
-        } else {
-            doc.text('No se han definido medios de verificación', 20, yPos);
-            yPos += 8;
         }
-        
-        // Firma
-        yPos += 10;
-        doc.setFontSize(12);
-        doc.text('ELABORADO POR:', 20, yPos);
-        doc.text('REVISADO POR:', 120, yPos);
-        yPos += 15;
-        
-        // Líneas para firma
-        doc.line(20, yPos, 80, yPos);
-        doc.line(120, yPos, 180, yPos);
-        yPos += 5;
-        
-        doc.setFontSize(10);
-        doc.text(datos.elaborado_por, 20, yPos);
-        doc.text('_________________________', 120, yPos);
-        yPos += 5;
-        
-        doc.text('Coordinación de Planificación Estratégica', 20, yPos);
-        doc.text('Unidad Responsable', 120, yPos);
-        
-        // Pie de página
-        doc.setFontSize(8);
-        doc.setTextColor(100, 100, 100);
-        doc.text('Documento generado automáticamente por el Sistema de Planificación - ISTTP "YAVIRAC"', 105, 285, { align: 'center' });
-        
-        const fecha = new Date().toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-        doc.text(`Fecha de generación: ${fecha}`, 105, 290, { align: 'center' });
-        
-        // Descargar el PDF
-        const nombreArchivo = `POA_${datos.elaborado_por.replace(/[^a-z0-9]/gi, '_')}_${new Date().getTime()}.pdf`;
-        doc.save(nombreArchivo);
-        
-        // Mostrar mensaje de éxito
-        mostrarMensajeCRUD('✅ PDF generado y descargado exitosamente', 'success');
-        
-    } catch (error) {
-        console.error('❌ Error al crear PDF:', error);
-        mostrarMensajeCRUD('❌ Error al generar el PDF: ' + error.message, 'danger');
+
+        // Si hay errores, mostrar mensaje
+        if (errores.length > 0) {
+            mostrarMensajeCRUD(`❌ Complete los campos requeridos:<br>• ${errores.join('<br>• ')}`, 'danger');
+            return null;
+        }
+
+        // Obtener otros datos opcionales
+        datos.politicas = document.querySelector('textarea[name="politicas"]')?.value || '';
+        datos.metas = document.querySelector('textarea[name="metas"]')?.value || '';
+        datos.indicador_resultado = document.querySelector('textarea[name="indicador_resultado"]')?.value || '';
+        datos.medios = medios;
+        datos.elaborado_por = document.querySelector('input[name="id_plan"]') ?
+            '<?= htmlspecialchars($plan["nombre_elaborado"] ?? "Usuario") ?>' : 'Usuario';
+
+        return datos;
     }
-}
 
-// ============================================
-// INICIALIZAR FUNCIÓN DE EXPORTAR PDF EN EL MODAL
-// ============================================
+    // Función para crear PDF con los datos
+    function crearPDFconDatos(datos) {
+        try {
+            console.log('🖨️ Creando PDF con datos:', datos);
 
-// Función para inicializar el botón de exportar PDF en el modal
-function inicializarExportarPDF() {
-    const btnExportarPDF = document.querySelector('[onclick*="exportarPDF"]');
-    
-    if (btnExportarPDF) {
-        // Remover el onclick anterior si existe
-        btnExportarPDF.removeAttribute('onclick');
-        
-        // Agregar el nuevo evento
-        btnExportarPDF.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.exportarPDF();
-        });
-        
-        console.log('✅ Botón de exportar PDF inicializado');
+            // Verificar si jsPDF está disponible
+            if (typeof window.jspdf === 'undefined') {
+                mostrarMensajeCRUD('❌ Error: La librería jsPDF no está cargada', 'danger');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            // Configurar fuente
+            doc.setFont('helvetica');
+
+            // Título principal
+            doc.setFontSize(22);
+            doc.setTextColor(26, 35, 126); // Azul oscuro
+            doc.text('PLAN OPERATIVO ANUAL 2024', 105, 20, { align: 'center' });
+
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Formulario: Elaboración POA 2024', 105, 28, { align: 'center' });
+            doc.text('ISTTP "YAVIRAC"', 105, 33, { align: 'center' });
+
+            // Línea separadora
+            doc.setLineWidth(0.5);
+            doc.line(15, 40, 195, 40);
+
+            let yPos = 50;
+
+            // Sección 1: Información General
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 128);
+            doc.text('1. INFORMACIÓN GENERAL', 15, yPos);
+            yPos += 10;
+
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+
+            // Tema
+            doc.text('TEMA:', 15, yPos);
+            doc.text(datos.tema, 40, yPos);
+            yPos += 7;
+
+            // Eje Estratégico
+            doc.text('EJE ESTRATÉGICO:', 15, yPos);
+            doc.text(datos.eje, 50, yPos);
+            yPos += 7;
+
+            // Objetivo del Eje
+            doc.text('OBJETIVO DEL EJE:', 15, yPos);
+            const objetivoLines = doc.splitTextToSize(datos.objetivo || 'No especificado', 160);
+            doc.text(objetivoLines, 50, yPos);
+            yPos += (objetivoLines.length * 5) + 5;
+
+            // Indicador
+            doc.text('INDICADOR:', 15, yPos);
+            const indicadorLines = doc.splitTextToSize(datos.indicador || 'No especificado', 160);
+            doc.text(indicadorLines, 40, yPos);
+            yPos += (indicadorLines.length * 5) + 5;
+
+            // Responsable
+            doc.text('RESPONSABLE:', 15, yPos);
+            doc.text(datos.responsable, 45, yPos);
+            yPos += 10;
+
+            // Sección 2: Información Base
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 128);
+            doc.text('2. INFORMACIÓN BASE', 15, yPos);
+            yPos += 10;
+
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+
+            // Línea Base
+            doc.text('LÍNEA BASE:', 15, yPos);
+            const lineaBaseLines = doc.splitTextToSize(datos.linea_base || 'No especificado', 160);
+            doc.text(lineaBaseLines, 45, yPos);
+            yPos += (lineaBaseLines.length * 5) + 5;
+
+            // Políticas
+            if (datos.politicas) {
+                doc.text('POLÍTICAS:', 15, yPos);
+                const politicasLines = doc.splitTextToSize(datos.politicas, 160);
+                doc.text(politicasLines, 45, yPos);
+                yPos += (politicasLines.length * 5) + 5;
+            }
+
+            // Metas
+            if (datos.metas) {
+                doc.text('METAS:', 15, yPos);
+                const metasLines = doc.splitTextToSize(datos.metas, 160);
+                doc.text(metasLines, 35, yPos);
+                yPos += (metasLines.length * 5) + 5;
+            }
+
+            // Verificar si necesitamos nueva página
+            if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+            }
+
+            // Sección 3: Ejecución
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 128);
+            doc.text('3. EJECUCIÓN', 15, yPos);
+            yPos += 10;
+
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+
+            // Actividades
+            doc.text('ACTIVIDADES:', 15, yPos);
+            const actividadesLines = doc.splitTextToSize(datos.actividades || 'No especificado', 160);
+            doc.text(actividadesLines, 45, yPos);
+            yPos += (actividadesLines.length * 5) + 5;
+
+            // Indicador de Resultado
+            if (datos.indicador_resultado) {
+                doc.text('INDICADOR DE RESULTADO:', 15, yPos);
+                const indicadorResultadoLines = doc.splitTextToSize(datos.indicador_resultado, 160);
+                doc.text(indicadorResultadoLines, 65, yPos);
+                yPos += (indicadorResultadoLines.length * 5) + 5;
+            }
+
+            // Verificar si necesitamos nueva página
+            if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+            }
+
+            // Sección 4: Medios de Verificación
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 128);
+            doc.text('4. MEDIOS DE VERIFICACIÓN', 15, yPos);
+            yPos += 10;
+
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+
+            if (datos.medios.length > 0) {
+                datos.medios.forEach((medio, index) => {
+                    doc.text(`${index + 1}. ${medio.detalle}`, 20, yPos);
+                    doc.text(`Plazo: ${medio.plazo}`, 160, yPos, { align: 'right' });
+                    yPos += 8;
+
+                    // Verificar si necesitamos nueva página
+                    if (yPos > 270) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                });
+            } else {
+                doc.text('No se han definido medios de verificación', 20, yPos);
+                yPos += 8;
+            }
+
+            // Firma
+            yPos += 10;
+            doc.setFontSize(12);
+            doc.text('ELABORADO POR:', 20, yPos);
+            doc.text('REVISADO POR:', 120, yPos);
+            yPos += 15;
+
+            // Líneas para firma
+            doc.line(20, yPos, 80, yPos);
+            doc.line(120, yPos, 180, yPos);
+            yPos += 5;
+
+            doc.setFontSize(10);
+            doc.text(datos.elaborado_por, 20, yPos);
+            doc.text('_________________________', 120, yPos);
+            yPos += 5;
+
+            doc.text('Coordinación de Planificación Estratégica', 20, yPos);
+            doc.text('Unidad Responsable', 120, yPos);
+
+            // Pie de página
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Documento generado automáticamente por el Sistema de Planificación - ISTTP "YAVIRAC"', 105, 285, { align: 'center' });
+
+            const fecha = new Date().toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            doc.text(`Fecha de generación: ${fecha}`, 105, 290, { align: 'center' });
+
+            // Descargar el PDF
+            const nombreArchivo = `POA_${datos.elaborado_por.replace(/[^a-z0-9]/gi, '_')}_${new Date().getTime()}.pdf`;
+            doc.save(nombreArchivo);
+
+            // Mostrar mensaje de éxito
+            mostrarMensajeCRUD('✅ PDF generado y descargado exitosamente', 'success');
+
+        } catch (error) {
+            console.error('❌ Error al crear PDF:', error);
+            mostrarMensajeCRUD('❌ Error al generar el PDF: ' + error.message, 'danger');
+        }
     }
-}
 
-// Modificar la función de inicialización del modal para incluir exportar PDF
-function inicializarModalElaboracionCompleta() {
-    inicializarModalElaboracion();
-    inicializarExportarPDF();
-}
+    // ============================================
+    // INICIALIZAR FUNCIÓN DE EXPORTAR PDF EN EL MODAL
+    // ============================================
+
+    // Función para inicializar el botón de exportar PDF en el modal
+    function inicializarExportarPDF() {
+        const btnExportarPDF = document.querySelector('[onclick*="exportarPDF"]');
+
+        if (btnExportarPDF) {
+            // Remover el onclick anterior si existe
+            btnExportarPDF.removeAttribute('onclick');
+
+            // Agregar el nuevo evento
+            btnExportarPDF.addEventListener('click', function (e) {
+                e.preventDefault();
+                window.exportarPDF();
+            });
+
+            console.log('✅ Botón de exportar PDF inicializado');
+        }
+    }
+
+    // Modificar la función de inicialización del modal para incluir exportar PDF
+    function inicializarModalElaboracionCompleta() {
+        inicializarModalElaboracion();
+        inicializarExportarPDF();
+    }
 
     // ============================================
     // FUNCIÓN MEJORADA PARA ACTUALIZAR TODO

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elaboración POA 2024</title>
+
+  <!-- html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 10pt;
+      margin: 0;
+      padding: 0;
+      background: #f0f0f0;
+      line-height: 1.1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    /* Solo botón flotante */
+    .boton-flotante {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    
+    #btnExportar {
+      padding: 8px 16px;
+      background: #4a6fb3;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 10pt;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: background 0.3s;
+    }
+    
+    #btnExportar:hover {
+      background: #3a5fa3;
+    }
+    
+    #btnExportar:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+    
+    /* Contenido PDF centrado */
+    #contenidoPDF {
+      background: white;
+      width: 100%;
+      max-width: 21cm;
+      margin: 70px auto 20px;
+      padding: 15px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    
+    /* Tablas con celdas delgadas */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+      font-size: 10pt;
+      table-layout: fixed;
+    }
+    
+    th, td {
+      border: 1px solid #000000;
+      padding: 2px 3px;
+      text-align: left;
+      vertical-align: top;
+      font-family: Arial, sans-serif;
+      font-size: 9.5pt;
+      line-height: 1.0;
+      height: 18px;
+    }
+    
+    /* AJUSTE: Columnas más anchas para tabla de firmas */
+    .columna-firma {
+      width: 50% !important; /* AQUÍ puedes cambiar el ancho de las columnas de firma */
+      background: #f0f0f0;
+      font-weight: normal;
+      padding: 2px 3px;
+    }
+    
+    .columna-izq {
+      width: 18% !important; /* AQUÍ puedes cambiar el ancho de la columna izquierda de las otras tablas */
+      background: #f0f0f0;
+      font-weight: bold;
+      padding: 2px 3px;
+    }
+    
+    .columna-der {
+      width: 82% !important; /* AQUÍ puedes cambiar el ancho de la columna derecha de las otras tablas */
+      padding: 2px 3px;
+    }
+    
+    th {
+      background: #e0e0e0;
+      font-weight: bold;
+      padding: 3px 4px;
+    }
+    
+    .titulo-principal {
+      background: #d0d0d0;
+      text-align: center;
+      font-weight: bold;
+      font-size: 10.5pt;
+      padding: 4px;
+      height: 22px;
+    }
+    
+    .centrado {
+      text-align: center;
+    }
+    
+    /* Estilos para impresión */
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+        background: white;
+      }
+      
+      .boton-flotante {
+        display: none;
+      }
+      
+      #contenidoPDF {
+        padding: 10mm;
+        margin: 0;
+        box-shadow: none;
+        border: none;
+        max-width: none;
+      }
+      
+      th, td {
+        padding: 1px 2px !important;
+        font-size: 9pt !important;
+      }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      #contenidoPDF {
+        padding: 8px;
+        margin: 60px 10px 10px;
+      }
+      
+      .boton-flotante {
+        top: 10px;
+        right: 10px;
+      }
+      
+      #btnExportar {
+        padding: 6px 12px;
+        font-size: 9pt;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Solo el botón flotante -->
+  <div class="boton-flotante">
+    <button id="btnExportar">Exportar a PDF</button>
+  </div>
+
+  <!-- Contenido del PDF -->
+  <div id="contenidoPDF">
+    <!-- TABLA PRINCIPAL -->
+    <table>
+      <tr>
+        <th class="titulo-principal" colspan="2">Elaboración POA 2024</th>
+      </tr>
+      <tr>
+        <th class="columna-izq">TEMA</th>
+        <td class="columna-der">ELABORACION POA 2024</td>
+      </tr>
+      <tr>
+        <th class="columna-izq">OBJETIVO</th>
+        <td class="columna-der">Capacitar técnica y tecnológicamente a la sociedad en el área de turístico, patrimonio cultural y carreras afines, propiciar la inserción laboral y apoyar el desarrollo de las matrices productivas y de servicios.</td>
+      </tr>
+      <tr>
+        <th class="columna-izq">EJE</th>
+        <td class="columna-der centrado">DOCENCIA</td>
+      </tr>
+    </table>
+
+    <!-- TABLA ITEM -> DESCRIPCIÓN -->
+    <table>
+      <tr>
+        <th class="columna-izq">ITEM</th>
+        <th class="columna-der">DESCRIPCIÓN</th>
+      </tr>
+      <tr>
+        <td class="columna-izq">INDICADOR</td>
+        <td class="columna-der">4.1.1</td>
+      </tr>
+      <tr>
+        <td class="columna-izq">Línea Base</td>
+        <td class="columna-der">85%</td>
+      </tr>
+      <tr>
+        <td class="columna-izq">Políticas</td>
+        <td class="columna-der">Validar que la totalidad de los programas de estudio de las asignaturas cumplan con los requisitos establecidos, garantizando su adecuada implementación y actualización en todas las asignaturas presentes.</td>
+      </tr>
+      <tr>
+        <td class="columna-izq">Metas</td>
+        <td class="columna-der">Desarrollar el 100% de los programas de estudios de las asignaturas de cada carrera del ISTTP Yavirac, considerando tanto los lineamientos específicos del perfil de egreso respectivo como posibles actualizaciones curriculares.</td>
+      </tr>
+      <tr>
+        <td class="columna-izq">Actividades</td>
+        <td class="columna-der">
+          1. Diagnóstico de la correlación entre el perfil de egreso, la malla y los PEA en cada una de las carreras.<br>
+          2. Elaboración de un programa de capacitación académica sobre los PEA.<br>
+          3. Evaluación del cumplimiento del perfil de egreso en relación con las actividades PEA.
+        </td>
+      </tr>
+      <tr>
+        <td class="columna-izq">Indicador</td>
+        <td class="columna-der">
+          Tipo de indicador: Cuantitativo<br>
+          Nombre: INDICADOR PROGRAMA DE ESTUDIO DE LA ASIGNATURA 4.1.1<br>
+          Porcentaje de cumplimiento de los programas de estudio de las asignaturas (PEA) que satisfacen los requisitos exigidos.<br>
+          Número de PEA que fueron validados según los requisitos que se indican en la descripción.<br>
+          Número de asignaturas presentes en las mallas curriculares de la Institución.
+        </td>
+      </tr>
+    </table>
+
+    <!-- TABLA MEDIO VERIFICACIÓN -->
+    <table>
+      <tr>
+        <th class="columna-izq" rowspan="3">Medio verificación</th>
+        <th style="width: 65%;">DETALLE</th>
+        <th style="width: 17%;">PLAZO</th>
+      </tr>
+      <tr>
+        <td>Mallas curriculares de todas las carreras vigentes.</td>
+        <td class="centrado">SEMESTRAL</td>
+      </tr>
+      <tr>
+        <td>Perfil de egreso descrito en el informe técnico de la resolución de la aprobación de la carrera.<br>Programas de estudio de las asignaturas (PEA).</td>
+        <td class="centrado">SEMESTRAL</td>
+      </tr>
+    </table>
+
+    <!-- TABLA RESPONSABLE -->
+    <table>
+      <tr>
+        <th class="columna-izq">Responsable</th>
+        <td class="columna-der centrado">Vicerrector Académico / Coordinaciones de Carrera</td>
+      </tr>
+    </table>
+
+    <!-- TABLA ELABORADO/REVISADO CON COLUMNAS MÁS ANCHAS -->
+    <!-- AQUÍ he cambiado la clase a "columna-firma" que tiene 50% de ancho cada una -->
+    <table>
+      <tr>
+        <th class="columna-firma">ELABORADO</th>
+        <th class="columna-firma">REVISADO</th>
+      </tr>
+      <tr>
+        <td style="height: 30px;"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Nombres:</td>
+        <td>Nombres:</td>
+      </tr>
+      <tr>
+        <th>COORDINACIÓN DE PLANIFICACIÓN ESTRATÉGICA</th>
+        <th>UNIDAD RESPONSABLE</th>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const btnExportar = document.getElementById('btnExportar');
+      
+      btnExportar.addEventListener('click', async function() {
+        try {
+          btnExportar.textContent = 'Generando PDF...';
+          btnExportar.disabled = true;
+          
+          // Ocultar botón temporalmente
+          btnExportar.style.visibility = 'hidden';
+          
+          // Capturar contenido con ajustes para PDF
+          const canvas = await html2canvas(document.getElementById('contenidoPDF'), {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            onclone: function(clonedDoc) {
+              // Ajustar para PDF
+              const clonedContent = clonedDoc.getElementById('contenidoPDF');
+              if (clonedContent) {
+                clonedContent.style.padding = '10mm';
+                clonedContent.style.margin = '0';
+                clonedContent.style.maxWidth = 'none';
+                
+                // Hacer celdas aún más compactas para PDF
+                const allCells = clonedContent.querySelectorAll('th, td');
+                allCells.forEach(cell => {
+                  cell.style.padding = '1px 2px';
+                  cell.style.fontSize = '9pt';
+                });
+              }
+            }
+          });
+          
+          // Restaurar botón
+          btnExportar.style.visibility = 'visible';
+          
+          // Crear PDF
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4',
+            compress: true
+          });
+          
+          // Márgenes pequeños
+          const margen = 8;
+          const anchoPagina = 210 - (2 * margen);
+          
+          // Calcular dimensiones
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          const imgWidth = anchoPagina;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          
+          // Agregar contenido
+          pdf.addImage(imgData, 'JPEG', margen, margen, imgWidth, imgHeight);
+          
+          // Manejar páginas múltiples
+          let alturaRestante = imgHeight;
+          let posicion = margen;
+          let pageNumber = 1;
+          
+          while (alturaRestante > (297 - 2 * margen)) {
+            pdf.addPage();
+            pageNumber++;
+            posicion = margen - (alturaRestante - (297 - 2 * margen));
+            pdf.addImage(imgData, 'JPEG', margen, posicion, imgWidth, imgHeight);
+            alturaRestante -= (297 - 2 * margen);
+          }
+          
+          // Agregar pie de página pequeño
+          const totalPaginas = pageNumber;
+          for (let i = 1; i <= totalPaginas; i++) {
+            pdf.setPage(i);
+            pdf.setFontSize(7);
+            pdf.setTextColor(100, 100, 100);
+            pdf.text(
+              `Página ${i} de ${totalPaginas}`,
+              105,
+              292,
+              { align: 'center' }
+            );
+          }
+          
+          // Guardar PDF
+          const hoy = new Date();
+          const fecha = `${hoy.getDate().toString().padStart(2,'0')}-${(hoy.getMonth()+1).toString().padStart(2,'0')}-${hoy.getFullYear()}`;
+          pdf.save(`POA_2024_${fecha}.pdf`);
+          
+          btnExportar.textContent = 'Exportar a PDF';
+          btnExportar.disabled = false;
+          
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error al generar PDF');
+          
+          // Restaurar botón en caso de error
+          btnExportar.style.visibility = 'visible';
+          btnExportar.textContent = 'Exportar a PDF';
+          btnExportar.disabled = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
