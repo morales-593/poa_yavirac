@@ -73,7 +73,7 @@ class Plan
         return self::db()->query("SELECT * FROM plazos ORDER BY nombre_plazo ASC")->fetchAll();
     }
 
-    // OBTENER MEDIOS DE VERIFICACIÓN POR ELABORACIÓN (CON ID_MEDIO)
+    // OBTENER MEDIOS DE VERIFICACIÓN POR ELABORACIÓN
     public static function obtenerMediosVerificacion($id_elaboracion)
     {
         $stmt = self::db()->prepare("
@@ -108,6 +108,7 @@ class Plan
 
         try {
             $db->beginTransaction();
+            $db->exec("SET SESSION innodb_lock_wait_timeout = 10");
 
             if (!empty($d['id_elaboracion'])) {
                 // MODO EDICIÓN
@@ -164,9 +165,9 @@ class Plan
 
             // INSERTAR NUEVOS MEDIOS DE VERIFICACIÓN
             if (!empty($d['detalle']) && is_array($d['detalle'])) {
+                $stmt = $db->prepare("INSERT INTO medios_verificacion (detalle, id_plazo, id_elaboracion) VALUES (?, ?, ?)");
                 foreach ($d['detalle'] as $i => $det) {
                     if (trim($det) != '' && !empty($d['id_plazo'][$i])) {
-                        $stmt = $db->prepare("INSERT INTO medios_verificacion (detalle, id_plazo, id_elaboracion) VALUES (?, ?, ?)");
                         $stmt->execute([trim($det), $d['id_plazo'][$i], $id_elab]);
                     }
                 }
@@ -197,18 +198,19 @@ class Plan
 
         try {
             $db->beginTransaction();
+            $db->exec("SET SESSION innodb_lock_wait_timeout = 10");
 
-            // Primero eliminar medios de verificación relacionados
+            // Primero eliminar medios de verificación
             $stmt = $db->prepare("DELETE m FROM medios_verificacion m 
                                   INNER JOIN elaboracion e ON m.id_elaboracion = e.id_elaboracion 
                                   WHERE e.id_plan = ?");
             $stmt->execute([$id_plan]);
 
-            // Luego eliminar elaboraciones
+            // Luego elaboraciones
             $stmt = $db->prepare("DELETE FROM elaboracion WHERE id_plan = ?");
             $stmt->execute([$id_plan]);
 
-            // Finalmente eliminar el plan
+            // Finalmente el plan
             $stmt = $db->prepare("DELETE FROM planes WHERE id_plan = ?");
             $stmt->execute([$id_plan]);
 
@@ -270,7 +272,7 @@ class Plan
     }
 
     // ============================================
-    // MÉTODOS DE SEGUIMIENTO - CON CALIFICACIÓN
+    // MÉTODOS DE SEGUIMIENTO
     // ============================================
 
     // OBTENER SEGUIMIENTOS POR ELABORACIÓN
@@ -321,20 +323,21 @@ class Plan
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // GUARDAR SEGUIMIENTO COMPLETO CON CALIFICACIÓN
+    // GUARDAR SEGUIMIENTO COMPLETO
     public static function guardarSeguimiento($datos)
     {
         $db = self::db();
 
         try {
             $db->beginTransaction();
+            $db->exec("SET SESSION innodb_lock_wait_timeout = 10");
 
             // Validar que existan medios de verificación
             if (empty($datos['medios']) || !is_array($datos['medios'])) {
                 throw new Exception("No se han proporcionado datos de medios de verificación");
             }
 
-            // Obtener id_medio principal (primer medio)
+            // Obtener id_medio principal
             $primer_medio = $datos['medios'][0] ?? null;
             $id_medio = $primer_medio['id_medio'] ?? null;
 
@@ -394,16 +397,16 @@ class Plan
             }
 
             // Guardar calificaciones por medio
+            $stmt = $db->prepare("
+                INSERT INTO calificaciones_medios (
+                    id_seguimiento, id_medio, cumplimiento, 
+                    calificacion_individual, observacion
+                ) VALUES (?, ?, ?, ?, ?)
+            ");
+
             foreach ($datos['medios'] as $medio) {
                 if (isset($medio['id_medio']) && isset($medio['cumplimiento'])) {
-                    $stmt = $db->prepare("
-                        INSERT INTO calificaciones_medios (
-                            id_seguimiento, id_medio, cumplimiento, 
-                            calificacion_individual, observacion
-                        ) VALUES (?, ?, ?, ?, ?)
-                    ");
-
-                    $calificacion_individual = $medio['cumplimiento'] === 'SI' 
+                    $calificacion_individual = $medio['cumplimiento'] === 'SI'
                         ? 'CUMPLE - Medio verificado correctamente'
                         : 'NO CUMPLE - Medio no verificado';
 
@@ -417,14 +420,15 @@ class Plan
                 }
             }
 
-            // Guardar archivo si existe
+            $db->commit();
+
+            // Guardar archivo fuera de transacción si existe
             if (isset($datos['archivo_seguimiento']) && $datos['archivo_seguimiento']['error'] === UPLOAD_ERR_OK) {
                 self::guardarArchivoSeguimiento($id_seguimiento, $datos['archivo_seguimiento']);
             }
 
-            $db->commit();
             return [
-                'success' => true, 
+                'success' => true,
                 'id_seguimiento' => $id_seguimiento,
                 'calificacion' => $calificacion_total
             ];
@@ -432,7 +436,7 @@ class Plan
         } catch (PDOException $e) {
             $db->rollBack();
             error_log("Error en guardarSeguimiento: " . $e->getMessage());
-            return ['success' => false, 'error' => $e->getMessage()];
+            return ['success' => false, 'error' => 'Error en base de datos: ' . $e->getMessage()];
         } catch (Exception $e) {
             $db->rollBack();
             error_log("Error en guardarSeguimiento: " . $e->getMessage());
@@ -454,7 +458,6 @@ class Plan
 
         $porcentaje = $total_medios > 0 ? round(($cumplidos / $total_medios) * 100) : 0;
 
-        // Determinar calificación cualitativa
         if ($porcentaje >= 90) {
             $calificacion = 'EXCELENTE';
         } elseif ($porcentaje >= 80) {
@@ -511,7 +514,7 @@ class Plan
     }
 
     // ============================================
-    // MÉTODOS DE EJECUCIÓN
+    // MÉTODOS DE EJECUCIÓN OPTIMIZADOS
     // ============================================
 
     // OBTENER EJECUCIÓN POR PLAN
@@ -531,13 +534,63 @@ class Plan
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // GUARDAR EJECUCIÓN
+    // GUARDAR EJECUCIÓN (OPTIMIZADA PARA EVITAR TIMEOUT)
     public static function guardarEjecucion($datos, $archivos)
     {
         $db = self::db();
 
         try {
+            // 1. PRIMERO GUARDAR ARCHIVOS EN TEMPORAL
+            $archivosTemporales = [];
+            $rutasTemporales = [];
+
+            // Procesar archivo de elaboración
+            if (isset($archivos['archivo_elaboracion']) && $archivos['archivo_elaboracion']['error'] === UPLOAD_ERR_OK) {
+                $rutaTemp = self::guardarArchivoTemporal($archivos['archivo_elaboracion'], 'ELABORACION');
+                $archivosTemporales[] = [
+                    'ruta' => $rutaTemp,
+                    'tipo' => 'ELABORACION',
+                    'nombre' => $archivos['archivo_elaboracion']['name']
+                ];
+                $rutasTemporales[] = $rutaTemp;
+            }
+
+            // Procesar archivo de seguimiento
+            if (isset($archivos['archivo_seguimiento']) && $archivos['archivo_seguimiento']['error'] === UPLOAD_ERR_OK) {
+                $rutaTemp = self::guardarArchivoTemporal($archivos['archivo_seguimiento'], 'SEGUIMIENTO');
+                $archivosTemporales[] = [
+                    'ruta' => $rutaTemp,
+                    'tipo' => 'SEGUIMIENTO',
+                    'nombre' => $archivos['archivo_seguimiento']['name']
+                ];
+                $rutasTemporales[] = $rutaTemp;
+            }
+
+            // Procesar archivos adicionales
+            if (isset($archivos['archivos_adicionales']) && count($archivos['archivos_adicionales']['name']) > 0) {
+                for ($i = 0; $i < count($archivos['archivos_adicionales']['name']); $i++) {
+                    if ($archivos['archivos_adicionales']['error'][$i] === UPLOAD_ERR_OK) {
+                        $archivo_info = [
+                            'name' => $archivos['archivos_adicionales']['name'][$i],
+                            'tmp_name' => $archivos['archivos_adicionales']['tmp_name'][$i],
+                            'size' => $archivos['archivos_adicionales']['size'][$i],
+                            'type' => $archivos['archivos_adicionales']['type'][$i]
+                        ];
+
+                        $rutaTemp = self::guardarArchivoTemporal($archivo_info, 'ADICIONAL');
+                        $archivosTemporales[] = [
+                            'ruta' => $rutaTemp,
+                            'tipo' => 'ADICIONAL',
+                            'nombre' => $archivo_info['name']
+                        ];
+                        $rutasTemporales[] = $rutaTemp;
+                    }
+                }
+            }
+
+            // 2. TRANSACCIÓN MUY CORTA solo para BD
             $db->beginTransaction();
+            $db->exec("SET SESSION innodb_lock_wait_timeout = 10");
 
             // Guardar o actualizar ejecución
             if (!empty($datos['id_ejecucion'])) {
@@ -583,89 +636,145 @@ class Plan
                 $id_ejecucion = $db->lastInsertId();
             }
 
-            // Guardar archivo de elaboración
-            if (isset($archivos['archivo_elaboracion']) && $archivos['archivo_elaboracion']['error'] === UPLOAD_ERR_OK) {
-                self::guardarArchivoEjecucion($id_ejecucion, $archivos['archivo_elaboracion'], 'ELABORACION');
+            $db->commit(); // TRANSACCIÓN TERMINADA AQUÍ
+
+            // 3. MOVER ARCHIVOS A DESTINO FINAL (fuera de transacción)
+            foreach ($archivosTemporales as $archivoTemp) {
+                if (file_exists($archivoTemp['ruta'])) {
+                    self::moverArchivoEjecucion(
+                        $id_ejecucion,
+                        $archivoTemp['ruta'],
+                        $archivoTemp['tipo'],
+                        $archivoTemp['nombre']
+                    );
+                }
             }
 
-            // Guardar archivo de seguimiento
-            if (isset($archivos['archivo_seguimiento']) && $archivos['archivo_seguimiento']['error'] === UPLOAD_ERR_OK) {
-                self::guardarArchivoEjecucion($id_ejecucion, $archivos['archivo_seguimiento'], 'SEGUIMIENTO');
+            return ['success' => true, 'id_ejecucion' => $id_ejecucion];
+
+        } catch (PDOException $e) {
+            if (isset($db) && $db->inTransaction()) {
+                $db->rollBack();
             }
 
-            // Guardar archivos adicionales
-            if (isset($archivos['archivos_adicionales']) && count($archivos['archivos_adicionales']['name']) > 0) {
-                for ($i = 0; $i < count($archivos['archivos_adicionales']['name']); $i++) {
-                    if ($archivos['archivos_adicionales']['error'][$i] === UPLOAD_ERR_OK) {
-                        $archivo_info = [
-                            'name' => $archivos['archivos_adicionales']['name'][$i],
-                            'tmp_name' => $archivos['archivos_adicionales']['tmp_name'][$i],
-                            'size' => $archivos['archivos_adicionales']['size'][$i],
-                            'type' => $archivos['archivos_adicionales']['type'][$i]
-                        ];
-
-                        self::guardarArchivoEjecucion($id_ejecucion, $archivo_info, 'ADICIONAL');
+            // Limpiar archivos temporales en caso de error
+            if (!empty($rutasTemporales)) {
+                foreach ($rutasTemporales as $rutaTemp) {
+                    if (file_exists($rutaTemp)) {
+                        @unlink($rutaTemp);
                     }
                 }
             }
 
-            $db->commit();
-            return ['success' => true, 'id_ejecucion' => $id_ejecucion];
-
-        } catch (PDOException $e) {
-            $db->rollBack();
             error_log("Error en guardarEjecucion: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Error en base de datos: ' . $e->getMessage()];
+        } catch (Exception $e) {
+            if (isset($db) && $db->inTransaction()) {
+                $db->rollBack();
+            }
+
+            error_log("Error general en guardarEjecucion: " . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
-    // GUARDAR ARCHIVO DE EJECUCIÓN
-    private static function guardarArchivoEjecucion($id_ejecucion, $archivo, $tipo = 'ADICIONAL')
+    // GUARDAR ARCHIVO EN TEMPORAL
+    private static function guardarArchivoTemporal($archivo, $tipo = 'ADICIONAL')
     {
-        $db = self::db();
-
         // Validar que sea PDF
         $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
         if ($extension !== 'pdf') {
-            throw new Exception("Solo se permiten archivos PDF");
+            throw new Exception("Solo se permiten archivos PDF. El archivo '{$archivo['name']}' no es PDF.");
         }
 
-        // Crear directorio si no existe
-        $directorio = "uploads/ejecucion/" . date('Y') . "/" . date('m') . "/";
-        if (!file_exists($directorio)) {
-            mkdir($directorio, 0777, true);
+        // Validar tamaño (10MB máximo)
+        if ($archivo['size'] > 10 * 1024 * 1024) {
+            throw new Exception("El archivo '{$archivo['name']}' excede el tamaño máximo de 10MB");
         }
 
-        // Generar nombre único
-        $nombre_unico = uniqid() . '_' . preg_replace('/[^a-z0-9\.]/i', '_', $archivo['name']);
-        $ruta_completa = $directorio . $nombre_unico;
-
-        // Mover archivo
-        if (!move_uploaded_file($archivo['tmp_name'], $ruta_completa)) {
-            throw new Exception("Error al subir el archivo");
+        // Crear directorio temporal
+        $directorioTemp = "uploads/temp/";
+        if (!file_exists($directorioTemp)) {
+            mkdir($directorioTemp, 0777, true);
         }
 
-        // Guardar en base de datos
-        $stmt = $db->prepare("
-            INSERT INTO archivos_ejecucion (
-                id_ejecucion, nombre_archivo, tipo_archivo,
-                descripcion_archivo, ruta_archivo
-            ) VALUES (?, ?, ?, ?, ?)
-        ");
+        // Generar nombre único temporal
+        $nombreTemp = uniqid('temp_') . '_' . preg_replace('/[^a-z0-9\.]/i', '_', $archivo['name']);
+        $rutaTemp = $directorioTemp . $nombreTemp;
 
-        $descripcion = match ($tipo) {
-            'ELABORACION' => 'Documento final de elaboración',
-            'SEGUIMIENTO' => 'Documento de seguimiento',
-            default => 'Documento adicional de ejecución'
-        };
+        // Mover a temporal
+        if (!move_uploaded_file($archivo['tmp_name'], $rutaTemp)) {
+            throw new Exception("Error al subir el archivo '{$archivo['name']}'");
+        }
 
-        return $stmt->execute([
-            $id_ejecucion,
-            $archivo['name'],
-            $tipo,
-            $descripcion,
-            $ruta_completa
-        ]);
+        return $rutaTemp;
+    }
+
+    // MOVER ARCHIVO DE TEMPORAL A DESTINO FINAL
+    private static function moverArchivoEjecucion($id_ejecucion, $rutaTemporal, $tipo, $nombreOriginal)
+    {
+        $db = self::db();
+
+        // Crear directorio final
+        $directorioFinal = "uploads/ejecucion/" . date('Y') . "/" . date('m') . "/";
+        if (!file_exists($directorioFinal)) {
+            mkdir($directorioFinal, 0777, true);
+        }
+
+        // Generar nombre único final
+        $nombreFinal = uniqid() . '_' . preg_replace('/[^a-z0-9\.]/i', '_', $nombreOriginal);
+        $rutaFinal = $directorioFinal . $nombreFinal;
+
+        // Mover de temporal a final
+        if (!rename($rutaTemporal, $rutaFinal)) {
+            // Intentar copiar si rename falla
+            if (!copy($rutaTemporal, $rutaFinal)) {
+                throw new Exception("Error al mover el archivo a destino final");
+            }
+            unlink($rutaTemporal);
+        }
+
+        // Guardar en BD con transacción independiente y corta
+        $db->beginTransaction();
+        $db->exec("SET SESSION innodb_lock_wait_timeout = 5");
+
+        try {
+            $stmt = $db->prepare("
+                INSERT INTO archivos_ejecucion (
+                    id_ejecucion, nombre_archivo, tipo_archivo,
+                    descripcion_archivo, ruta_archivo
+                ) VALUES (?, ?, ?, ?, ?)
+            ");
+
+            $descripcion = match ($tipo) {
+                'ELABORACION' => 'Documento final de elaboración',
+                'SEGUIMIENTO' => 'Documento de seguimiento',
+                default => 'Documento adicional de ejecución'
+            };
+
+            $stmt->execute([
+                $id_ejecucion,
+                $nombreOriginal,
+                $tipo,
+                $descripcion,
+                $rutaFinal
+            ]);
+
+            $db->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $db->rollBack();
+
+            // Si falla la BD, eliminar el archivo físico
+            if (file_exists($rutaFinal)) {
+                @unlink($rutaFinal);
+            }
+
+            // Registrar error pero no detener el proceso completo
+            error_log("Error al registrar archivo en BD: " . $e->getMessage());
+            return false;
+        }
     }
 
     // OBTENER ARCHIVOS DE EJECUCIÓN
@@ -788,4 +897,25 @@ class Plan
         $stmt->execute([$id_seguimiento]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // LIMPIAR ARCHIVOS TEMPORALES ANTIGUOS
+    public static function limpiarArchivosTemporales($horas = 24)
+    {
+        $directorioTemp = "uploads/temp/";
+        if (!file_exists($directorioTemp)) {
+            return;
+        }
+
+        $files = glob($directorioTemp . "*");
+        $now = time();
+
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                if ($now - filemtime($file) >= $horas * 3600) {
+                    @unlink($file);
+                }
+            }
+        }
+    }
 }
+?>

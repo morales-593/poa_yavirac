@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,13 +16,10 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-
-        .drop-zone:hover,
-        .drop-zone.dragover {
+        .drop-zone:hover, .drop-zone.dragover {
             background-color: #e8f5e9;
             border-color: #218838;
         }
-
         .estado-activo {
             background-color: #d4edda;
             color: #155724;
@@ -31,7 +27,6 @@
             border-radius: 5px;
             border-left: 5px solid #28a745;
         }
-
         .estado-pendiente {
             background-color: #fff3cd;
             color: #856404;
@@ -39,9 +34,21 @@
             border-radius: 5px;
             border-left: 5px solid #ffc107;
         }
+        .file-preview {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .file-preview i {
+            font-size: 2rem;
+        }
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
     </style>
 </head>
-
 <body>
     <div class="modal-header bg-success text-white d-flex justify-content-between align-items-center">
         <div>
@@ -62,7 +69,6 @@
         <?php endif; ?>
 
         <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
-
             <!-- ESTADO ACTUAL -->
             <div class="card mb-4 border-success">
                 <div class="card-header bg-success text-white">
@@ -79,16 +85,14 @@
                         </div>
                         <div class="col-md-4">
                             <div class="<?= Plan::tieneSeguimiento($id_plan) ? 'estado-activo' : 'estado-pendiente' ?>">
-                                <i
-                                    class="fas <?= Plan::tieneSeguimiento($id_plan) ? 'fa-check-circle' : 'fa-clock' ?> fa-2x mb-2"></i>
+                                <i class="fas <?= Plan::tieneSeguimiento($id_plan) ? 'fa-check-circle' : 'fa-clock' ?> fa-2x mb-2"></i>
                                 <h5>SEGUIMIENTO</h5>
                                 <p class="mb-0"><?= Plan::tieneSeguimiento($id_plan) ? 'COMPLETADO' : 'PENDIENTE' ?></p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="<?= Plan::tieneEjecucion($id_plan) ? 'estado-activo' : 'estado-pendiente' ?>">
-                                <i
-                                    class="fas <?= Plan::tieneEjecucion($id_plan) ? 'fa-check-circle' : 'fa-play-circle' ?> fa-2x mb-2"></i>
+                                <i class="fas <?= Plan::tieneEjecucion($id_plan) ? 'fa-check-circle' : 'fa-play-circle' ?> fa-2x mb-2"></i>
                                 <h5>EJECUCIÓN</h5>
                                 <p class="mb-0"><?= Plan::tieneEjecucion($id_plan) ? 'COMPLETADA' : 'EN PROCESO' ?></p>
                             </div>
@@ -107,8 +111,8 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">NOMBRE DE EJECUCIÓN *</label>
-                                <input type="text" name="nombre_ejecucion" class="form-control"
-                                    value="<?= htmlspecialchars($ejecucion_existente['nombre_ejecucion'] ?? 'Ejecución Final ' . date('Y')) ?>"
+                                <input type="text" name="nombre_ejecucion" class="form-control <?= isset($_SESSION['campo_invalido']) && $_SESSION['campo_invalido'] == 'nombre_ejecucion' ? 'is-invalid' : '' ?>"
+                                    value="<?= htmlspecialchars($ejecucion_existente['nombre_ejecucion'] ?? ($_SESSION['form_data']['nombre_ejecucion'] ?? 'Ejecución Final ' . date('Y'))) ?>"
                                     required>
                             </div>
                         </div>
@@ -116,19 +120,19 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">FECHA DE EJECUCIÓN *</label>
-                                <input type="date" name="fecha_ejecucion" class="form-control"
-                                    value="<?= $ejecucion_existente['fecha_ejecucion'] ?? date('Y-m-d') ?>" required>
+                                <input type="date" name="fecha_ejecucion" class="form-control <?= isset($_SESSION['campo_invalido']) && $_SESSION['campo_invalido'] == 'fecha_ejecucion' ? 'is-invalid' : '' ?>"
+                                    value="<?= $ejecucion_existente['fecha_ejecucion'] ?? ($_SESSION['form_data']['fecha_ejecucion'] ?? date('Y-m-d')) ?>" required>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">RESULTADO FINAL *</label>
-                                <select name="resultado_final" class="form-select" required>
+                                <select name="resultado_final" class="form-select <?= isset($_SESSION['campo_invalido']) && $_SESSION['campo_invalido'] == 'resultado_final' ? 'is-invalid' : '' ?>" required>
                                     <option value="">-- Seleccione --</option>
-                                    <option value="APROBADO" <?= ($ejecucion_existente['resultado_final'] ?? '') == 'APROBADO' ? 'selected' : '' ?>>Aprobado</option>
-                                    <option value="RECHAZADO" <?= ($ejecucion_existente['resultado_final'] ?? '') == 'RECHAZADO' ? 'selected' : '' ?>>Rechazado</option>
-                                    <option value="PENDIENTE" <?= ($ejecucion_existente['resultado_final'] ?? '') == 'PENDIENTE' ? 'selected' : '' ?>>Pendiente</option>
+                                    <option value="APROBADO" <?= (($ejecucion_existente['resultado_final'] ?? $_SESSION['form_data']['resultado_final'] ?? '') == 'APROBADO') ? 'selected' : '' ?>>Aprobado</option>
+                                    <option value="RECHAZADO" <?= (($ejecucion_existente['resultado_final'] ?? $_SESSION['form_data']['resultado_final'] ?? '') == 'RECHAZADO') ? 'selected' : '' ?>>Rechazado</option>
+                                    <option value="PENDIENTE" <?= (($ejecucion_existente['resultado_final'] ?? $_SESSION['form_data']['resultado_final'] ?? '') == 'PENDIENTE') ? 'selected' : '' ?>>Pendiente</option>
                                 </select>
                             </div>
                         </div>
@@ -136,8 +140,8 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">PERSONA RESPONSABLE *</label>
-                                <input type="text" name="persona_responsable" class="form-control"
-                                    value="<?= htmlspecialchars($ejecucion_existente['persona_responsable'] ?? $datos_elaboracion['nombre_completo_responsable'] ?? '') ?>"
+                                <input type="text" name="persona_responsable" class="form-control <?= isset($_SESSION['campo_invalido']) && $_SESSION['campo_invalido'] == 'persona_responsable' ? 'is-invalid' : '' ?>"
+                                    value="<?= htmlspecialchars($ejecucion_existente['persona_responsable'] ?? ($_SESSION['form_data']['persona_responsable'] ?? $datos_elaboracion['nombre_completo_responsable'] ?? '')) ?>"
                                     required>
                             </div>
                         </div>
@@ -146,7 +150,7 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold">OBSERVACIONES DE EJECUCIÓN</label>
                                 <textarea name="observaciones_ejecucion" class="form-control" rows="3"
-                                    placeholder="Observaciones adicionales sobre la ejecución..."><?= htmlspecialchars($ejecucion_existente['observaciones_ejecucion'] ?? '') ?></textarea>
+                                    placeholder="Observaciones adicionales sobre la ejecución..."><?= htmlspecialchars($ejecucion_existente['observaciones_ejecucion'] ?? ($_SESSION['form_data']['observaciones_ejecucion'] ?? '')) ?></textarea>
                             </div>
                         </div>
                     </div>
@@ -159,7 +163,6 @@
                     <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i> CARGA DE DOCUMENTOS (PDF)</h6>
                 </div>
                 <div class="card-body">
-
                     <!-- ARCHIVO DE ELABORACIÓN -->
                     <div class="mb-4">
                         <h6 class="border-bottom pb-2 mb-3">1. Documento de Elaboración *</h6>
@@ -167,8 +170,7 @@
                             onclick="document.getElementById('fileElaboracion').click()">
                             <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
                             <h5>Documento PDF de Elaboración</h5>
-                            <p class="text-muted">Arrastra o haz clic para seleccionar el documento final de elaboración
-                            </p>
+                            <p class="text-muted">Arrastra o haz clic para seleccionar el documento final de elaboración</p>
                             <input type="file" name="archivo_elaboracion" id="fileElaboracion" accept=".pdf"
                                 style="display: none;" required>
                         </div>
@@ -187,20 +189,6 @@
                                 style="display: none;" required>
                         </div>
                         <div id="seguimientoFileInfo" class="mt-2"></div>
-                    </div>
-
-                    <!-- ARCHIVOS ADICIONALES -->
-                    <div class="mb-4">
-                        <h6 class="border-bottom pb-2 mb-3">3. Archivos Adicionales (Opcional)</h6>
-                        <div class="drop-zone" id="dropZoneAdicionales"
-                            onclick="document.getElementById('fileAdicionales').click()">
-                            <i class="fas fa-folder-plus fa-3x text-secondary mb-3"></i>
-                            <h5>Archivos Adicionales</h5>
-                            <p class="text-muted">Arrastra o haz clic para seleccionar archivos adicionales</p>
-                            <input type="file" name="archivos_adicionales[]" id="fileAdicionales" multiple accept=".pdf"
-                                style="display: none;">
-                        </div>
-                        <div id="adicionalesFileInfo" class="mt-2"></div>
                     </div>
 
                     <!-- ARCHIVOS EXISTENTES -->
@@ -236,10 +224,8 @@
                             </div>
                         </div>
                     <?php endif; ?>
-
                 </div>
             </div>
-
         </div>
 
         <div class="modal-footer">
@@ -253,7 +239,7 @@
     </form>
 
     <script>
-        // Configurar drag & drop para cada zona
+        // Configurar drag & drop
         function setupDropZone(dropZoneId, fileInputId, fileInfoId) {
             const dropZone = document.getElementById(dropZoneId);
             const fileInput = document.getElementById(fileInputId);
@@ -288,10 +274,14 @@
                 const files = dt.files;
 
                 if (files.length > 0) {
-                    // Validar que sea PDF
                     const file = files[0];
                     if (file.type !== 'application/pdf') {
                         alert('Solo se permiten archivos PDF');
+                        return;
+                    }
+
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('El archivo excede el tamaño máximo de 10MB');
                         return;
                     }
 
@@ -301,38 +291,64 @@
                     fileInput.files = dataTransfer.files;
 
                     // Mostrar información del archivo
-                    showFileInfo(file);
+                    showFileInfo(file, fileInfoId);
                 }
             }
 
             // Cambio en input de archivo
-            fileInput.addEventListener('change', function () {
+            fileInput.addEventListener('change', function() {
                 if (this.files.length > 0) {
-                    showFileInfo(this.files[0]);
+                    const file = this.files[0];
+                    if (file.type !== 'application/pdf') {
+                        alert('Solo se permiten archivos PDF');
+                        this.value = '';
+                        return;
+                    }
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('El archivo excede el tamaño máximo de 10MB');
+                        this.value = '';
+                        return;
+                    }
+                    showFileInfo(file, fileInfoId);
                 }
             });
 
-            function showFileInfo(file) {
+            function showFileInfo(file, containerId) {
                 const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+                const fileInfo = document.getElementById(containerId);
                 fileInfo.innerHTML = `
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <strong>${file.name}</strong> (${fileSize} MB)
-                        <br><small>Archivo listo para subir</small>
+                    <div class="alert alert-success p-2">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-pdf text-danger me-3 fa-2x"></i>
+                            <div>
+                                <strong class="d-block">${file.name}</strong>
+                                <small>${fileSize} MB • Listo para subir</small>
+                            </div>
+                        </div>
                     </div>
                 `;
             }
         }
 
-        // Configurar las tres zonas
-        document.addEventListener('DOMContentLoaded', function () {
+        // Prevenir doble envío
+        let isSubmitting = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar zonas de drop
             setupDropZone('dropZoneElaboracion', 'fileElaboracion', 'elaboracionFileInfo');
             setupDropZone('dropZoneSeguimiento', 'fileSeguimiento', 'seguimientoFileInfo');
-            setupDropZone('dropZoneAdicionales', 'fileAdicionales', 'adicionalesFileInfo');
 
             // Configurar validación del formulario
-            document.getElementById('formEjecucion').addEventListener('submit', function (e) {
-                // Validar campos requeridos
+            const form = document.getElementById('formEjecucion');
+            const btnSubmit = document.getElementById('btnSubmitEjecucion');
+
+            form.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Validar campos
                 const requiredFields = [
                     { name: 'nombre_ejecucion', label: 'Nombre de ejecución' },
                     { name: 'fecha_ejecucion', label: 'Fecha de ejecución' },
@@ -344,7 +360,7 @@
 
                 requiredFields.forEach(field => {
                     const element = document.querySelector(`[name="${field.name}"]`);
-                    if (element && !element.value) {
+                    if (element && !element.value.trim()) {
                         element.classList.add('is-invalid');
                         errores.push(field.label);
                     } else if (element) {
@@ -357,26 +373,39 @@
                 const archivoSeguimiento = document.getElementById('fileSeguimiento');
 
                 if (!archivoElaboracion.files.length) {
+                    document.getElementById('dropZoneElaboracion').style.borderColor = '#dc3545';
                     errores.push('Documento de elaboración');
+                } else {
+                    document.getElementById('dropZoneElaboracion').style.borderColor = '#28a745';
                 }
 
                 if (!archivoSeguimiento.files.length) {
+                    document.getElementById('dropZoneSeguimiento').style.borderColor = '#dc3545';
                     errores.push('Documento de seguimiento');
+                } else {
+                    document.getElementById('dropZoneSeguimiento').style.borderColor = '#28a745';
                 }
 
                 if (errores.length > 0) {
                     e.preventDefault();
-                    alert('Complete los siguientes campos requeridos:\n- ' + errores.join('\n- '));
+                    alert('Complete los siguientes campos requeridos:\n\n• ' + errores.join('\n• '));
                     return false;
                 }
 
                 // Deshabilitar botón mientras se procesa
-                const btnSubmit = document.getElementById('btnSubmitEjecucion');
                 btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Procesando...';
                 btnSubmit.disabled = true;
+                isSubmitting = true;
+                
+                return true;
             });
+
+            // Limpiar mensajes de sesión al cargar
+            <?php 
+            unset($_SESSION['form_data']);
+            unset($_SESSION['campo_invalido']);
+            ?>
         });
     </script>
 </body>
-
 </html>

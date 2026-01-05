@@ -1,0 +1,39 @@
+# SISTEMA_POA/uploads/.htaccess
+# Proteger completamente la carpeta de uploads
+
+# Denegar acceso directo a todo
+Order Deny,Allow
+Deny from all
+
+# Solo permitir acceso a archivos desde PHP (con sesión activa)
+<FilesMatch "\.(pdf|jpg|jpeg|png|gif|doc|docx|xls|xlsx)$">
+    # Solo permitir acceso si viene del dominio
+    RewriteEngine On
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?tu-dominio\.com [NC]
+    RewriteRule \.(pdf|jpg|jpeg|png|gif|doc|docx|xls|xlsx)$ - [NC,F,L]
+    
+    # También verificar sesión PHP (esto se maneja en el controlador)
+    # El archivo debe ser servido a través de un script PHP que verifique autenticación
+</FilesMatch>
+
+# Permitir acceso solo a través de scripts PHP específicos
+<Files "index.php">
+    Allow from all
+</Files>
+
+# No listar directorios
+Options -Indexes
+
+# Prevenir hotlinking
+RewriteEngine On
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?tu-dominio\.com [NC]
+RewriteRule \.(pdf|jpg|jpeg|png|gif)$ - [NC,F,L]
+
+# Headers de seguridad
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>

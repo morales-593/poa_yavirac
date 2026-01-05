@@ -346,48 +346,47 @@ class PlanController
         require 'views/planes/modal_ejecucion.php';
     }
 
-    // GUARDAR EJECUCIÓN
+    // GUARDAR EJECUCIÓN (OPTIMIZADO)
     public function guardarEjecucion()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $id_plan = $_POST['id_plan'] ?? 0;
-                $id_seguimiento = $_POST['id_seguimiento'] ?? null;
 
                 if (!$id_plan) {
                     throw new Exception("Plan no especificado");
                 }
 
-                // Validar fecha de ejecución
-                if (empty($_POST['fecha_ejecucion'])) {
-                    throw new Exception("La fecha de ejecución es obligatoria");
-                }
+                // Validar campos requeridos
+                $camposRequeridos = [
+                    'fecha_ejecucion' => 'Fecha de ejecución',
+                    'persona_responsable' => 'Persona responsable',
+                    'resultado_final' => 'Resultado final'
+                ];
 
-                // Validar responsable
-                if (empty($_POST['persona_responsable'])) {
-                    throw new Exception("La persona responsable es obligatoria");
-                }
-
-                // Validar archivos
-                $tieneArchivos = false;
-                if (isset($_FILES['archivo_elaboracion']) && $_FILES['archivo_elaboracion']['error'] === UPLOAD_ERR_OK) {
-                    $tieneArchivos = true;
-                }
-                if (isset($_FILES['archivo_seguimiento']) && $_FILES['archivo_seguimiento']['error'] === UPLOAD_ERR_OK) {
-                    $tieneArchivos = true;
-                }
-                if (isset($_FILES['archivos_adicionales']) && count($_FILES['archivos_adicionales']['name']) > 0) {
-                    for ($i = 0; $i < count($_FILES['archivos_adicionales']['name']); $i++) {
-                        if ($_FILES['archivos_adicionales']['error'][$i] === UPLOAD_ERR_OK) {
-                            $tieneArchivos = true;
-                            break;
-                        }
+                $errores = [];
+                foreach ($camposRequeridos as $campo => $nombre) {
+                    if (empty($_POST[$campo])) {
+                        $errores[] = "El campo <strong>$nombre</strong> es obligatorio";
+                        // Marcar campo como inválido para CSS
+                        $_SESSION['campo_invalido'] = $campo;
                     }
                 }
 
-                if (!$tieneArchivos) {
-                    throw new Exception("Debe adjuntar al menos un archivo PDF");
+                if (!empty($errores)) {
+                    throw new Exception(implode('<br>', $errores));
                 }
+
+                // Validar archivos mínimos
+                if (
+                    !isset($_FILES['archivo_elaboracion']) || $_FILES['archivo_elaboracion']['error'] !== UPLOAD_ERR_OK ||
+                    !isset($_FILES['archivo_seguimiento']) || $_FILES['archivo_seguimiento']['error'] !== UPLOAD_ERR_OK
+                ) {
+                    throw new Exception("Debe adjuntar ambos archivos: Documento de Elaboración y Documento de Seguimiento");
+                }
+
+                // Limpiar archivos temporales antiguos antes de procesar
+                Plan::limpiarArchivosTemporales();
 
                 // Guardar ejecución
                 $resultado = Plan::guardarEjecucion($_POST, $_FILES);
@@ -405,19 +404,35 @@ class PlanController
                         Plan::actualizarEstadoPlan($id_plan, 'COMPLETADO');
                     }
 
-                    $_SESSION['mensaje'] = '<div class="text-center"><i class="fas fa-check-circle fa-2x text-success mb-2"></i><br><strong>¡Éxito!</strong><br>Ejecución guardada correctamente</div>';
+                    $_SESSION['mensaje'] = '<div class="text-center">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                        <br><strong>¡Éxito!</strong>
+                        <br>Ejecución guardada correctamente
+                        <br><small>Los archivos se han procesado exitosamente</small>
+                    </div>';
                     $_SESSION['tipo_mensaje'] = 'success';
+                    
+                    // Redirigir limpiando el formulario
+                    header("Location: index.php?action=planes&refresh=" . time());
+                    exit;
                 } else {
                     throw new Exception($resultado['error'] ?? 'Error al guardar ejecución');
                 }
 
             } catch (Exception $e) {
-                $_SESSION['mensaje'] = '<div class="text-center"><i class="fas fa-times-circle fa-2x text-danger mb-2"></i><br><strong>Error:</strong><br>' . $e->getMessage() . '</div>';
+                $_SESSION['mensaje'] = '<div class="text-center">
+                    <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                    <br><strong>Error:</strong>
+                    <br>' . $e->getMessage() . '
+                </div>';
                 $_SESSION['tipo_mensaje'] = 'error';
+                
+                // Mantener los datos del formulario en sesión para rellenar
+                $_SESSION['form_data'] = $_POST;
+                
+                header("Location: index.php?action=modalEjecucion&id_plan=" . $id_plan);
+                exit;
             }
-
-            header("Location: index.php?action=planes");
-            exit;
         }
     }
 
