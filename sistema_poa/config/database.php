@@ -2,7 +2,7 @@
 class Database {
     public static function connect() {
         return new PDO(
-            "mysql:host=localhost;dbname=amigo_poa;charset=utf8mb4",
+            "mysql:host=localhost;dbname=recluta;charset=utf8mb4",
             "root",
             "",
             [

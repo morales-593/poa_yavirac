@@ -191,7 +191,7 @@ switch ($action) {
         (new ResponsableController())->eliminar();
         break;
 
-    /* ===== PLANES ===== */
+    /* ===== PLANES - ELABORACIÓN ===== */
     case 'planes':
         verificarSesion();
         require_once 'controllers/PlanController.php';
@@ -199,37 +199,97 @@ switch ($action) {
         break;
 
     case 'guardarPlan':
-        verificarSesion(); // Agregado por seguridad
+        verificarSesion();
         require_once 'controllers/PlanController.php';
         (new PlanController())->guardar();
         break;
 
     case 'eliminarPlan':
-        verificarSesion(); // Agregado por seguridad
+        verificarSesion();
         require_once 'controllers/PlanController.php';
         (new PlanController())->eliminar();
         break;
 
     case 'modalElaboracion':
-        verificarSesion(); // Agregado por seguridad
+        verificarSesion();
         require_once 'controllers/PlanController.php';
         (new PlanController())->modalElaboracion();
         break;
 
     case 'guardarElaboracion':
-        verificarSesion(); // Agregado por seguridad
+        verificarSesion();
         require_once 'controllers/PlanController.php';
         (new PlanController())->guardarElaboracion();
         break;
 
-    
-case 'indicadoresPorEje':
-    verificarSesion();
-    require_once 'controllers/PlanController.php';
-    (new PlanController())->indicadoresPorEje();
-    break;
+    case 'indicadoresPorEje':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->indicadoresPorEje();
+        break;
+
+    /* ===== PLANES - SEGUIMIENTO ===== */
+    case 'modalSeguimiento':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->modalSeguimiento();
+        break;
+
+    case 'guardarSeguimiento':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->guardarSeguimiento();
+        break;
+
+    case 'obtenerSeguimientos':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->obtenerSeguimientosAjax();
+        break;
+
+    /* ===== PLANES - EJECUCIÓN ===== */
+    case 'modalEjecucion':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->modalEjecucion();
+        break;
+
+    case 'guardarEjecucion':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->guardarEjecucion();
+        break;
+
+    case 'eliminarArchivoEjecucion':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->eliminarArchivoEjecucion();
+        break;
+
+    case 'verificarEstados':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->verificarEstados();
+        break;
+
+    /* ===== MÉTODOS ADICIONALES ===== */
+    case 'detallePlan':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->detalle();
+        break;
+
+    case 'testDatos':
+        verificarSesion();
+        require_once 'controllers/PlanController.php';
+        (new PlanController())->testDatos();
+        break;
 
     default:
-        header("Location: index.php?action=login");
+        if (isset($_SESSION['usuario'])) {
+            header("Location: index.php?action=dashboard");
+        } else {
+            header("Location: index.php?action=login");
+        }
         break;
 }

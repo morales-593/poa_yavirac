@@ -178,57 +178,307 @@ class PlanController
         require 'views/layout/footer.php';
     }
 
-    // MÉTODO PARA PROBAR DATOS
-    public function testDatos()
+    // ============================================
+    // SEGUIMIENTO
+    // ============================================
+
+    // MOSTRAR MODAL DE SEGUIMIENTO
+    public function modalSeguimiento()
     {
-        echo "<h2>Test de Datos del Sistema</h2>";
+        $id_plan = $_GET['id_plan'] ?? 0;
 
-        // Test 1: Ver ejes
-        $ejes = Plan::ejes();
-        echo "<h3>Ejes disponibles (" . count($ejes) . "):</h3>";
-        echo "<table border='1' cellpadding='5'>";
-        echo "<tr><th>ID</th><th>Nombre</th><th>Objetivo</th></tr>";
-        foreach ($ejes as $eje) {
-            echo "<tr>";
-            echo "<td>" . $eje['id_eje'] . "</td>";
-            echo "<td>" . $eje['nombre_eje'] . "</td>";
-            echo "<td>" . (isset($eje['descripcion_objetivo']) ? substr($eje['descripcion_objetivo'], 0, 100) . "..." : "SIN OBJETIVO") . "</td>";
-            echo "</tr>";
+        // Verificar que exista elaboración
+        $plan = Plan::find($id_plan);
+        if (!$plan) {
+            echo '<div class="alert alert-danger">El plan no existe</div>';
+            exit;
         }
-        echo "</table>";
 
-        // Test 2: Ver indicadores para cada eje
-        echo "<h3>Indicadores por Eje:</h3>";
-        foreach ($ejes as $eje) {
-            $indicadores = Plan::indicadoresPorEje($eje['id_eje']);
-            echo "<h4>Eje: " . $eje['nombre_eje'] . " (ID: " . $eje['id_eje'] . ") - " . count($indicadores) . " indicadores</h4>";
-            if (count($indicadores) > 0) {
-                echo "<ul>";
-                foreach ($indicadores as $ind) {
-                    echo "<li>[" . $ind['codigo'] . "] " . $ind['descripcion'] . " (ID: " . $ind['id_indicador'] . ")</li>";
+        // Verificar que tenga elaboración
+        $elaboracion = Plan::elaboracionPorPlan($id_plan);
+        if (!$elaboracion) {
+            echo '<div class="alert alert-warning">Debe completar la elaboración antes del seguimiento</div>';
+            exit;
+        }
+
+        // Obtener datos completos
+        $datos_elaboracion = Plan::obtenerElaboracionCompleta($elaboracion['id_elaboracion']);
+        $medios_verificacion = Plan::obtenerMediosVerificacion($elaboracion['id_elaboracion']);
+        $seguimiento_existente = Plan::obtenerSeguimiento($elaboracion['id_elaboracion']);
+
+        // Obtener calificaciones detalladas si existe seguimiento
+        $calificaciones_detalladas = [];
+        if ($seguimiento_existente && isset($seguimiento_existente['id_seguimiento'])) {
+            $calificaciones_detalladas = Plan::obtenerCalificacionesMedios($seguimiento_existente['id_seguimiento']);
+        }
+
+        require 'views/planes/modal_seguimiento.php';
+    }
+
+    // GUARDAR SEGUIMIENTO CON CALIFICACIÓN
+    public function guardarSeguimiento()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                $id_elaboracion = $_POST['id_elaboracion'] ?? 0;
+                $id_plan = $_POST['id_plan'] ?? 0;
+
+                if (!$id_elaboracion || !$id_plan) {
+                    throw new Exception("Datos incompletos");
                 }
-                echo "</ul>";
+
+                // Validar fecha de seguimiento
+                if (empty($_POST['fecha_seguimiento'])) {
+                    throw new Exception("La fecha de seguimiento es obligatoria");
+                }
+
+                // Obtener medios de verificación
+                $medios_verificacion = Plan::obtenerMediosVerificacion($id_elaboracion);
+                if (empty($medios_verificacion)) {
+                    throw new Exception("No hay medios de verificación definidos");
+                }
+
+                // Preparar datos de medios
+                $medios_data = [];
+                foreach ($medios_verificacion as $index => $medio) {
+                    $cumplimiento = $_POST["cumplimiento_$index"] ?? 'NO';
+
+                    $medios_data[] = [
+                        'id_medio' => $medio['id_medio'],
+                        'cumplimiento' => $cumplimiento,
+                        'observacion' => $_POST["observacion_medio_$index"] ?? ''
+                    ];
+                }
+
+                // Preparar datos completos
+                $datos = [
+                    'id_elaboracion' => $id_elaboracion,
+                    'fecha_seguimiento' => $_POST['fecha_seguimiento'],
+                    'observacion_general' => $_POST['observacion_general'] ?? '',
+                    'medios' => $medios_data
+                ];
+
+                // Agregar archivo si existe
+                if (isset($_FILES['archivo_seguimiento']) && $_FILES['archivo_seguimiento']['error'] === UPLOAD_ERR_OK) {
+                    $datos['archivo_seguimiento'] = $_FILES['archivo_seguimiento'];
+                }
+
+                // Guardar seguimiento
+                $resultado = Plan::guardarSeguimiento($datos);
+
+                if ($resultado['success']) {
+                    // Actualizar estado en planes
+                    Plan::actualizarEstadoSeguimiento($id_plan, 'COMPLETADO');
+
+                    // Guardar calificación en sesión para mostrar
+                    $_SESSION['calificacion_seguimiento'] = $resultado['calificacion'] ?? null;
+
+                    $_SESSION['mensaje'] = '<div class="text-center">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                        <br><strong>¡Éxito!</strong>
+                        <br>Seguimiento guardado correctamente
+                        <br><small>Calificación: ' . ($resultado['calificacion']['calificacion'] ?? 'N/A') . ' (' . ($resultado['calificacion']['porcentaje'] ?? 0) . '%)</small>
+                    </div>';
+                    $_SESSION['tipo_mensaje'] = 'success';
+                } else {
+                    throw new Exception($resultado['error'] ?? 'Error al guardar seguimiento');
+                }
+
+            } catch (Exception $e) {
+                $_SESSION['mensaje'] = '<div class="text-center">
+                    <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                    <br><strong>Error:</strong>
+                    <br>' . $e->getMessage() . '
+                </div>';
+                $_SESSION['tipo_mensaje'] = 'error';
+            }
+
+            header("Location: index.php?action=planes");
+            exit;
+        }
+    }
+
+    // OBTENER CALIFICACIÓN (AJAX)
+    public function obtenerCalificacion()
+    {
+        header('Content-Type: application/json');
+
+        $id_elaboracion = $_GET['id_elaboracion'] ?? 0;
+
+        if (!$id_elaboracion) {
+            echo json_encode(['error' => 'ID no válido']);
+            exit;
+        }
+
+        $calificacion = Plan::obtenerResumenCalificacion($id_elaboracion);
+        echo json_encode($calificacion ?: ['error' => 'No hay calificación']);
+        exit;
+    }
+
+    // ============================================
+    // EJECUCIÓN
+    // ============================================
+
+    // MOSTRAR MODAL DE EJECUCIÓN
+    public function modalEjecucion()
+    {
+        $id_plan = $_GET['id_plan'] ?? 0;
+
+        // Verificar que exista elaboración
+        $plan = Plan::find($id_plan);
+        if (!$plan) {
+            echo '<div class="alert alert-danger">El plan no existe</div>';
+            exit;
+        }
+
+        // Verificar que tenga elaboración
+        $elaboracion = Plan::elaboracionPorPlan($id_plan);
+        if (!$elaboracion) {
+            echo '<div class="alert alert-warning">Debe completar la elaboración antes de la ejecución</div>';
+            exit;
+        }
+
+        // Obtener datos completos
+        $datos_elaboracion = Plan::obtenerElaboracionCompleta($elaboracion['id_elaboracion']);
+        $ejecucion_existente = Plan::obtenerEjecucionPorPlan($id_plan);
+        $archivos_ejecucion = Plan::obtenerArchivosEjecucion($ejecucion_existente['id_ejecucion'] ?? 0);
+
+        require 'views/planes/modal_ejecucion.php';
+    }
+
+    // GUARDAR EJECUCIÓN
+    public function guardarEjecucion()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                $id_plan = $_POST['id_plan'] ?? 0;
+                $id_seguimiento = $_POST['id_seguimiento'] ?? null;
+
+                if (!$id_plan) {
+                    throw new Exception("Plan no especificado");
+                }
+
+                // Validar fecha de ejecución
+                if (empty($_POST['fecha_ejecucion'])) {
+                    throw new Exception("La fecha de ejecución es obligatoria");
+                }
+
+                // Validar responsable
+                if (empty($_POST['persona_responsable'])) {
+                    throw new Exception("La persona responsable es obligatoria");
+                }
+
+                // Validar archivos
+                $tieneArchivos = false;
+                if (isset($_FILES['archivo_elaboracion']) && $_FILES['archivo_elaboracion']['error'] === UPLOAD_ERR_OK) {
+                    $tieneArchivos = true;
+                }
+                if (isset($_FILES['archivo_seguimiento']) && $_FILES['archivo_seguimiento']['error'] === UPLOAD_ERR_OK) {
+                    $tieneArchivos = true;
+                }
+                if (isset($_FILES['archivos_adicionales']) && count($_FILES['archivos_adicionales']['name']) > 0) {
+                    for ($i = 0; $i < count($_FILES['archivos_adicionales']['name']); $i++) {
+                        if ($_FILES['archivos_adicionales']['error'][$i] === UPLOAD_ERR_OK) {
+                            $tieneArchivos = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!$tieneArchivos) {
+                    throw new Exception("Debe adjuntar al menos un archivo PDF");
+                }
+
+                // Guardar ejecución
+                $resultado = Plan::guardarEjecucion($_POST, $_FILES);
+
+                if ($resultado['success']) {
+                    // Actualizar estado en planes
+                    Plan::actualizarEstadoEjecucion($id_plan, 'COMPLETADO');
+
+                    // Si todas las etapas están completas, marcar plan como completado
+                    if (
+                        Plan::tieneElaboracion($id_plan) &&
+                        Plan::tieneSeguimiento($id_plan) &&
+                        Plan::tieneEjecucion($id_plan)
+                    ) {
+                        Plan::actualizarEstadoPlan($id_plan, 'COMPLETADO');
+                    }
+
+                    $_SESSION['mensaje'] = '<div class="text-center"><i class="fas fa-check-circle fa-2x text-success mb-2"></i><br><strong>¡Éxito!</strong><br>Ejecución guardada correctamente</div>';
+                    $_SESSION['tipo_mensaje'] = 'success';
+                } else {
+                    throw new Exception($resultado['error'] ?? 'Error al guardar ejecución');
+                }
+
+            } catch (Exception $e) {
+                $_SESSION['mensaje'] = '<div class="text-center"><i class="fas fa-times-circle fa-2x text-danger mb-2"></i><br><strong>Error:</strong><br>' . $e->getMessage() . '</div>';
+                $_SESSION['tipo_mensaje'] = 'error';
+            }
+
+            header("Location: index.php?action=planes");
+            exit;
+        }
+    }
+
+    // ELIMINAR ARCHIVO DE EJECUCIÓN
+    public function eliminarArchivoEjecucion()
+    {
+        $id_archivo = $_GET['id'] ?? 0;
+        $id_plan = $_GET['id_plan'] ?? 0;
+
+        if ($id_archivo > 0) {
+            $resultado = Plan::eliminarArchivoEjecucion($id_archivo);
+
+            if ($resultado) {
+                $_SESSION['mensaje'] = '<div class="text-center"><i class="fas fa-check-circle fa-2x text-success mb-2"></i><br><strong>¡Éxito!</strong><br>Archivo eliminado</div>';
+                $_SESSION['tipo_mensaje'] = 'success';
             } else {
-                echo "<p>No hay indicadores</p>";
+                $_SESSION['mensaje'] = '<div class="text-center"><i class="fas fa-times-circle fa-2x text-danger mb-2"></i><br><strong>Error:</strong><br>No se pudo eliminar el archivo</div>';
+                $_SESSION['tipo_mensaje'] = 'error';
             }
         }
 
-        // Test 3: Ver planes
-        $planes = Plan::all();
-        echo "<h3>Planes disponibles (" . count($planes) . "):</h3>";
-        echo "<table border='1' cellpadding='5'>";
-        echo "<tr><th>ID</th><th>Elaborado por</th><th>Responsable</th><th>Estado</th><th>Fecha</th></tr>";
-        foreach ($planes as $p) {
-            echo "<tr>";
-            echo "<td>" . $p['id_plan'] . "</td>";
-            echo "<td>" . $p['nombre_elaborado'] . "</td>";
-            echo "<td>" . $p['nombre_responsable'] . "</td>";
-            echo "<td>" . $p['estado'] . "</td>";
-            echo "<td>" . $p['fecha_creacion'] . "</td>";
-            echo "</tr>";
-        }
-        echo "</table>";
+        header("Location: index.php?action=modalEjecucion&id_plan=" . $id_plan);
+        exit;
+    }
 
+    // OBTENER SEGUIMIENTOS (AJAX)
+    public function obtenerSeguimientosAjax()
+    {
+        header('Content-Type: application/json');
+
+        $id_elaboracion = $_GET['id_elaboracion'] ?? 0;
+
+        if (!$id_elaboracion) {
+            echo json_encode([]);
+            exit;
+        }
+
+        $seguimientos = Plan::obtenerSeguimientos($id_elaboracion);
+        echo json_encode($seguimientos);
+        exit;
+    }
+
+    // VERIFICAR DISPONIBILIDAD DE BOTONES
+    public function verificarEstados()
+    {
+        $id_plan = $_GET['id_plan'] ?? 0;
+
+        header('Content-Type: application/json');
+
+        if (!$id_plan) {
+            echo json_encode(['error' => 'ID no válido']);
+            exit;
+        }
+
+        $estados = [
+            'tiene_elaboracion' => Plan::tieneElaboracion($id_plan),
+            'tiene_seguimiento' => Plan::tieneSeguimiento($id_plan),
+            'tiene_ejecucion' => Plan::tieneEjecucion($id_plan)
+        ];
+
+        echo json_encode($estados);
         exit;
     }
 }
