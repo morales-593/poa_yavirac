@@ -12,14 +12,20 @@ class IndicadorController {
     }
 
     public function guardar() {
-        Indicador::create($_POST['codigo'], $_POST['descripcion'], $_POST['id_eje']);
-        header("Location: index.php?action=indicadores");
+        if (Indicador::create($_POST['codigo'], $_POST['descripcion'], $_POST['id_eje'])) {
+            header("Location: index.php?action=indicadores&mensaje=Indicador+creado+correctamente");
+        } else {
+            header("Location: index.php?action=indicadores&error=Error+al+crear+indicador");
+        }
         exit;
     }
 
     public function eliminar() {
-        Indicador::delete($_GET['id']);
-        header("Location: index.php?action=indicadores");
+        if (Indicador::delete($_GET['id'])) {
+            header("Location: index.php?action=indicadores&mensaje=Indicador+eliminado+correctamente");
+        } else {
+            header("Location: index.php?action=indicadores&error=Error+al+eliminar+indicador");
+        }
         exit;
     }
 }

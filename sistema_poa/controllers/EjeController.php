@@ -12,20 +12,29 @@ class EjeController {
     }
 
     public function guardar() {
-        Eje::create($_POST['nombre_eje'], $_POST['objetivo']);
-        header("Location: index.php?action=ejes");
+        if (Eje::create($_POST['nombre_eje'], $_POST['objetivo'])) {
+            header("Location: index.php?action=ejes&mensaje=Eje+creado+correctamente");
+        } else {
+            header("Location: index.php?action=ejes&error=Error+al+crear+eje");
+        }
         exit;
     }
 
     public function editar() {
-        Eje::update($_GET['id'], $_POST['nombre_eje'], $_POST['objetivo']);
-        header("Location: index.php?action=ejes");
+        if (Eje::update($_GET['id'], $_POST['nombre_eje'], $_POST['objetivo'])) {
+            header("Location: index.php?action=ejes&mensaje=Eje+actualizado+correctamente");
+        } else {
+            header("Location: index.php?action=ejes&error=Error+al+actualizar+eje");
+        }
         exit;
     }
 
     public function eliminar() {
-        Eje::delete($_GET['id']);
-        header("Location: index.php?action=ejes");
+        if (Eje::delete($_GET['id'])) {
+            header("Location: index.php?action=ejes&mensaje=Eje+eliminado+correctamente");
+        } else {
+            header("Location: index.php?action=ejes&error=Error+al+eliminar+eje");
+        }
         exit;
     }
 }

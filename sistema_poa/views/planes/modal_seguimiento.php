@@ -365,7 +365,7 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                 <i class="fas fa-times me-1"></i> Cancelar
             </button>
-            <button type="button" class="btn btn-export" onclick="exportarPDF()" id="btn-exportar">
+            <button type="button" class="btn btn-export" onclick="exportarPDFSeguimiento()" id="btn-exportar">
                 <i class="fas fa-file-pdf me-1"></i> Exportar PDF
             </button>
             <button type="submit" class="btn btn-success">
@@ -510,10 +510,10 @@
             btnSubmit.disabled = true;
         });
 
-        // ==============================================
+                // ==============================================
         // FUNCIÓN PARA EXPORTAR A PDF
         // ==============================================
-        function exportarPDF() {
+        function exportarPDFSeguimiento() {
             try {
                 // Verificar si jsPDF está disponible
                 if (typeof window.jspdf === 'undefined') {

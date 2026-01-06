@@ -11,6 +11,20 @@
     <link rel="stylesheet" href="public/css/temas_poa.css">
 </head>
 <body>
+    <!-- Alertas -->
+    <?php if (isset($_SESSION['alert'])): ?>
+    <div class="alert-container">
+        <div class="alert alert-<?= $_SESSION['alert']['type'] ?> alert-dismissible fade show" role="alert">
+            <i class="bi bi-<?= $_SESSION['alert']['type'] == 'success' ? 'check-circle' : 'exclamation-circle' ?> me-2"></i>
+            <?= $_SESSION['alert']['message'] ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+    <?php 
+        unset($_SESSION['alert']);
+    endif; 
+    ?>
+
     <div class="container-fluid">
 
         <div class="page-header">

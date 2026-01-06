@@ -988,6 +988,453 @@
         inicializarExportarPDF();
     }
 
+
+    // ============================================
+    // FUNCIÓN PARA EXPORTAR PDF DE SEGUIMIENTO
+    // ============================================
+    window.exportarPDFSeguimiento = function() {
+        console.log('📄 Iniciando exportación de PDF de seguimiento...');
+        
+        try {
+            // Verificar si jsPDF está disponible
+            if (typeof window.jspdf === 'undefined') {
+                alert('Error: La librería jsPDF no está cargada. Por favor recargue la página.');
+                return;
+            }
+
+            // Buscar el botón dentro del modal actual
+            const btnExportar = document.querySelector('#btn-exportar');
+            if (!btnExportar) {
+                alert('Error: No se encontró el botón de exportar');
+                return;
+            }
+
+            // Deshabilitar botón temporalmente
+            const originalText = btnExportar.innerHTML;
+            btnExportar.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Generando...';
+            btnExportar.disabled = true;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            // Configurar fuente
+            doc.setFont('helvetica');
+
+            // ==============================
+            // ENCABEZADO DEL DOCUMENTO
+            // ==============================
+            let yPos = 10;
+
+            // Título principal
+            doc.setFontSize(16);
+            doc.setTextColor(0, 0, 128);
+            doc.setFont('helvetica', 'bold');
+            doc.text('INSTITUTO SUPERIOR TECNOLÓGICO TURÍSTICO Y PATRIMONIAL "YAVIRAC"', 105, yPos, { align: 'center' });
+            yPos += 8;
+
+            doc.setFontSize(14);
+            doc.text('INFORME DE SEGUIMIENTO - PLAN OPERATIVO ANUAL', 105, yPos, { align: 'center' });
+            yPos += 6;
+
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            
+            // Obtener fecha de seguimiento del modal actual
+            const fechaSeguimientoInput = document.querySelector('input[name="fecha_seguimiento"]');
+            const fechaSeguimiento = fechaSeguimientoInput ? fechaSeguimientoInput.value : 'No especificada';
+            doc.text(`Fecha de Seguimiento: ${fechaSeguimiento}`, 105, yPos, { align: 'center' });
+            yPos += 12;
+
+            // Línea separadora
+            doc.setDrawColor(0, 0, 128);
+            doc.setLineWidth(0.5);
+            doc.line(20, yPos, 190, yPos);
+            yPos += 15;
+
+            // ==============================
+            // INFORMACIÓN GENERAL
+            // ==============================
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 128);
+            doc.setFont('helvetica', 'bold');
+            doc.text('1. INFORMACIÓN GENERAL DEL PLAN', 20, yPos);
+            yPos += 8;
+
+            // Función auxiliar para crear secciones
+            function crearSeccion(titulo, contenido) {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 128);
+                doc.setFont('helvetica', 'bold');
+                doc.text(titulo + ':', 20, yPos);
+                yPos += 5;
+
+                doc.setFontSize(9);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont('helvetica', 'normal');
+                
+                let texto = contenido || 'No especificado';
+                if (texto === 'No especificado') {
+                    doc.setTextColor(120, 120, 120);
+                }
+                
+                const lineas = doc.splitTextToSize(texto, 170);
+                lineas.forEach((linea, idx) => {
+                    doc.text(linea, 25, yPos + (idx * 4));
+                });
+                
+                yPos += (lineas.length * 4) + 6;
+                doc.setTextColor(0, 0, 0);
+            }
+
+            // Obtener datos del modal actual
+            function obtenerValor(selector) {
+                try {
+                    const element = document.querySelector(selector);
+                    return element && element.value ? element.value.trim() : 'No especificado';
+                } catch (e) {
+                    return 'No especificado';
+                }
+            }
+
+            // Obtener los valores
+            const tema = obtenerValor('.campo-solo-lectura:nth-of-type(1)');
+            const eje = obtenerValor('.campo-solo-lectura:nth-of-type(2)');
+            const objetivo = obtenerValor('textarea.campo-solo-lectura:nth-of-type(1)');
+            const indicador = obtenerValor('.campo-solo-lectura:nth-of-type(3)') || obtenerValor('.campo-solo-lectura:nth-of-type(4)');
+            const lineaBase = obtenerValor('.campo-solo-lectura:nth-of-type(5)') || obtenerValor('.campo-solo-lectura:nth-of-type(4)');
+            const politicas = obtenerValor('textarea.campo-solo-lectura:nth-of-type(2)');
+            const metas = obtenerValor('textarea.campo-solo-lectura:nth-of-type(3)');
+            const actividades = obtenerValor('textarea.campo-solo-lectura:nth-of-type(4)');
+            const indicadorResultado = obtenerValor('textarea.campo-solo-lectura:nth-of-type(5)');
+            const responsable = obtenerValor('.responsable-input');
+            const elaborado = obtenerValor('.elaborado-input');
+            const nombreResponsable = obtenerValor('.nombre-responsable-input');
+            const observacionGeneral = obtenerValor('.observacion-general');
+
+            // Agregar secciones al PDF
+            crearSeccion('Tema', tema);
+            crearSeccion('Eje Estratégico', eje);
+            crearSeccion('Objetivo', objetivo);
+            crearSeccion('Indicador', indicador);
+            crearSeccion('Línea Base', lineaBase);
+            crearSeccion('Políticas', politicas);
+            crearSeccion('Metas', metas);
+            crearSeccion('Actividades', actividades);
+            crearSeccion('Indicador de Resultado', indicadorResultado);
+
+            // ==============================
+            // MEDIOS DE VERIFICACIÓN
+            // ==============================
+            if (yPos > 200) {
+                doc.addPage();
+                yPos = 20;
+            }
+
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 128);
+            doc.setFont('helvetica', 'bold');
+            doc.text('2. EVALUACIÓN DE MEDIOS DE VERIFICACIÓN', 20, yPos);
+            yPos += 10;
+
+            // Obtener porcentaje de cumplimiento
+            let porcentajeNum = 0;
+            let cumplidos = 0;
+            let total = 0;
+            
+            // Intentar obtener del DOM
+            const porcentajeElement = document.getElementById('porcentaje-total');
+            if (porcentajeElement) {
+                const porcentajeText = porcentajeElement.textContent;
+                porcentajeNum = parseInt(porcentajeText) || 0;
+            }
+
+            // Mostrar porcentaje
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('PORCENTAJE DE CUMPLIMIENTO:', 20, yPos);
+            yPos += 7;
+            
+            // Color según porcentaje
+            let porcentajeColor = [0, 0, 0];
+            if (porcentajeNum >= 90) {
+                porcentajeColor = [0, 128, 0];
+            } else if (porcentajeNum >= 70) {
+                porcentajeColor = [0, 128, 255];
+            } else if (porcentajeNum >= 60) {
+                porcentajeColor = [255, 193, 7];
+            } else {
+                porcentajeColor = [255, 0, 0];
+            }
+            
+            doc.setTextColor(porcentajeColor[0], porcentajeColor[1], porcentajeColor[2]);
+            doc.setFontSize(14);
+            doc.text(`${porcentajeNum}%`, 20, yPos);
+            yPos += 8;
+            
+            doc.setFontSize(9);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`${cumplidos} de ${total} medios cumplidos`, 20, yPos);
+            yPos += 15;
+
+            // Tabla de medios de verificación
+            const filasMedios = document.querySelectorAll('#medios-tbody tr[data-medio-id]');
+            
+            if (filasMedios.length > 0) {
+                // Configurar tabla
+                const anchoPagina = 170;
+                const anchoNum = 10;
+                const anchoDetalle = 100;
+                const anchoPlazo = 25;
+                const anchoEstado = 35;
+
+                // Cabecera de la tabla
+                doc.setFillColor(240, 240, 240);
+                doc.rect(20, yPos, anchoPagina, 8, 'F');
+                doc.setDrawColor(0, 0, 0);
+                doc.setLineWidth(0.2);
+                
+                // Dibujar líneas verticales
+                doc.line(20, yPos, 20, yPos + 8);
+                doc.line(20 + anchoNum, yPos, 20 + anchoNum, yPos + 8);
+                doc.line(20 + anchoNum + anchoDetalle, yPos, 20 + anchoNum + anchoDetalle, yPos + 8);
+                doc.line(20 + anchoNum + anchoDetalle + anchoPlazo, yPos, 20 + anchoNum + anchoDetalle + anchoPlazo, yPos + 8);
+                doc.line(20 + anchoPagina, yPos, 20 + anchoPagina, yPos + 8);
+                
+                // Texto de cabecera
+                doc.setFontSize(9);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont('helvetica', 'bold');
+                doc.text('#', 22, yPos + 5.5);
+                doc.text('DETALLE', 20 + anchoNum + 2, yPos + 5.5);
+                doc.text('PLAZO', 20 + anchoNum + anchoDetalle + 2, yPos + 5.5);
+                doc.text('ESTADO', 20 + anchoNum + anchoDetalle + anchoPlazo + 2, yPos + 5.5);
+                
+                yPos += 8;
+
+                // Filas de datos
+                filasMedios.forEach((fila, index) => {
+                    if (yPos > 270) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+
+                    // Obtener datos de la fila
+                    let detalle = '';
+                    let plazo = '';
+                    let estado = '';
+                    
+                    try {
+                        detalle = fila.querySelector('.detalle-medio') ? fila.querySelector('.detalle-medio').value : '';
+                        plazo = fila.querySelector('.plazo-medio') ? fila.querySelector('.plazo-medio').value : '';
+                        estado = fila.querySelector('.estado-medio') ? fila.querySelector('.estado-medio').value : '';
+                    } catch (e) {
+                        console.error('Error obteniendo datos de fila:', e);
+                    }
+
+                    // Calcular altura de fila
+                    doc.setFont('helvetica', 'normal');
+                    const detalleLineas = doc.splitTextToSize(detalle || 'No especificado', anchoDetalle - 4);
+                    const estadoLineas = doc.splitTextToSize(estado || 'No evaluado', anchoEstado - 4);
+                    const alturaFila = Math.max(8, Math.max(detalleLineas.length, estadoLineas.length) * 4 + 4);
+
+                    // Fondo alternado
+                    if (index % 2 === 0) {
+                        doc.setFillColor(250, 250, 250);
+                    } else {
+                        doc.setFillColor(245, 245, 245);
+                    }
+                    doc.rect(20, yPos, anchoPagina, alturaFila, 'F');
+
+                    // Contenido
+                    doc.setFontSize(9);
+                    doc.setTextColor(0, 0, 0);
+                    
+                    // Número
+                    doc.text((index + 1).toString(), 22, yPos + 5);
+                    
+                    // Detalle
+                    detalleLineas.forEach((linea, idx) => {
+                        doc.text(linea, 20 + anchoNum + 2, yPos + 5 + (idx * 4));
+                    });
+                    
+                    // Plazo
+                    doc.text(plazo || 'No especificado', 20 + anchoNum + anchoDetalle + 2, yPos + 5);
+                    
+                    // Estado con color
+                    if (estado && estado.includes('CUMPLE')) {
+                        doc.setTextColor(0, 128, 0);
+                    } else if (estado && estado.includes('NO CUMPLE')) {
+                        doc.setTextColor(255, 0, 0);
+                    } else {
+                        doc.setTextColor(100, 100, 100);
+                    }
+                    
+                    estadoLineas.forEach((linea, idx) => {
+                        doc.text(linea, 20 + anchoNum + anchoDetalle + anchoPlazo + 2, yPos + 5 + (idx * 4));
+                    });
+                    
+                    // Restaurar color negro
+                    doc.setTextColor(0, 0, 0);
+                    
+                    yPos += alturaFila;
+                });
+            } else {
+                doc.setFontSize(10);
+                doc.setTextColor(120, 120, 120);
+                doc.text('No hay medios de verificación definidos', 22, yPos);
+                yPos += 10;
+            }
+
+            yPos += 10;
+
+            // ==============================
+            // OBSERVACIÓN GENERAL
+            // ==============================
+            if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+            }
+
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 128);
+            doc.setFont('helvetica', 'bold');
+            doc.text('3. OBSERVACIÓN GENERAL', 20, yPos);
+            yPos += 8;
+
+            if (observacionGeneral && observacionGeneral !== 'No especificado') {
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont('helvetica', 'normal');
+                
+                const lineas = doc.splitTextToSize(observacionGeneral, 170);
+                lineas.forEach((linea, idx) => {
+                    doc.text(linea, 20, yPos + (idx * 4.5));
+                });
+                
+                yPos += (lineas.length * 4.5) + 12;
+            }
+
+            // ==============================
+            // FIRMAS
+            // ==============================
+            if (yPos > 200) {
+                doc.addPage();
+                yPos = 20;
+            }
+
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 128);
+            doc.setFont('helvetica', 'bold');
+            doc.text('4. FIRMAS DE RESPONSABILIDAD', 20, yPos);
+            yPos += 15;
+
+            // Dimensiones para firmas
+            const anchoFirma = 70;
+            const espacioEntreFirmas = 30;
+            
+            // Elaborado por
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('ELABORADO POR:', 20, yPos);
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text(elaborado || 'No especificado', 20, yPos + 7);
+            
+            // Línea de firma
+            doc.setDrawColor(0, 0, 0);
+            doc.setLineWidth(0.3);
+            doc.line(20, yPos + 12, 20 + anchoFirma, yPos + 12);
+            
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Firma y sello', 20, yPos + 18);
+
+            // Revisado por
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 128);
+            doc.setFont('helvetica', 'bold');
+            doc.text('REVISADO POR:', 20 + anchoFirma + espacioEntreFirmas, yPos);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'normal');
+            doc.text(responsable || 'No especificado', 20 + anchoFirma + espacioEntreFirmas, yPos + 7);
+            
+            // Línea de firma
+            doc.line(20 + anchoFirma + espacioEntreFirmas, yPos + 12, 20 + anchoFirma + espacioEntreFirmas + anchoFirma, yPos + 12);
+            
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Firma y sello', 20 + anchoFirma + espacioEntreFirmas, yPos + 18);
+
+            // ==============================
+            // PIE DE PÁGINA
+            // ==============================
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Documento generado el: ${new Date().toLocaleDateString('es-ES')}`, 105, 285, { align: 'center' });
+            doc.text('ISTTP "YAVIRAC" - Sistema de Seguimiento POA', 105, 290, { align: 'center' });
+
+            // ==============================
+            // GUARDAR PDF
+            // ==============================
+            const fechaActual = new Date().toISOString().split('T')[0];
+            const nombreSeguro = (elaborado || 'Seguimiento').replace(/[^a-z0-9]/gi, '_').substring(0, 30);
+            const nombreArchivo = `Seguimiento_POA_${nombreSeguro}_${fechaActual}.pdf`;
+            
+            console.log('Guardando PDF de seguimiento como:', nombreArchivo);
+            
+            // Guardar PDF
+            doc.save(nombreArchivo);
+            
+            // Restaurar botón
+            btnExportar.innerHTML = originalText;
+            btnExportar.disabled = false;
+            
+            // Mostrar mensaje de éxito
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'PDF generado',
+                    text: 'El PDF de seguimiento se ha generado y descargado exitosamente',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } else {
+                alert('✅ PDF generado exitosamente');
+            }
+
+        } catch (error) {
+            console.error('❌ Error al generar PDF de seguimiento:', error);
+            
+            // Restaurar botón en caso de error
+            const btnExportar = document.querySelector('#btn-exportar');
+            if (btnExportar) {
+                btnExportar.innerHTML = '<i class="fas fa-file-pdf me-1"></i> Exportar PDF';
+                btnExportar.disabled = false;
+            }
+            
+            // Mostrar error
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo generar el PDF: ' + error.message
+                });
+            } else {
+                alert('❌ Error al generar el PDF: ' + error.message);
+            }
+        }
+    };
+
+
+
     // ============================================
     // FUNCIÓN MEJORADA PARA ACTUALIZAR TODO
     // ============================================

@@ -9,8 +9,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    
-    
 </head>
 <body>
     <div class="container-fluid">
@@ -50,7 +48,7 @@
                                 </button>
                                 <a href="index.php?action=eliminarEje&id=<?= $e['id_eje'] ?>"
                                     class="btn btn-danger btn-sm btn-modern" 
-                                    onclick="return confirm('¿Estás seguro de eliminar este eje?')">
+                                    onclick="return confirmarEliminacion(event)">
                                     <i class="bi bi-trash"></i> Eliminar
                                 </a>
                             </td>
@@ -61,7 +59,7 @@
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
 
-                                    <form method="POST" action="index.php?action=editarEje&id=<?= $e['id_eje'] ?>">
+                                    <form method="POST" action="index.php?action=editarEje&id=<?= $e['id_eje'] ?>" onsubmit="return confirmarEdicion(event)">
 
                                         <div class="modal-header">
                                             <h5><i class="bi bi-pencil-square me-2"></i>Editar Eje y Objetivo</h5>
@@ -125,7 +123,7 @@
     <div class="modal fade" id="modalEje" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form method="POST" action="index.php?action=guardarEje">
+                <form method="POST" action="index.php?action=guardarEje" onsubmit="return confirmarCreacion(event)">
 
                     <div class="modal-header">
                         <h5><i class="bi bi-plus-circle me-2"></i>Nuevo Eje y Objetivo</h5>
@@ -163,9 +161,118 @@
     <!-- Bootstrap JS Bundle con Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- SweetAlert2 para alertas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
-        // Mejora para la tabla responsive
+        // Función para confirmar eliminación
+        function confirmarEliminacion(event) {
+            event.preventDefault();
+            const url = event.currentTarget.getAttribute('href');
+            
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡Esta acción no se puede deshacer!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+            
+            return false;
+        }
+
+        // Función para confirmar edición
+        function confirmarEdicion(event) {
+            const nombre = event.target.querySelector('input[name="nombre_eje"]').value;
+            const objetivo = event.target.querySelector('textarea[name="objetivo"]').value;
+            
+            Swal.fire({
+                title: '¿Actualizar eje?',
+                html: `<strong>Nombre:</strong> ${nombre}<br>
+                       <strong>Objetivo:</strong> ${objetivo.substring(0, 100)}${objetivo.length > 100 ? '...' : ''}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, actualizar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    event.preventDefault();
+                }
+            });
+            
+            return true;
+        }
+
+        // Función para confirmar creación
+        function confirmarCreacion(event) {
+            const nombre = event.target.querySelector('input[name="nombre_eje"]').value;
+            const objetivo = event.target.querySelector('textarea[name="objetivo"]').value;
+            
+            Swal.fire({
+                title: '¿Crear nuevo eje?',
+                html: `<strong>Nombre:</strong> ${nombre}<br>
+                       <strong>Objetivo:</strong> ${objetivo.substring(0, 100)}${objetivo.length > 100 ? '...' : ''}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, crear',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    event.preventDefault();
+                }
+            });
+            
+            return true;
+        }
+
+        // Mostrar alertas de éxito/error desde la URL
         document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mensaje = urlParams.get('mensaje');
+            const error = urlParams.get('error');
+            
+            if (mensaje) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: decodeURIComponent(mensaje.replace(/\+/g, ' ')),
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+                
+                // Limpiar URL
+                const nuevaUrl = window.location.pathname + window.location.search.replace(/[?&](mensaje|error)=[^&]*/g, '').replace(/^&/, '?').replace(/\?$/, '');
+                history.replaceState({}, document.title, nuevaUrl);
+            }
+            
+            if (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: decodeURIComponent(error.replace(/\+/g, ' ')),
+                    confirmButtonColor: '#d33'
+                });
+                
+                // Limpiar URL
+                const nuevaUrl = window.location.pathname + window.location.search.replace(/[?&](mensaje|error)=[^&]*/g, '').replace(/^&/, '?').replace(/\?$/, '');
+                history.replaceState({}, document.title, nuevaUrl);
+            }
+            
+            // Mantener las funciones existentes
             // Agregar etiquetas de datos para responsividad
             const tableCells = document.querySelectorAll('.table tbody td');
             const headers = Array.from(document.querySelectorAll('.table thead th')).map(th => th.textContent);
@@ -173,16 +280,6 @@
             tableCells.forEach((cell, index) => {
                 const headerIndex = index % headers.length;
                 cell.setAttribute('data-label', headers[headerIndex]);
-            });
-            
-            // Confirmación mejorada para eliminación
-            const deleteButtons = document.querySelectorAll('a[href*="eliminarEje"]');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    if (!confirm('¿Está seguro que desea eliminar este eje? Esta acción no se puede deshacer.')) {
-                        e.preventDefault();
-                    }
-                });
             });
             
             // Animación para modales

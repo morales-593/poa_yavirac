@@ -11,17 +11,29 @@ class PlazoController {
     }
 
     public function guardar() {
-        Plazo::create($_POST['nombre_plazo']);
-        header("Location: index.php?action=plazos");
+        if (Plazo::create($_POST['nombre_plazo'])) {
+            header("Location: index.php?action=plazos&mensaje=Plazo+creado+correctamente");
+        } else {
+            header("Location: index.php?action=plazos&error=Error+al+crear+plazo");
+        }
+        exit();
     }
 
     public function actualizar() {
-        Plazo::update($_GET['id'], $_POST['nombre_plazo']);
-        header("Location: index.php?action=plazos");
+        if (Plazo::update($_GET['id'], $_POST['nombre_plazo'])) {
+            header("Location: index.php?action=plazos&mensaje=Plazo+actualizado+correctamente");
+        } else {
+            header("Location: index.php?action=plazos&error=Error+al+actualizar+plazo");
+        }
+        exit();
     }
 
     public function eliminar() {
-        Plazo::delete($_GET['id']);
-        header("Location: index.php?action=plazos");
+        if (Plazo::delete($_GET['id'])) {
+            header("Location: index.php?action=plazos&mensaje=Plazo+eliminado+correctamente");
+        } else {
+            header("Location: index.php?action=plazos&error=Error+al+eliminar+plazo");
+        }
+        exit();
     }
 }

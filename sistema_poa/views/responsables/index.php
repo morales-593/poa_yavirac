@@ -55,13 +55,16 @@
                                     </button>
 
                                     <a href="index.php?action=toggleResponsable&id=<?= $r['id_responsable'] ?>"
-                                        class="btn btn-info btn-sm btn-modern">
+                                        class="btn btn-info btn-sm btn-modern" onclick="confirmarCambioEstado(event)">
+
+                                        
                                         <i class="bi bi-toggle-<?= $r['estado'] == 'ACTIVO' ? 'on' : 'off' ?>"></i>
                                         <?= $r['estado'] == 'ACTIVO' ? 'Desactivar' : 'Activar' ?>
                                     </a>
 
                                     <a href="index.php?action=eliminarResponsable&id=<?= $r['id_responsable'] ?>"
-                                        class="btn btn-danger btn-sm btn-modern">
+                                        class="btn btn-danger btn-sm btn-modern"  onclick="confirmarEliminacion(event)">
+
                                         <i class="bi bi-trash"></i> Eliminar
                                     </a>
                                 </div>
@@ -149,8 +152,100 @@
         </div>
     </div>
 
+
+    <!-- SweetAlert2 para alertas bonitas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Script para las alertas -->
+    <script>
+        // Función para mostrar alerta de éxito
+        function mostrarAlertaExito(mensaje) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: mensaje,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
+
+        // Función para confirmar eliminación
+        function confirmarEliminacion(event) {
+            event.preventDefault();
+            const url = event.currentTarget.getAttribute('href');
+            
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡Esta acción no se puede deshacer!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar alerta de eliminando
+                    Swal.fire({
+                        title: 'Eliminando...',
+                        text: 'Por favor espera',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Redirigir a la URL de eliminación
+                    window.location.href = url;
+                }
+            });
+        }
+
+        // Función para confirmar cambio de estado
+        function confirmarCambioEstado(event) {
+            event.preventDefault();
+            const url = event.currentTarget.getAttribute('href');
+            const textoBoton = event.currentTarget.textContent.trim();
+            const accion = textoBoton.includes('Desactivar') ? 'desactivar' : 'activar';
+            
+            Swal.fire({
+                title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} responsable?`,
+                text: `Estás a punto de ${accion} este responsable`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0ea5e9',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: `Sí, ${accion}`,
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        }
+
+        // Detectar mensajes de éxito en la URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mensaje = urlParams.get('mensaje');
+            
+            if (mensaje) {
+                mostrarAlertaExito(mensaje);
+                
+                // Limpiar parámetro de la URL
+                const nuevaUrl = window.location.pathname + window.location.search.replace(/&?mensaje=[^&]*/, '').replace(/^\?/, '');
+                history.replaceState({}, document.title, nuevaUrl);
+            }
+        });
+    </script>
+
+
     <!-- Bootstrap JS Bundle con Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>

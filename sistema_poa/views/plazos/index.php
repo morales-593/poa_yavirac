@@ -46,7 +46,8 @@
                                     <i class="bi bi-pencil-square"></i> Editar
                                 </button>
                                 <a href="index.php?action=eliminarPlazo&id=<?= $p['id_plazo'] ?>" 
-                                   class="btn btn-danger btn-sm btn-modern">
+                                   class="btn btn-danger btn-sm btn-modern"
+                                   onclick="return confirmarEliminacion(event)">
                                     <i class="bi bi-trash"></i> Eliminar
                                 </a>
                             </div>
@@ -81,7 +82,7 @@
     <div class="modal fade" id="editar<?= $p['id_plazo'] ?>" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form method="POST" action="index.php?action=actualizarPlazo&id=<?= $p['id_plazo'] ?>">
+                <form method="POST" action="index.php?action=actualizarPlazo&id=<?= $p['id_plazo'] ?>" onsubmit="return confirmarEdicion(event)">
                     <div class="modal-header warning-header">
                         <h5><i class="bi bi-pencil-square me-2"></i>Editar Plazo</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -114,7 +115,7 @@
     <div class="modal fade" id="modalPlazo" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form method="POST" action="index.php?action=guardarPlazo">
+                <form method="POST" action="index.php?action=guardarPlazo" onsubmit="return confirmarCreacion(event)">
                     <div class="modal-header">
                         <h5><i class="bi bi-plus-circle me-2"></i>Nuevo Plazo</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -143,5 +144,114 @@
 
     <!-- Bootstrap JS Bundle con Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SweetAlert2 para alertas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // Función para confirmar eliminación
+        function confirmarEliminacion(event) {
+            event.preventDefault();
+            const url = event.currentTarget.getAttribute('href');
+            
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡Esta acción no se puede deshacer!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+            
+            return false;
+        }
+
+        // Función para confirmar edición
+        function confirmarEdicion(event) {
+            const nombre = event.target.querySelector('input[name="nombre_plazo"]').value;
+            
+            Swal.fire({
+                title: '¿Actualizar plazo?',
+                text: `Se actualizará a: "${nombre}"`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, actualizar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    event.preventDefault();
+                }
+            });
+            
+            return true;
+        }
+
+        // Función para confirmar creación
+        function confirmarCreacion(event) {
+            const nombre = event.target.querySelector('input[name="nombre_plazo"]').value;
+            
+            Swal.fire({
+                title: '¿Crear nuevo plazo?',
+                text: `Nombre: "${nombre}"`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, crear',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    event.preventDefault();
+                }
+            });
+            
+            return true;
+        }
+
+        // Mostrar alertas de éxito/error desde la URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mensaje = urlParams.get('mensaje');
+            const error = urlParams.get('error');
+            
+            if (mensaje) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: decodeURIComponent(mensaje.replace(/\+/g, ' ')),
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+                
+                // Limpiar URL
+                const nuevaUrl = window.location.pathname + window.location.search.replace(/[?&](mensaje|error)=[^&]*/g, '').replace(/^&/, '?').replace(/\?$/, '');
+                history.replaceState({}, document.title, nuevaUrl);
+            }
+            
+            if (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: decodeURIComponent(error.replace(/\+/g, ' ')),
+                    confirmButtonColor: '#d33'
+                });
+                
+                // Limpiar URL
+                const nuevaUrl = window.location.pathname + window.location.search.replace(/[?&](mensaje|error)=[^&]*/g, '').replace(/^&/, '?').replace(/\?$/, '');
+                history.replaceState({}, document.title, nuevaUrl);
+            }
+        });
+    </script>
 </body>
 </html>

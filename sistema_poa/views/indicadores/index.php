@@ -48,7 +48,8 @@
                             </td>
                             <td data-label="Acciones" class="actions-cell text-center">
                                 <a href="index.php?action=eliminarIndicador&id=<?= $indicador['id_indicador'] ?>"
-                                    class="btn btn-danger btn-sm btn-modern eliminar-btn">
+                                    class="btn btn-danger btn-sm btn-modern eliminar-btn"
+                                    onclick="return confirmarEliminacion(event)">
                                     <i class="bi bi-trash"></i> Eliminar
                                 </a>
                             </td>
@@ -79,7 +80,7 @@
     <div class="modal fade" id="modalIndicador" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form method="POST" action="index.php?action=guardarIndicador">
+                <form method="POST" action="index.php?action=guardarIndicador" onsubmit="return confirmarCreacion(event)">
 
                     <div class="modal-header">
                         <h5><i class="bi bi-plus-circle me-2"></i>Nuevo Indicador</h5>
@@ -130,8 +131,97 @@
     <!-- Bootstrap JS Bundle con Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- SweetAlert2 para alertas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
+        // Función para confirmar eliminación
+        function confirmarEliminacion(event) {
+            event.preventDefault();
+            const url = event.currentTarget.getAttribute('href');
+            
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡Esta acción no se puede deshacer!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+            
+            return false;
+        }
+
+        // Función para confirmar creación
+        function confirmarCreacion(event) {
+            const codigo = event.target.querySelector('input[name="codigo"]').value;
+            const descripcion = event.target.querySelector('textarea[name="descripcion"]').value;
+            const eje = event.target.querySelector('select[name="id_eje"]');
+            const nombreEje = eje.options[eje.selectedIndex].text;
+            
+            Swal.fire({
+                title: '¿Crear nuevo indicador?',
+                html: `<strong>Código:</strong> ${codigo}<br>
+                       <strong>Descripción:</strong> ${descripcion.substring(0, 100)}${descripcion.length > 100 ? '...' : ''}<br>
+                       <strong>Eje:</strong> ${nombreEje}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, crear',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    event.preventDefault();
+                }
+            });
+            
+            return true;
+        }
+
+        // Mostrar alertas de éxito/error desde la URL
         document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mensaje = urlParams.get('mensaje');
+            const error = urlParams.get('error');
+            
+            if (mensaje) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: decodeURIComponent(mensaje.replace(/\+/g, ' ')),
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+                
+                // Limpiar URL
+                const nuevaUrl = window.location.pathname + window.location.search.replace(/[?&](mensaje|error)=[^&]*/g, '').replace(/^&/, '?').replace(/\?$/, '');
+                history.replaceState({}, document.title, nuevaUrl);
+            }
+            
+            if (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: decodeURIComponent(error.replace(/\+/g, ' ')),
+                    confirmButtonColor: '#d33'
+                });
+                
+                // Limpiar URL
+                const nuevaUrl = window.location.pathname + window.location.search.replace(/[?&](mensaje|error)=[^&]*/g, '').replace(/^&/, '?').replace(/\?$/, '');
+                history.replaceState({}, document.title, nuevaUrl);
+            }
+            
+            // Mantener las funciones existentes
             // Agregar etiquetas de datos para responsividad
             const tableCells = document.querySelectorAll('.table tbody td');
             const headers = Array.from(document.querySelectorAll('.table thead th')).map(th => th.textContent);
@@ -139,16 +229,6 @@
             tableCells.forEach((cell, index) => {
                 const headerIndex = index % headers.length;
                 cell.setAttribute('data-label', headers[headerIndex]);
-            });
-            
-            // Confirmación mejorada para eliminación
-            const deleteButtons = document.querySelectorAll('.eliminar-btn');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    if (!confirm('¿Está seguro que desea eliminar este indicador? Esta acción no se puede deshacer.')) {
-                        e.preventDefault();
-                    }
-                });
             });
             
             // Animación para modales
