@@ -771,46 +771,45 @@ function crearPDFconDatos(datos) {
         doc.setFont('helvetica');
 
         // Título principal - tamaño reducido
-        doc.setFontSize(18); // Reducido de 22
+        doc.setFontSize(16); // Más pequeño
         doc.setTextColor(255, 0, 0); // ROJO
-        doc.text('PLAN OPERATIVO ANUAL 2025', 105, 15, { align: 'center' }); // Ajustado de 20
+        doc.text('PLAN OPERATIVO ANUAL 2025', 105, 10, { align: 'center' }); // Más arriba
 
-        doc.setFontSize(10); // Reducido de 12
+        doc.setFontSize(8); // Más pequeño
         doc.setTextColor(0, 0, 0);
-        doc.text('Formulario: Elaboración POA 2025', 105, 22, { align: 'center' }); // Ajustado de 28
-        doc.text('ISTTP "YAVIRAC"', 105, 27, { align: 'center' }); // Ajustado de 33
+        doc.text('Formulario: Elaboración POA 2025 - ISTTP "YAVIRAC"', 105, 16, { align: 'center' }); // Más arriba
 
         // Línea separadora
-        doc.setLineWidth(0.5);
-        doc.line(15, 35, 195, 35); // Ajustado de 40
+        doc.setLineWidth(0.3); // Más delgada
+        doc.line(15, 22, 195, 22); // Más arriba
 
-        let yPos = 40; // Ajustado de 50
+        let yPos = 28; // Más arriba
 
         // ============================================
-        // 1. INFORMACIÓN GENERAL (AZUL CON LETRAS BLANCAS)
+        // 1. INFORMACIÓN GENERAL 
         // ============================================
         doc.setFillColor(0, 0, 128); // AZUL
-        doc.rect(15, yPos, 180, 6, 'F'); // Altura reducida de 8 a 6
-        doc.setFontSize(12); // Reducido de 14
+        doc.rect(15, yPos, 180, 5, 'F'); // Más pequeño (5 en lugar de 6)
+        doc.setFontSize(10); // Más pequeño
         doc.setTextColor(255, 255, 255); // BLANCO
         doc.setFont('helvetica', 'bold');
-        doc.text('1. INFORMACIÓN GENERAL', 105, yPos + 4.2, { align: 'center' }); // Ajustado de 5.5
-        yPos += 8; // Ajustado de 10
+        doc.text('1. INFORMACIÓN GENERAL', 105, yPos + 3.5, { align: 'center' }); // Ajustado
+        yPos += 6; // Menos espacio
 
-        doc.setFontSize(9); // Reducido de 11
+        doc.setFontSize(8); // Más pequeño
         doc.setTextColor(0, 0, 0);
 
         // Dimensiones de la tabla - más pequeñas
         const anchoTotal = 180;
-        const altoFila = 6; // Reducido de 8
+        const altoFila = 5; // Más pequeño
         const margenIzquierdo = 15;
-        const anchoEtiqueta = 22; // Reducido de 25
-        const anchoContenido = 158; // Ajustado
+        const anchoEtiqueta = 20; // Más pequeño
+        const anchoContenido = 160; // Ajustado
 
         // TEMA - Fila 1
         // Dibujar rectángulo exterior
         doc.setDrawColor(0, 0, 0);
-        doc.setLineWidth(0.2); // Reducido de 0.3
+        doc.setLineWidth(0.15); // Más delgado
         doc.rect(margenIzquierdo, yPos, anchoTotal, altoFila);
         
         // Línea vertical separadora
@@ -818,14 +817,14 @@ function crearPDFconDatos(datos) {
         
         // Contenido
         doc.setFont('helvetica', 'bold');
-        doc.text('TEMA', margenIzquierdo + 2, yPos + 4); // Ajustado de 5.5
+        doc.text('TEMA', margenIzquierdo + 2, yPos + 3.2); // Ajustado
         doc.setFont('helvetica', 'normal');
-        doc.text(datos.tema || 'No especificado', margenIzquierdo + anchoEtiqueta + 2, yPos + 4); // Ajustado
+        doc.text(datos.tema || 'No especificado', margenIzquierdo + anchoEtiqueta + 2, yPos + 3.2);
         yPos += altoFila;
 
         // OBJETIVO - Fila 2 (con altura dinámica)
         const objetivoLines = doc.splitTextToSize(datos.objetivo || 'No especificado', anchoContenido - 4);
-        const altoObjetivo = Math.max(altoFila, objetivoLines.length * 4); // Reducido de 5
+        const altoObjetivo = Math.max(altoFila, objetivoLines.length * 3.5); // Más pequeño
         
         // Dibujar rectángulo exterior
         doc.rect(margenIzquierdo, yPos, anchoTotal, altoObjetivo);
@@ -835,12 +834,12 @@ function crearPDFconDatos(datos) {
         
         // Contenido
         doc.setFont('helvetica', 'bold');
-        doc.text('OBJETIVO', margenIzquierdo + 2, yPos + 4);
+        doc.text('OBJETIVO', margenIzquierdo + 2, yPos + 3.2);
         doc.setFont('helvetica', 'normal');
         
         // Texto del objetivo (puede ser multilínea)
         objetivoLines.forEach((linea, idx) => {
-            doc.text(linea, margenIzquierdo + anchoEtiqueta + 2, yPos + 4 + (idx * 4)); // Ajustado de 5
+            doc.text(linea, margenIzquierdo + anchoEtiqueta + 2, yPos + 3.2 + (idx * 3.5));
         });
         
         yPos += altoObjetivo;
@@ -854,33 +853,33 @@ function crearPDFconDatos(datos) {
         
         // Contenido
         doc.setFont('helvetica', 'bold');
-        doc.text('EJE', margenIzquierdo + 2, yPos + 4);
+        doc.text('EJE', margenIzquierdo + 2, yPos + 3.2);
         doc.setFont('helvetica', 'normal');
-        doc.text(datos.eje || 'No especificado', margenIzquierdo + anchoEtiqueta + 2, yPos + 4);
+        doc.text(datos.eje || 'No especificado', margenIzquierdo + anchoEtiqueta + 2, yPos + 3.2);
         
-        yPos += altoFila + 12; // Reducido de 15
+        yPos += altoFila + 8; // Menos espacio
 
         // ============================================
-        // 2. DETALLES DEL PLAN (AZUL CON LETRAS BLANCAS - igual que Información General)
+        // 2. DETALLES DEL PLAN 
         // ============================================
-        doc.setFillColor(0, 0, 128); // AZUL (igual que Información General)
-        doc.rect(15, yPos, 180, 6, 'F'); // Altura reducida igual que Información General
-        doc.setFontSize(12); // Tamaño igual que Información General
-        doc.setTextColor(255, 255, 255); // BLANCO (igual que Información General)
+        doc.setFillColor(0, 0, 128); // AZUL
+        doc.rect(15, yPos, 180, 5, 'F'); // Más pequeño
+        doc.setFontSize(10); // Más pequeño
+        doc.setTextColor(255, 255, 255); // BLANCO
         doc.setFont('helvetica', 'bold');
-        doc.text('2. DETALLES DEL PLAN', 105, yPos + 4.2, { align: 'center' }); // Ajustado igual
-        yPos += 8; // Igual que Información General
+        doc.text('2. DETALLES DEL PLAN', 105, yPos + 3.5, { align: 'center' });
+        yPos += 6; // Menos espacio
 
         // Tabla ITEM/DESCRIPCIÓN
         const anchoTabla = 180;
-        const anchoItem = 28; // Reducido de 30
-        const anchoDescripcion = 152; // Ajustado
+        const anchoItem = 25; // Más pequeño
+        const anchoDescripcion = 155; // Ajustado
         
-        // ENCABEZADO DE TABLA - CORREGIDO (Fondo azul con texto blanco)
+        // ENCABEZADO DE TABLA
         doc.setFillColor(0, 0, 128); // AZUL
         doc.rect(margenIzquierdo, yPos, anchoTabla, altoFila, 'F');
         doc.setDrawColor(255, 255, 255); // Líneas blancas
-        doc.setLineWidth(0.15);
+        doc.setLineWidth(0.1); // Más delgado
         
         // Líneas verticales del encabezado
         doc.line(margenIzquierdo, yPos, margenIzquierdo, yPos + altoFila);
@@ -888,11 +887,11 @@ function crearPDFconDatos(datos) {
         doc.line(margenIzquierdo + anchoTabla, yPos, margenIzquierdo + anchoTabla, yPos + altoFila);
         
         // Texto del encabezado - EN BLANCO
-        doc.setFontSize(9);
+        doc.setFontSize(8); // Más pequeño
         doc.setTextColor(255, 255, 255); // BLANCO
         doc.setFont('helvetica', 'bold');
-        doc.text('ITEM', margenIzquierdo + (anchoItem/2), yPos + 4, { align: 'center' });
-        doc.text('DESCRIPCIÓN', margenIzquierdo + anchoItem + (anchoDescripcion/2), yPos + 4, { align: 'center' });
+        doc.text('ITEM', margenIzquierdo + (anchoItem/2), yPos + 3.2, { align: 'center' });
+        doc.text('DESCRIPCIÓN', margenIzquierdo + anchoItem + (anchoDescripcion/2), yPos + 3.2, { align: 'center' });
         
         // Restaurar color negro para el contenido
         doc.setTextColor(0, 0, 0);
@@ -903,8 +902,8 @@ function crearPDFconDatos(datos) {
         // Función para agregar filas a la tabla
         function agregarFilaTabla(item, descripcion) {
             const descripcionTexto = descripcion || 'No especificado';
-            const descripcionLines = doc.splitTextToSize(descripcionTexto, anchoDescripcion - 8);
-            const altoFilaActual = Math.max(altoFila, descripcionLines.length * 4); // Reducido de 5
+            const descripcionLines = doc.splitTextToSize(descripcionTexto, anchoDescripcion - 6);
+            const altoFilaActual = Math.max(altoFila, descripcionLines.length * 3.5); // Más pequeño
             
             // Dibujar rectángulo de la fila con borde
             doc.rect(margenIzquierdo, yPos, anchoTabla, altoFilaActual);
@@ -916,12 +915,12 @@ function crearPDFconDatos(datos) {
             
             // Contenido ITEM
             doc.setFont('helvetica', 'bold');
-            doc.text(item, margenIzquierdo + 4, yPos + 4);
+            doc.text(item, margenIzquierdo + 3, yPos + 3.2);
             
             // Contenido DESCRIPCIÓN
             doc.setFont('helvetica', 'normal');
             descripcionLines.forEach((linea, idx) => {
-                doc.text(linea, margenIzquierdo + anchoItem + 4, yPos + 4 + (idx * 4));
+                doc.text(linea, margenIzquierdo + anchoItem + 3, yPos + 3.2 + (idx * 3.5));
             });
             
             yPos += altoFilaActual;
@@ -932,16 +931,6 @@ function crearPDFconDatos(datos) {
                 yPos = 20;
             }
         }
-
-        // DEBUG: Verificar datos
-        console.log('Datos para Detalles del Plan:', {
-            indicador: datos.indicador,
-            linea_base: datos.linea_base,
-            politicas: datos.politicas,
-            metas: datos.metas,
-            actividades: datos.actividades,
-            indicador_resultado: datos.indicador_resultado
-        });
 
         // INDICADOR
         agregarFilaTabla('INDICADOR', datos.indicador);
@@ -973,7 +962,7 @@ function crearPDFconDatos(datos) {
             agregarFilaTabla('IND. RESULTADO', 'No especificado');
         }
 
-        yPos += 8; // Reducido de 10
+        yPos += 6; // Menos espacio
 
         // Verificar si necesitamos nueva página
         if (yPos > 250) {
@@ -984,29 +973,29 @@ function crearPDFconDatos(datos) {
         // ============================================
         // 3. MEDIOS DE VERIFICACIÓN
         // ============================================
-        doc.setFillColor(0, 0, 128); // AZUL igual que las otras secciones
-        doc.rect(15, yPos, 180, 6, 'F'); // Altura igual
-        doc.setFontSize(12); // Tamaño igual
-        doc.setTextColor(255, 255, 255); // BLANCO igual
+        doc.setFillColor(0, 0, 128); // AZUL
+        doc.rect(15, yPos, 180, 5, 'F'); // Más pequeño
+        doc.setFontSize(10); // Más pequeño
+        doc.setTextColor(255, 255, 255); // BLANCO
         doc.setFont('helvetica', 'bold');
-        doc.text('3. MEDIOS DE VERIFICACIÓN', 105, yPos + 4.2, { align: 'center' });
-        yPos += 8;
+        doc.text('3. MEDIOS DE VERIFICACIÓN', 105, yPos + 3.5, { align: 'center' });
+        yPos += 6; // Menos espacio
 
-        doc.setFontSize(9); // Reducido de 11
+        doc.setFontSize(8); // Más pequeño
         doc.setTextColor(0, 0, 0);
 
         if (datos.medios.length > 0) {
             // Tabla de medios de verificación
             const anchoMedios = 180;
-            const anchoNum = 12; // Reducido de 15
-            const anchoDetalle = 108; // Ajustado
-            const anchoPlazo = 60; // Ajustado de 55
+            const anchoNum = 10; // Más pequeño
+            const anchoDetalle = 115; // Ajustado
+            const anchoPlazo = 55; // Ajustado
             
-            // ENCABEZADO DE TABLA - igual que Detalles del Plan
+            // ENCABEZADO DE TABLA
             doc.setFillColor(0, 0, 128); // AZUL
             doc.rect(margenIzquierdo, yPos, anchoMedios, altoFila, 'F');
             doc.setDrawColor(255, 255, 255); // Líneas blancas
-            doc.setLineWidth(0.15);
+            doc.setLineWidth(0.1); // Más delgado
             
             // Líneas verticales del encabezado
             doc.line(margenIzquierdo, yPos, margenIzquierdo, yPos + altoFila);
@@ -1017,9 +1006,9 @@ function crearPDFconDatos(datos) {
             // Texto del encabezado - EN BLANCO
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
-            doc.text('N°', margenIzquierdo + (anchoNum/2), yPos + 4, { align: 'center' });
-            doc.text('DETALLE', margenIzquierdo + anchoNum + (anchoDetalle/2), yPos + 4, { align: 'center' });
-            doc.text('PLAZO', margenIzquierdo + anchoNum + anchoDetalle + (anchoPlazo/2), yPos + 4, { align: 'center' });
+            doc.text('N°', margenIzquierdo + (anchoNum/2), yPos + 3.2, { align: 'center' });
+            doc.text('DETALLE', margenIzquierdo + anchoNum + (anchoDetalle/2), yPos + 3.2, { align: 'center' });
+            doc.text('PLAZO', margenIzquierdo + anchoNum + anchoDetalle + (anchoPlazo/2), yPos + 3.2, { align: 'center' });
             
             // Restaurar colores
             doc.setTextColor(0, 0, 0);
@@ -1034,8 +1023,8 @@ function crearPDFconDatos(datos) {
                     yPos = 20;
                 }
 
-                const detalleLines = doc.splitTextToSize(medio.detalle || 'No especificado', anchoDetalle - 8);
-                const altoFilaMedio = Math.max(altoFila, detalleLines.length * 4); // Reducido de 5
+                const detalleLines = doc.splitTextToSize(medio.detalle || 'No especificado', anchoDetalle - 6);
+                const altoFilaMedio = Math.max(altoFila, detalleLines.length * 3.5); // Más pequeño
                 
                 // Dibujar rectángulo de la fila
                 doc.rect(margenIzquierdo, yPos, anchoMedios, altoFilaMedio);
@@ -1048,39 +1037,41 @@ function crearPDFconDatos(datos) {
                 
                 // Contenido
                 doc.setFont('helvetica', 'normal');
-                doc.text((index + 1).toString(), margenIzquierdo + (anchoNum/2), yPos + 4, { align: 'center' });
+                doc.text((index + 1).toString(), margenIzquierdo + (anchoNum/2), yPos + 3.2, { align: 'center' });
                 
                 // Detalle (puede ser multilínea)
                 detalleLines.forEach((linea, idx) => {
-                    doc.text(linea, margenIzquierdo + anchoNum + 4, yPos + 4 + (idx * 4));
+                    doc.text(linea, margenIzquierdo + anchoNum + 3, yPos + 3.2 + (idx * 3.5));
                 });
                 
                 // Plazo
-                doc.text(medio.plazo || 'No especificado', margenIzquierdo + anchoNum + anchoDetalle + (anchoPlazo/2), yPos + 4, { align: 'center' });
+                doc.text(medio.plazo || 'No especificado', margenIzquierdo + anchoNum + anchoDetalle + (anchoPlazo/2), yPos + 3.2, { align: 'center' });
                 
                 yPos += altoFilaMedio;
             });
         } else {
             // Mostrar mensaje cuando no hay medios
             doc.rect(margenIzquierdo, yPos, anchoTabla, altoFila);
-            doc.text('No se han definido medios de verificación', margenIzquierdo + 10, yPos + 4);
+            doc.text('No se han definido medios de verificación', margenIzquierdo + 8, yPos + 3.2);
             yPos += altoFila;
         }
 
         // ============================================
-        // FIRMAS
+        // RESPONSABLE EN CUADRO
         // ============================================
-        yPos += 12; // Reducido de 15
-        if (yPos > 200) {
-            doc.addPage();
-            yPos = 20;
-        }
-
-        doc.setFontSize(10); // Reducido de 12
+        yPos += 8; // Espacio antes del responsable
+        
+        // Dibujar cuadro para responsable
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.2);
+        doc.rect(15, yPos, 180, 8); // Cuadro para responsable
+        
+        // Contenido del responsable
+        doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
-        doc.text('RESPONSABLE:', 15, yPos);
+        doc.text('RESPONSABLE:', 18, yPos + 5);
         doc.setFont('helvetica', 'normal');
-        doc.text(datos.responsable || 'No especificado', 45, yPos); // Ajustado de 50
+        doc.text(datos.responsable || 'No especificado', 55, yPos + 5);
         
         // Fecha actual
         const fechaActual = new Date();
@@ -1090,40 +1081,46 @@ function crearPDFconDatos(datos) {
             year: 'numeric'
         }).toUpperCase();
         
-        doc.text(fechaFormateada, 160, yPos, { align: 'right' });
-        yPos += 15; // Reducido de 20
+        doc.text(fechaFormateada, 170, yPos + 5, { align: 'right' });
+        
+        yPos += 12; // Espacio después del cuadro
+
+        // ============================================
+        // FIRMAS 
+        // ============================================
+        yPos += 15; // Más espacio antes de las firmas
+        
+        if (yPos > 200) {
+            doc.addPage();
+            yPos = 30; // Más abajo en nueva página
+        }
 
         doc.setFont('helvetica', 'bold');
         doc.text('ELABORADO POR:', 30, yPos);
         doc.text('REVISADO POR:', 120, yPos);
-        yPos += 6; // Reducido de 8
+        yPos += 5; // Menos espacio
 
         // Nombres
-        doc.setFontSize(9); // Reducido de 10
+        doc.setFontSize(8); // Más pequeño
         doc.setFont('helvetica', 'normal');
         doc.text(datos.elaborado_por || 'No especificado', 30, yPos);
         
         // Líneas para firmas
-        yPos += 8; // Reducido de 10
+        yPos += 6; // Menos espacio
         doc.setDrawColor(0, 0, 0);
-        doc.setLineWidth(0.3); // Reducido de 0.5
+        doc.setLineWidth(0.2); // Más delgado
         
         // Línea del elaborado
         doc.line(30, yPos, 100, yPos);
         
         // Línea del revisado
         doc.line(120, yPos, 180, yPos);
-        yPos += 4; // Reducido de 5
+        yPos += 3; // Menos espacio
 
         // Cargos
-        doc.setFontSize(8); // Reducido de 9
+        doc.setFontSize(7); // Más pequeño
         doc.text('Coordinación de Planificación Estratégica', 30, yPos);
         doc.text('Unidad Responsable', 120, yPos);
-
-        // Pie de página
-        doc.setFontSize(7); // Reducido de 8
-        doc.setTextColor(100, 100, 100);
-        doc.text('Documento generado automáticamente por el Sistema de Planificación - ISTTP "YAVIRAC"', 105, 285, { align: 'center' });
 
         const fecha = new Date().toLocaleDateString('es-ES', {
             year: 'numeric',
