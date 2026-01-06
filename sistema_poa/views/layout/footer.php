@@ -630,335 +630,522 @@
 
 
     // ============================================
-    // FUNCIONES PARA EXPORTAR PDF
-    // ============================================
+// FUNCIONES PARA EXPORTAR PDF
+// ============================================
 
-    // Función para exportar PDF desde el modal de elaboración
-    window.exportarPDF = function () {
-        console.log('📄 Iniciando exportación de PDF...');
+// Función para exportar PDF desde el modal de elaboración
+window.exportarPDF = function () {
+    console.log('📄 Iniciando exportación de PDF...');
 
-        // Obtener datos del formulario
-        const datos = obtenerDatosPDF();
+    // Obtener datos del formulario
+    const datos = obtenerDatosPDF();
 
-        if (!datos) {
-            mostrarMensajeCRUD('❌ Complete todos los campos requeridos antes de exportar', 'danger');
+    if (!datos) {
+        mostrarMensajeCRUD('❌ Complete todos los campos requeridos antes de exportar', 'danger');
+        return;
+    }
+
+    // Crear PDF
+    crearPDFconDatos(datos);
+}
+
+
+// Función para obtener datos del formulario para PDF
+function obtenerDatosPDF() {
+    // Validar campos requeridos
+    const camposRequeridos = [
+        { selector: 'select[name="id_tema"]', nombre: 'Tema' },
+        { selector: '#eje_select', nombre: 'Eje Estratégico' },
+        { selector: '#indicador_select', nombre: 'Indicador' },
+        { selector: 'select[name="id_responsable"]', nombre: 'Responsable' },
+        { selector: 'input[name="linea_base"]', nombre: 'Línea Base' },
+        { selector: 'textarea[name="actividades"]', nombre: 'Actividades' }
+    ];
+
+    let datos = {};
+    let errores = [];
+
+    // Validar y obtener datos
+    camposRequeridos.forEach(campo => {
+        const elemento = document.querySelector(campo.selector);
+        if (!elemento) {
+            errores.push(`${campo.nombre} (elemento no encontrado)`);
             return;
         }
 
-        // Crear PDF
-        crearPDFconDatos(datos);
-    }
+        const valor = elemento.value ? elemento.options ? elemento.options[elemento.selectedIndex].text : elemento.value : '';
 
-    // Función para obtener datos del formulario para PDF
-    function obtenerDatosPDF() {
-        // Validar campos requeridos
-        const camposRequeridos = [
-            { selector: 'select[name="id_tema"]', nombre: 'Tema' },
-            { selector: '#eje_select', nombre: 'Eje Estratégico' },
-            { selector: '#indicador_select', nombre: 'Indicador' },
-            { selector: 'select[name="id_responsable"]', nombre: 'Responsable' },
-            { selector: 'input[name="linea_base"]', nombre: 'Línea Base' },
-            { selector: 'textarea[name="actividades"]', nombre: 'Actividades' }
-        ];
+        if (!valor || valor.includes('-- Seleccione')) {
+            elemento.classList.add('is-invalid');
+            errores.push(campo.nombre);
+        } else {
+            elemento.classList.remove('is-invalid');
 
-        let datos = {};
-        let errores = [];
+            // Guardar datos
+            if (campo.selector === 'select[name="id_tema"]') {
+                datos.tema = valor;
+            } else if (campo.selector === '#eje_select') {
+                datos.eje = valor;
+                // Obtener objetivo del eje
+                const opcionEje = elemento.options[elemento.selectedIndex];
+                datos.objetivo = opcionEje ? opcionEje.getAttribute('data-objetivo') || '' : '';
+            } else if (campo.selector === '#indicador_select') {
+                datos.indicador = valor;
+            } else if (campo.selector === 'select[name="id_responsable"]') {
+                datos.responsable = valor;
+            } else if (campo.selector === 'input[name="linea_base"]') {
+                datos.linea_base = valor;
+            } else if (campo.selector === 'textarea[name="actividades"]') {
+                datos.actividades = valor;
+            }
+        }
+    });
 
-        // Validar y obtener datos
-        camposRequeridos.forEach(campo => {
-            const elemento = document.querySelector(campo.selector);
-            if (!elemento) {
-                errores.push(`${campo.nombre} (elemento no encontrado)`);
-                return;
+    // Validar medios de verificación
+    const medios = [];
+    const filasMedios = document.querySelectorAll('#medios-container tr');
+
+    if (filasMedios.length === 0) {
+        errores.push('Medios de verificación (debe agregar al menos uno)');
+    } else {
+        filasMedios.forEach((fila, index) => {
+            const inputDetalle = fila.querySelector('input[name="detalle[]"]');
+            const selectPlazo = fila.querySelector('select[name="id_plazo[]"]');
+
+            const detalle = inputDetalle ? inputDetalle.value.trim() : '';
+            const plazo = selectPlazo && selectPlazo.value ?
+                selectPlazo.options[selectPlazo.selectedIndex].text : '';
+
+            if (!detalle) {
+                if (inputDetalle) inputDetalle.classList.add('is-invalid');
+                errores.push(`Descripción del medio ${index + 1}`);
+            } else {
+                if (inputDetalle) inputDetalle.classList.remove('is-invalid');
             }
 
-            const valor = elemento.value ? elemento.options ? elemento.options[elemento.selectedIndex].text : elemento.value : '';
-
-            if (!valor || valor.includes('-- Seleccione')) {
-                elemento.classList.add('is-invalid');
-                errores.push(campo.nombre);
+            if (!plazo || plazo.includes('-- Seleccione')) {
+                if (selectPlazo) selectPlazo.classList.add('is-invalid');
+                errores.push(`Plazo del medio ${index + 1}`);
             } else {
-                elemento.classList.remove('is-invalid');
+                if (selectPlazo) selectPlazo.classList.remove('is-invalid');
+            }
 
-                // Guardar datos
-                if (campo.selector === 'select[name="id_tema"]') {
-                    datos.tema = valor;
-                } else if (campo.selector === '#eje_select') {
-                    datos.eje = valor;
-                    // Obtener objetivo del eje
-                    const opcionEje = elemento.options[elemento.selectedIndex];
-                    datos.objetivo = opcionEje ? opcionEje.getAttribute('data-objetivo') || '' : '';
-                } else if (campo.selector === '#indicador_select') {
-                    datos.indicador = valor;
-                } else if (campo.selector === 'select[name="id_responsable"]') {
-                    datos.responsable = valor;
-                } else if (campo.selector === 'input[name="linea_base"]') {
-                    datos.linea_base = valor;
-                } else if (campo.selector === 'textarea[name="actividades"]') {
-                    datos.actividades = valor;
-                }
+            if (detalle && plazo && !plazo.includes('-- Seleccione')) {
+                medios.push({ detalle, plazo });
             }
         });
+    }
 
-        // Validar medios de verificación
-        const medios = [];
-        const filasMedios = document.querySelectorAll('#medios-container tr');
+    // Si hay errores, mostrar mensaje
+    if (errores.length > 0) {
+        mostrarMensajeCRUD(`❌ Complete los campos requeridos:<br>• ${errores.join('<br>• ')}`, 'danger');
+        return null;
+    }
 
-        if (filasMedios.length === 0) {
-            errores.push('Medios de verificación (debe agregar al menos uno)');
+    // Obtener otros datos opcionales
+    datos.politicas = document.querySelector('textarea[name="politicas"]')?.value || '';
+    datos.metas = document.querySelector('textarea[name="metas"]')?.value || '';
+    datos.indicador_resultado = document.querySelector('textarea[name="indicador_resultado"]')?.value || '';
+    datos.medios = medios;
+    datos.elaborado_por = document.querySelector('input[name="id_plan"]') ?
+        '<?= htmlspecialchars($plan["nombre_elaborado"] ?? "Usuario") ?>' : 'Usuario';
+
+    return datos;
+}
+
+// Función para crear PDF con los datos
+function crearPDFconDatos(datos) {
+    try {
+        console.log('🖨️ Creando PDF con datos:', datos);
+
+        // Verificar si jsPDF está disponible
+        if (typeof window.jspdf === 'undefined') {
+            mostrarMensajeCRUD('❌ Error: La librería jsPDF no está cargada', 'danger');
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        // Configurar fuente
+        doc.setFont('helvetica');
+
+        // Título principal - tamaño reducido
+        doc.setFontSize(18); // Reducido de 22
+        doc.setTextColor(255, 0, 0); // ROJO
+        doc.text('PLAN OPERATIVO ANUAL 2025', 105, 15, { align: 'center' }); // Ajustado de 20
+
+        doc.setFontSize(10); // Reducido de 12
+        doc.setTextColor(0, 0, 0);
+        doc.text('Formulario: Elaboración POA 2025', 105, 22, { align: 'center' }); // Ajustado de 28
+        doc.text('ISTTP "YAVIRAC"', 105, 27, { align: 'center' }); // Ajustado de 33
+
+        // Línea separadora
+        doc.setLineWidth(0.5);
+        doc.line(15, 35, 195, 35); // Ajustado de 40
+
+        let yPos = 40; // Ajustado de 50
+
+        // ============================================
+        // 1. INFORMACIÓN GENERAL (AZUL CON LETRAS BLANCAS)
+        // ============================================
+        doc.setFillColor(0, 0, 128); // AZUL
+        doc.rect(15, yPos, 180, 6, 'F'); // Altura reducida de 8 a 6
+        doc.setFontSize(12); // Reducido de 14
+        doc.setTextColor(255, 255, 255); // BLANCO
+        doc.setFont('helvetica', 'bold');
+        doc.text('1. INFORMACIÓN GENERAL', 105, yPos + 4.2, { align: 'center' }); // Ajustado de 5.5
+        yPos += 8; // Ajustado de 10
+
+        doc.setFontSize(9); // Reducido de 11
+        doc.setTextColor(0, 0, 0);
+
+        // Dimensiones de la tabla - más pequeñas
+        const anchoTotal = 180;
+        const altoFila = 6; // Reducido de 8
+        const margenIzquierdo = 15;
+        const anchoEtiqueta = 22; // Reducido de 25
+        const anchoContenido = 158; // Ajustado
+
+        // TEMA - Fila 1
+        // Dibujar rectángulo exterior
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.2); // Reducido de 0.3
+        doc.rect(margenIzquierdo, yPos, anchoTotal, altoFila);
+        
+        // Línea vertical separadora
+        doc.line(margenIzquierdo + anchoEtiqueta, yPos, margenIzquierdo + anchoEtiqueta, yPos + altoFila);
+        
+        // Contenido
+        doc.setFont('helvetica', 'bold');
+        doc.text('TEMA', margenIzquierdo + 2, yPos + 4); // Ajustado de 5.5
+        doc.setFont('helvetica', 'normal');
+        doc.text(datos.tema || 'No especificado', margenIzquierdo + anchoEtiqueta + 2, yPos + 4); // Ajustado
+        yPos += altoFila;
+
+        // OBJETIVO - Fila 2 (con altura dinámica)
+        const objetivoLines = doc.splitTextToSize(datos.objetivo || 'No especificado', anchoContenido - 4);
+        const altoObjetivo = Math.max(altoFila, objetivoLines.length * 4); // Reducido de 5
+        
+        // Dibujar rectángulo exterior
+        doc.rect(margenIzquierdo, yPos, anchoTotal, altoObjetivo);
+        
+        // Línea vertical separadora
+        doc.line(margenIzquierdo + anchoEtiqueta, yPos, margenIzquierdo + anchoEtiqueta, yPos + altoObjetivo);
+        
+        // Contenido
+        doc.setFont('helvetica', 'bold');
+        doc.text('OBJETIVO', margenIzquierdo + 2, yPos + 4);
+        doc.setFont('helvetica', 'normal');
+        
+        // Texto del objetivo (puede ser multilínea)
+        objetivoLines.forEach((linea, idx) => {
+            doc.text(linea, margenIzquierdo + anchoEtiqueta + 2, yPos + 4 + (idx * 4)); // Ajustado de 5
+        });
+        
+        yPos += altoObjetivo;
+
+        // EJE - Fila 3
+        // Dibujar rectángulo exterior
+        doc.rect(margenIzquierdo, yPos, anchoTotal, altoFila);
+        
+        // Línea vertical separadora
+        doc.line(margenIzquierdo + anchoEtiqueta, yPos, margenIzquierdo + anchoEtiqueta, yPos + altoFila);
+        
+        // Contenido
+        doc.setFont('helvetica', 'bold');
+        doc.text('EJE', margenIzquierdo + 2, yPos + 4);
+        doc.setFont('helvetica', 'normal');
+        doc.text(datos.eje || 'No especificado', margenIzquierdo + anchoEtiqueta + 2, yPos + 4);
+        
+        yPos += altoFila + 12; // Reducido de 15
+
+        // ============================================
+        // 2. DETALLES DEL PLAN (AZUL CON LETRAS BLANCAS - igual que Información General)
+        // ============================================
+        doc.setFillColor(0, 0, 128); // AZUL (igual que Información General)
+        doc.rect(15, yPos, 180, 6, 'F'); // Altura reducida igual que Información General
+        doc.setFontSize(12); // Tamaño igual que Información General
+        doc.setTextColor(255, 255, 255); // BLANCO (igual que Información General)
+        doc.setFont('helvetica', 'bold');
+        doc.text('2. DETALLES DEL PLAN', 105, yPos + 4.2, { align: 'center' }); // Ajustado igual
+        yPos += 8; // Igual que Información General
+
+        // Tabla ITEM/DESCRIPCIÓN
+        const anchoTabla = 180;
+        const anchoItem = 28; // Reducido de 30
+        const anchoDescripcion = 152; // Ajustado
+        
+        // ENCABEZADO DE TABLA - CORREGIDO (Fondo azul con texto blanco)
+        doc.setFillColor(0, 0, 128); // AZUL
+        doc.rect(margenIzquierdo, yPos, anchoTabla, altoFila, 'F');
+        doc.setDrawColor(255, 255, 255); // Líneas blancas
+        doc.setLineWidth(0.15);
+        
+        // Líneas verticales del encabezado
+        doc.line(margenIzquierdo, yPos, margenIzquierdo, yPos + altoFila);
+        doc.line(margenIzquierdo + anchoItem, yPos, margenIzquierdo + anchoItem, yPos + altoFila);
+        doc.line(margenIzquierdo + anchoTabla, yPos, margenIzquierdo + anchoTabla, yPos + altoFila);
+        
+        // Texto del encabezado - EN BLANCO
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255); // BLANCO
+        doc.setFont('helvetica', 'bold');
+        doc.text('ITEM', margenIzquierdo + (anchoItem/2), yPos + 4, { align: 'center' });
+        doc.text('DESCRIPCIÓN', margenIzquierdo + anchoItem + (anchoDescripcion/2), yPos + 4, { align: 'center' });
+        
+        // Restaurar color negro para el contenido
+        doc.setTextColor(0, 0, 0);
+        doc.setDrawColor(0, 0, 0); // Restaurar líneas negras
+        
+        yPos += altoFila;
+
+        // Función para agregar filas a la tabla
+        function agregarFilaTabla(item, descripcion) {
+            const descripcionTexto = descripcion || 'No especificado';
+            const descripcionLines = doc.splitTextToSize(descripcionTexto, anchoDescripcion - 8);
+            const altoFilaActual = Math.max(altoFila, descripcionLines.length * 4); // Reducido de 5
+            
+            // Dibujar rectángulo de la fila con borde
+            doc.rect(margenIzquierdo, yPos, anchoTabla, altoFilaActual);
+            
+            // Líneas verticales
+            doc.line(margenIzquierdo, yPos, margenIzquierdo, yPos + altoFilaActual);
+            doc.line(margenIzquierdo + anchoItem, yPos, margenIzquierdo + anchoItem, yPos + altoFilaActual);
+            doc.line(margenIzquierdo + anchoTabla, yPos, margenIzquierdo + anchoTabla, yPos + altoFilaActual);
+            
+            // Contenido ITEM
+            doc.setFont('helvetica', 'bold');
+            doc.text(item, margenIzquierdo + 4, yPos + 4);
+            
+            // Contenido DESCRIPCIÓN
+            doc.setFont('helvetica', 'normal');
+            descripcionLines.forEach((linea, idx) => {
+                doc.text(linea, margenIzquierdo + anchoItem + 4, yPos + 4 + (idx * 4));
+            });
+            
+            yPos += altoFilaActual;
+            
+            // Verificar si necesitamos nueva página
+            if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+            }
+        }
+
+        // DEBUG: Verificar datos
+        console.log('Datos para Detalles del Plan:', {
+            indicador: datos.indicador,
+            linea_base: datos.linea_base,
+            politicas: datos.politicas,
+            metas: datos.metas,
+            actividades: datos.actividades,
+            indicador_resultado: datos.indicador_resultado
+        });
+
+        // INDICADOR
+        agregarFilaTabla('INDICADOR', datos.indicador);
+        
+        // LÍNEA BASE
+        agregarFilaTabla('LÍNEA BASE', datos.linea_base);
+        
+        // POLÍTICAS (si existe)
+        if (datos.politicas && datos.politicas.trim() !== '') {
+            agregarFilaTabla('POLÍTICAS', datos.politicas);
         } else {
-            filasMedios.forEach((fila, index) => {
-                const inputDetalle = fila.querySelector('input[name="detalle[]"]');
-                const selectPlazo = fila.querySelector('select[name="id_plazo[]"]');
-
-                const detalle = inputDetalle ? inputDetalle.value.trim() : '';
-                const plazo = selectPlazo && selectPlazo.value ?
-                    selectPlazo.options[selectPlazo.selectedIndex].text : '';
-
-                if (!detalle) {
-                    if (inputDetalle) inputDetalle.classList.add('is-invalid');
-                    errores.push(`Descripción del medio ${index + 1}`);
-                } else {
-                    if (inputDetalle) inputDetalle.classList.remove('is-invalid');
-                }
-
-                if (!plazo || plazo.includes('-- Seleccione')) {
-                    if (selectPlazo) selectPlazo.classList.add('is-invalid');
-                    errores.push(`Plazo del medio ${index + 1}`);
-                } else {
-                    if (selectPlazo) selectPlazo.classList.remove('is-invalid');
-                }
-
-                if (detalle && plazo && !plazo.includes('-- Seleccione')) {
-                    medios.push({ detalle, plazo });
-                }
-            });
+            agregarFilaTabla('POLÍTICAS', 'No especificado');
+        }
+        
+        // METAS (si existe)
+        if (datos.metas && datos.metas.trim() !== '') {
+            agregarFilaTabla('METAS', datos.metas);
+        } else {
+            agregarFilaTabla('METAS', 'No especificado');
+        }
+        
+        // ACTIVIDADES
+        agregarFilaTabla('ACTIVIDADES', datos.actividades);
+        
+        // INDICADOR DE RESULTADO (si existe)
+        if (datos.indicador_resultado && datos.indicador_resultado.trim() !== '') {
+            agregarFilaTabla('IND. RESULTADO', datos.indicador_resultado);
+        } else {
+            agregarFilaTabla('IND. RESULTADO', 'No especificado');
         }
 
-        // Si hay errores, mostrar mensaje
-        if (errores.length > 0) {
-            mostrarMensajeCRUD(`❌ Complete los campos requeridos:<br>• ${errores.join('<br>• ')}`, 'danger');
-            return null;
+        yPos += 8; // Reducido de 10
+
+        // Verificar si necesitamos nueva página
+        if (yPos > 250) {
+            doc.addPage();
+            yPos = 20;
         }
 
-        // Obtener otros datos opcionales
-        datos.politicas = document.querySelector('textarea[name="politicas"]')?.value || '';
-        datos.metas = document.querySelector('textarea[name="metas"]')?.value || '';
-        datos.indicador_resultado = document.querySelector('textarea[name="indicador_resultado"]')?.value || '';
-        datos.medios = medios;
-        datos.elaborado_por = document.querySelector('input[name="id_plan"]') ?
-            '<?= htmlspecialchars($plan["nombre_elaborado"] ?? "Usuario") ?>' : 'Usuario';
+        // ============================================
+        // 3. MEDIOS DE VERIFICACIÓN
+        // ============================================
+        doc.setFillColor(0, 0, 128); // AZUL igual que las otras secciones
+        doc.rect(15, yPos, 180, 6, 'F'); // Altura igual
+        doc.setFontSize(12); // Tamaño igual
+        doc.setTextColor(255, 255, 255); // BLANCO igual
+        doc.setFont('helvetica', 'bold');
+        doc.text('3. MEDIOS DE VERIFICACIÓN', 105, yPos + 4.2, { align: 'center' });
+        yPos += 8;
 
-        return datos;
-    }
+        doc.setFontSize(9); // Reducido de 11
+        doc.setTextColor(0, 0, 0);
 
-    // Función para crear PDF con los datos
-    function crearPDFconDatos(datos) {
-        try {
-            console.log('🖨️ Creando PDF con datos:', datos);
-
-            // Verificar si jsPDF está disponible
-            if (typeof window.jspdf === 'undefined') {
-                mostrarMensajeCRUD('❌ Error: La librería jsPDF no está cargada', 'danger');
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-
-            // Configurar fuente
-            doc.setFont('helvetica');
-
-            // Título principal
-            doc.setFontSize(22);
-            doc.setTextColor(26, 35, 126); // Azul oscuro
-            doc.text('PLAN OPERATIVO ANUAL 2024', 105, 20, { align: 'center' });
-
-            doc.setFontSize(12);
+        if (datos.medios.length > 0) {
+            // Tabla de medios de verificación
+            const anchoMedios = 180;
+            const anchoNum = 12; // Reducido de 15
+            const anchoDetalle = 108; // Ajustado
+            const anchoPlazo = 60; // Ajustado de 55
+            
+            // ENCABEZADO DE TABLA - igual que Detalles del Plan
+            doc.setFillColor(0, 0, 128); // AZUL
+            doc.rect(margenIzquierdo, yPos, anchoMedios, altoFila, 'F');
+            doc.setDrawColor(255, 255, 255); // Líneas blancas
+            doc.setLineWidth(0.15);
+            
+            // Líneas verticales del encabezado
+            doc.line(margenIzquierdo, yPos, margenIzquierdo, yPos + altoFila);
+            doc.line(margenIzquierdo + anchoNum, yPos, margenIzquierdo + anchoNum, yPos + altoFila);
+            doc.line(margenIzquierdo + anchoNum + anchoDetalle, yPos, margenIzquierdo + anchoNum + anchoDetalle, yPos + altoFila);
+            doc.line(margenIzquierdo + anchoMedios, yPos, margenIzquierdo + anchoMedios, yPos + altoFila);
+            
+            // Texto del encabezado - EN BLANCO
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.text('N°', margenIzquierdo + (anchoNum/2), yPos + 4, { align: 'center' });
+            doc.text('DETALLE', margenIzquierdo + anchoNum + (anchoDetalle/2), yPos + 4, { align: 'center' });
+            doc.text('PLAZO', margenIzquierdo + anchoNum + anchoDetalle + (anchoPlazo/2), yPos + 4, { align: 'center' });
+            
+            // Restaurar colores
             doc.setTextColor(0, 0, 0);
-            doc.text('Formulario: Elaboración POA 2024', 105, 28, { align: 'center' });
-            doc.text('ISTTP "YAVIRAC"', 105, 33, { align: 'center' });
+            doc.setDrawColor(0, 0, 0);
+            
+            yPos += altoFila;
 
-            // Línea separadora
-            doc.setLineWidth(0.5);
-            doc.line(15, 40, 195, 40);
+            // Filas de medios
+            datos.medios.forEach((medio, index) => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
 
-            let yPos = 50;
-
-            // Sección 1: Información General
-            doc.setFontSize(14);
-            doc.setTextColor(0, 0, 128);
-            doc.text('1. INFORMACIÓN GENERAL', 15, yPos);
-            yPos += 10;
-
-            doc.setFontSize(11);
-            doc.setTextColor(0, 0, 0);
-
-            // Tema
-            doc.text('TEMA:', 15, yPos);
-            doc.text(datos.tema, 40, yPos);
-            yPos += 7;
-
-            // Eje Estratégico
-            doc.text('EJE ESTRATÉGICO:', 15, yPos);
-            doc.text(datos.eje, 50, yPos);
-            yPos += 7;
-
-            // Objetivo del Eje
-            doc.text('OBJETIVO DEL EJE:', 15, yPos);
-            const objetivoLines = doc.splitTextToSize(datos.objetivo || 'No especificado', 160);
-            doc.text(objetivoLines, 50, yPos);
-            yPos += (objetivoLines.length * 5) + 5;
-
-            // Indicador
-            doc.text('INDICADOR:', 15, yPos);
-            const indicadorLines = doc.splitTextToSize(datos.indicador || 'No especificado', 160);
-            doc.text(indicadorLines, 40, yPos);
-            yPos += (indicadorLines.length * 5) + 5;
-
-            // Responsable
-            doc.text('RESPONSABLE:', 15, yPos);
-            doc.text(datos.responsable, 45, yPos);
-            yPos += 10;
-
-            // Sección 2: Información Base
-            doc.setFontSize(14);
-            doc.setTextColor(0, 0, 128);
-            doc.text('2. INFORMACIÓN BASE', 15, yPos);
-            yPos += 10;
-
-            doc.setFontSize(11);
-            doc.setTextColor(0, 0, 0);
-
-            // Línea Base
-            doc.text('LÍNEA BASE:', 15, yPos);
-            const lineaBaseLines = doc.splitTextToSize(datos.linea_base || 'No especificado', 160);
-            doc.text(lineaBaseLines, 45, yPos);
-            yPos += (lineaBaseLines.length * 5) + 5;
-
-            // Políticas
-            if (datos.politicas) {
-                doc.text('POLÍTICAS:', 15, yPos);
-                const politicasLines = doc.splitTextToSize(datos.politicas, 160);
-                doc.text(politicasLines, 45, yPos);
-                yPos += (politicasLines.length * 5) + 5;
-            }
-
-            // Metas
-            if (datos.metas) {
-                doc.text('METAS:', 15, yPos);
-                const metasLines = doc.splitTextToSize(datos.metas, 160);
-                doc.text(metasLines, 35, yPos);
-                yPos += (metasLines.length * 5) + 5;
-            }
-
-            // Verificar si necesitamos nueva página
-            if (yPos > 250) {
-                doc.addPage();
-                yPos = 20;
-            }
-
-            // Sección 3: Ejecución
-            doc.setFontSize(14);
-            doc.setTextColor(0, 0, 128);
-            doc.text('3. EJECUCIÓN', 15, yPos);
-            yPos += 10;
-
-            doc.setFontSize(11);
-            doc.setTextColor(0, 0, 0);
-
-            // Actividades
-            doc.text('ACTIVIDADES:', 15, yPos);
-            const actividadesLines = doc.splitTextToSize(datos.actividades || 'No especificado', 160);
-            doc.text(actividadesLines, 45, yPos);
-            yPos += (actividadesLines.length * 5) + 5;
-
-            // Indicador de Resultado
-            if (datos.indicador_resultado) {
-                doc.text('INDICADOR DE RESULTADO:', 15, yPos);
-                const indicadorResultadoLines = doc.splitTextToSize(datos.indicador_resultado, 160);
-                doc.text(indicadorResultadoLines, 65, yPos);
-                yPos += (indicadorResultadoLines.length * 5) + 5;
-            }
-
-            // Verificar si necesitamos nueva página
-            if (yPos > 250) {
-                doc.addPage();
-                yPos = 20;
-            }
-
-            // Sección 4: Medios de Verificación
-            doc.setFontSize(14);
-            doc.setTextColor(0, 0, 128);
-            doc.text('4. MEDIOS DE VERIFICACIÓN', 15, yPos);
-            yPos += 10;
-
-            doc.setFontSize(11);
-            doc.setTextColor(0, 0, 0);
-
-            if (datos.medios.length > 0) {
-                datos.medios.forEach((medio, index) => {
-                    doc.text(`${index + 1}. ${medio.detalle}`, 20, yPos);
-                    doc.text(`Plazo: ${medio.plazo}`, 160, yPos, { align: 'right' });
-                    yPos += 8;
-
-                    // Verificar si necesitamos nueva página
-                    if (yPos > 270) {
-                        doc.addPage();
-                        yPos = 20;
-                    }
+                const detalleLines = doc.splitTextToSize(medio.detalle || 'No especificado', anchoDetalle - 8);
+                const altoFilaMedio = Math.max(altoFila, detalleLines.length * 4); // Reducido de 5
+                
+                // Dibujar rectángulo de la fila
+                doc.rect(margenIzquierdo, yPos, anchoMedios, altoFilaMedio);
+                
+                // Líneas verticales
+                doc.line(margenIzquierdo, yPos, margenIzquierdo, yPos + altoFilaMedio);
+                doc.line(margenIzquierdo + anchoNum, yPos, margenIzquierdo + anchoNum, yPos + altoFilaMedio);
+                doc.line(margenIzquierdo + anchoNum + anchoDetalle, yPos, margenIzquierdo + anchoNum + anchoDetalle, yPos + altoFilaMedio);
+                doc.line(margenIzquierdo + anchoMedios, yPos, margenIzquierdo + anchoMedios, yPos + altoFilaMedio);
+                
+                // Contenido
+                doc.setFont('helvetica', 'normal');
+                doc.text((index + 1).toString(), margenIzquierdo + (anchoNum/2), yPos + 4, { align: 'center' });
+                
+                // Detalle (puede ser multilínea)
+                detalleLines.forEach((linea, idx) => {
+                    doc.text(linea, margenIzquierdo + anchoNum + 4, yPos + 4 + (idx * 4));
                 });
-            } else {
-                doc.text('No se han definido medios de verificación', 20, yPos);
-                yPos += 8;
-            }
-
-            // Firma
-            yPos += 10;
-            doc.setFontSize(12);
-            doc.text('ELABORADO POR:', 20, yPos);
-            doc.text('REVISADO POR:', 120, yPos);
-            yPos += 15;
-
-            // Líneas para firma
-            doc.line(20, yPos, 80, yPos);
-            doc.line(120, yPos, 180, yPos);
-            yPos += 5;
-
-            doc.setFontSize(10);
-            doc.text(datos.elaborado_por, 20, yPos);
-            doc.text('_________________________', 120, yPos);
-            yPos += 5;
-
-            doc.text('Coordinación de Planificación Estratégica', 20, yPos);
-            doc.text('Unidad Responsable', 120, yPos);
-
-            // Pie de página
-            doc.setFontSize(8);
-            doc.setTextColor(100, 100, 100);
-            doc.text('Documento generado automáticamente por el Sistema de Planificación - ISTTP "YAVIRAC"', 105, 285, { align: 'center' });
-
-            const fecha = new Date().toLocaleDateString('es-ES', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                
+                // Plazo
+                doc.text(medio.plazo || 'No especificado', margenIzquierdo + anchoNum + anchoDetalle + (anchoPlazo/2), yPos + 4, { align: 'center' });
+                
+                yPos += altoFilaMedio;
             });
-            doc.text(`Fecha de generación: ${fecha}`, 105, 290, { align: 'center' });
-
-            // Descargar el PDF
-            const nombreArchivo = `POA_${datos.elaborado_por.replace(/[^a-z0-9]/gi, '_')}_${new Date().getTime()}.pdf`;
-            doc.save(nombreArchivo);
-
-            // Mostrar mensaje de éxito
-            mostrarMensajeCRUD('✅ PDF generado y descargado exitosamente', 'success');
-
-        } catch (error) {
-            console.error('❌ Error al crear PDF:', error);
-            mostrarMensajeCRUD('❌ Error al generar el PDF: ' + error.message, 'danger');
+        } else {
+            // Mostrar mensaje cuando no hay medios
+            doc.rect(margenIzquierdo, yPos, anchoTabla, altoFila);
+            doc.text('No se han definido medios de verificación', margenIzquierdo + 10, yPos + 4);
+            yPos += altoFila;
         }
+
+        // ============================================
+        // FIRMAS
+        // ============================================
+        yPos += 12; // Reducido de 15
+        if (yPos > 200) {
+            doc.addPage();
+            yPos = 20;
+        }
+
+        doc.setFontSize(10); // Reducido de 12
+        doc.setFont('helvetica', 'bold');
+        doc.text('RESPONSABLE:', 15, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(datos.responsable || 'No especificado', 45, yPos); // Ajustado de 50
+        
+        // Fecha actual
+        const fechaActual = new Date();
+        const fechaFormateada = fechaActual.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        }).toUpperCase();
+        
+        doc.text(fechaFormateada, 160, yPos, { align: 'right' });
+        yPos += 15; // Reducido de 20
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('ELABORADO POR:', 30, yPos);
+        doc.text('REVISADO POR:', 120, yPos);
+        yPos += 6; // Reducido de 8
+
+        // Nombres
+        doc.setFontSize(9); // Reducido de 10
+        doc.setFont('helvetica', 'normal');
+        doc.text(datos.elaborado_por || 'No especificado', 30, yPos);
+        
+        // Líneas para firmas
+        yPos += 8; // Reducido de 10
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.3); // Reducido de 0.5
+        
+        // Línea del elaborado
+        doc.line(30, yPos, 100, yPos);
+        
+        // Línea del revisado
+        doc.line(120, yPos, 180, yPos);
+        yPos += 4; // Reducido de 5
+
+        // Cargos
+        doc.setFontSize(8); // Reducido de 9
+        doc.text('Coordinación de Planificación Estratégica', 30, yPos);
+        doc.text('Unidad Responsable', 120, yPos);
+
+        // Pie de página
+        doc.setFontSize(7); // Reducido de 8
+        doc.setTextColor(100, 100, 100);
+        doc.text('Documento generado automáticamente por el Sistema de Planificación - ISTTP "YAVIRAC"', 105, 285, { align: 'center' });
+
+        const fecha = new Date().toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        doc.text(`Fecha de generación: ${fecha}`, 105, 290, { align: 'center' });
+
+        // Descargar el PDF
+        const nombreArchivo = `POA_${datos.elaborado_por.replace(/[^a-z0-9]/gi, '_')}_${new Date().getTime()}.pdf`;
+        doc.save(nombreArchivo);
+
+        // Mostrar mensaje de éxito
+        mostrarMensajeCRUD('✅ PDF generado y descargado exitosamente', 'success');
+
+    } catch (error) {
+        console.error('❌ Error al crear PDF:', error);
+        mostrarMensajeCRUD('❌ Error al generar el PDF: ' + error.message, 'danger');
     }
+}
 
     // ============================================
     // INICIALIZAR FUNCIÓN DE EXPORTAR PDF EN EL MODAL
