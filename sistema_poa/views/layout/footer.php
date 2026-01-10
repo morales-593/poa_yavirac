@@ -773,11 +773,9 @@ function crearPDFconDatos(datos) {
         // Título principal - tamaño reducido
         doc.setFontSize(16); // Más pequeño
         doc.setTextColor(255, 0, 0); // ROJO
-        doc.text('PLAN OPERATIVO ANUAL 2025', 105, 10, { align: 'center' }); // Más arriba
 
         doc.setFontSize(8); // Más pequeño
         doc.setTextColor(0, 0, 0);
-        doc.text('Formulario: Elaboración POA 2025 - ISTTP "YAVIRAC"', 105, 16, { align: 'center' }); // Más arriba
 
         // Línea separadora
         doc.setLineWidth(0.3); // Más delgada
@@ -788,7 +786,7 @@ function crearPDFconDatos(datos) {
         // ============================================
         // 1. INFORMACIÓN GENERAL 
         // ============================================
-        doc.setFillColor(0, 0, 128); // AZUL
+        doc.setFillColor(0, 5, 128); // AZUL
         doc.rect(15, yPos, 180, 5, 'F'); // Más pequeño (5 en lugar de 6)
         doc.setFontSize(10); // Más pequeño
         doc.setTextColor(255, 255, 255); // BLANCO
@@ -1213,11 +1211,9 @@ window.exportarPDFSeguimiento = function() {
         doc.setFontSize(12); // MÁS PEQUEÑO 
         doc.setTextColor(255, 0, 0); // ROJO
         doc.setFont('helvetica', 'bold');
-        doc.text('INSTITUTO SUPERIOR TECNOLÓGICO TURÍSTICO Y PATRIMONIAL "YAVIRAC"', 105, yPos, { align: 'center' });
         yPos += 5; // MENOS ESPACIO
 
         doc.setFontSize(11); // MÁS PEQUEÑO
-        doc.text('INFORME DE SEGUIMIENTO - PLAN OPERATIVO ANUAL', 105, yPos, { align: 'center' });
         yPos += 4; // MENOS ESPACIO
 
         doc.setFontSize(9); // MÁS PEQUEÑO 
@@ -1226,7 +1222,6 @@ window.exportarPDFSeguimiento = function() {
         // Obtener fecha de seguimiento del modal actual
         const fechaSeguimientoInput = document.querySelector('input[name="fecha_seguimiento"]');
         const fechaSeguimiento = fechaSeguimientoInput ? fechaSeguimientoInput.value : 'No especificada';
-        doc.text(`Fecha de Seguimiento: ${fechaSeguimiento}`, 105, yPos, { align: 'center' });
         yPos += 8; 
 
         // Línea separadora

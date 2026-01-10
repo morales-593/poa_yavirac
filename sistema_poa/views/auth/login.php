@@ -55,11 +55,6 @@
                     </div>
                 </button>
             </form>
-
-            <div class="login-footer">
-                <p>¿Necesitas ayuda? <a href="#">Contacta al soporte</a></p>
-                <p class="copyright">© 2024 Sistema de Planificación Institucional</p>
-            </div>
         </div>
     </div>
 </div>
